@@ -9,4 +9,4 @@ m = log2(Wmax / Wmin);
 [pi] = dcf_matrix(p, m, Wmin);
 [groundProbability] = dcf_ground_state(p, Wmin, m);
 
-pi * pi;
+steadyPi = pi^23;
