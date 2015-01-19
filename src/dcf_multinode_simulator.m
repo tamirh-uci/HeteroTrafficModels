@@ -1,7 +1,7 @@
 %%% DCF Monte Carlo simulator
 
 % Parameters
-timeSteps = 10000000; % number of time steps to emulate
+timeSteps = 100000; % number of time steps to emulate
 N = 2; % number of nodes
 Wmin = 2;
 Wmax = 4; %1024;
@@ -41,15 +41,19 @@ for T = 1:timeSteps
    collisions = zeros(1,N); % assume no one collides to start
     
    % Handle the behavior of each node based on their current state
-   for n = 1:N
-      if (timer(n) > 0)
-        stage(n) = stage(n) - 1; 
+   for index = 1:N
+       
+      % Follow the order imposed by the random shuffling
+      n = nodeOrder(index);
+      
+      if (timer(1,n) > 1)
+        stage(1,n) = stage(1,n) - 1
       else
           
           % Determine if any other node is in timer 0 state, since that
           % is what causes a collision
           for nn = 1:N
-             if (n ~= nn && timer(nn) == 0)
+             if (n ~= nn && timer(1,nn) == 0)
                  collisions(1,n) = 1;
                  collisions(1,nn) = 1;
              end
@@ -57,15 +61,15 @@ for T = 1:timeSteps
           
           % Handle the transmission state now
            if (collisions(1,n) == 0) % if success, go to stage 0 with random backoff k
-              successes(n) = successes(n) + 1;
-              stage(n) = 0;
-              timer(n) = floor(rand(1) * W(1,1));
+              successes(1,n) = successes(1,n) + 1;
+              stage(1,n) = 0;
+              timer(1,n) = floor(rand(1) * W(1,1));
            else % collision, go to the next backoff stage and choose a new random timer
-               failures(n) = failures(n) + 1;
-               if (stage(n) ~= m) % loop at stage m
-                  stage(n) = stage(n) + 1; 
+               failures(1,n) = failures(1,n) + 1;
+               if (stage(1,n) ~= m) % loop at stage m
+                  stage(1,n) = stage(1,n) + 1; 
                end
-               timer(n) = floor(rand(1) * W(1,stage(n)));
+               timer(1,n) = floor(rand(1) * W(1,stage(1,n)));
            end
        end 
    end
@@ -73,6 +77,6 @@ end
 
 % Results
 for n = 1:N
-    disp(sprintf('Node %d successes =  %d', n, successes(n)));
-    disp(sprintf('Node %d failures =  %d', n, failures(n)));
+    disp(sprintf('Node %d successes =  %d', n, successes(1,n)));
+    disp(sprintf('Node %d failures =  %d', n, failures(1,n)));
 end

@@ -25,7 +25,7 @@ failures = 0;
 timer = floor(rand(1) * W(1,1));
 
 for T = 1:timeSteps
-   if (timer > 0)
+   if (timer > 1)
       stage = stage - 1; 
    else
        txSuccess = rand(1) < (1 - p); 
