@@ -6,7 +6,7 @@ m = log2(Wmax / Wmin);
 
 % -> W = (2 4)
 
-[pi, n] = dcf_matrix(p, m, Wmin);
+[pi, dims] = dcf_multinode_matrix(p, m, Wmin);
 [groundProbability] = dcf_ground_state(p, Wmin, m);
 
 n

@@ -1,4 +1,4 @@
-function [ pi, dims, n ] = dcf_matrix( p, m, Wmin )
+function [ pi, dims ] = dcf_matrix( p, m, Wmin )
 % dcf_matrix Generate the transition probability matrix 
 
 % Compute values for W
