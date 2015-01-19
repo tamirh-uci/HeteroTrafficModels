@@ -9,6 +9,6 @@ m = log2(Wmax / Wmin);
 [pi, dims, n] = dcf_matrix(p, m, Wmin);
 [groundProbability] = dcf_ground_state(p, Wmin, m);
 
-n
+dims
 pi
 

@@ -13,7 +13,6 @@ function [ index ] = flatten( dims, point )
         for j = (i + 1):length
            prod = prod * dims(j);
         end
-        prod
         sum = sum + (prod * copy(i));
     end
     sum = sum + copy(length);
