@@ -1,8 +1,8 @@
-%%% DCF Monte Carlo simulator
+%%% Multi-node DCF Monte Carlo simulator
 
 % Parameters
 timeSteps = 100000; % number of time steps to emulate
-N = 2; % number of nodes
+N = 10; % number of nodes
 Wmin = 2;
 Wmax = 4; %1024;
 m = log2(Wmax / Wmin);
