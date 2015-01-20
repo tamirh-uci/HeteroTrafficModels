@@ -47,7 +47,7 @@ for T = 1:timeSteps
       n = nodeOrder(index);
       
       if (timer(1,n) > 1)
-        stage(1,n) = stage(1,n) - 1
+        stage(1,n) = stage(1,n) - 1;
       else
           
           % Determine if any other node is in timer 0 state, since that
