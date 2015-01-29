@@ -50,9 +50,11 @@ randwalk_p_stay = 0.98;
 randwalk_right_step = 7.15;
 randwalk_left_step = 7;
 
+% Random Walk #2
+
 % test multiple methods of different random distributions
-values = zeros(niter, 6);
-names = cell(6,1);
+values = zeros(niter, 7);
+names = cell(7,1);
 count = 0;
 
 % Poisson
@@ -91,6 +93,7 @@ values(:,count) = binomial_multiplier * (binomial_offset + binomial_values);
 names{count} = 'Binomial';
 
 % Random walk
+% 3 states, the exit state and the walking left and walking right states
 count = count + 1;
 randwalk_values = zeros(niter,1);
 for i=1:niter
@@ -134,10 +137,47 @@ end
 values(:,count) = randwalk_values;
 names{count} = 'Rand Walk';
 
+
+% Random walk 2
+% 2 states, the spin state and the exit state
+count = count + 1;
+randwalk2_values = zeros(niter,1);
+for i=1:niter
+    size = 0;
+    state = 1;
+    while (state ~= 0)
+        size = size + randwalk_right_step;
+        
+        % check for exit condition
+        r = rand();
+        if (r < randwalk_p_exit)
+            state = 0;
+        end
+    end
+    
+    % choose walk direction
+    r = rand();
+    if (r < 0.5)
+        size = randwalk_median + size;
+    else
+        if (size > randwalk_median)
+            size = 0;
+        else
+            size = randwalk_median - size;
+        end
+    end
+    
+    randwalk2_values(i,1) = size;
+end
+
+values(:,count) = randwalk2_values;
+names{count} = 'Rand Walk 2';
+
+
 % plot all the options
 figure;
 
-for i = 1:6
+for i = 1:7
     data = values(:,i);
     
     % get rid of negative values
@@ -153,7 +193,7 @@ for i = 1:6
     data(1) = 0;
     data(2) = max_val;
     
-    subplot(3,2,i);
+    subplot(3,3,i);
     hist(data,100);
     title(names(i));
 end
