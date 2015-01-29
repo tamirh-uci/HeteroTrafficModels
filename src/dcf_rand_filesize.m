@@ -3,7 +3,7 @@ niter = 160000;
 mean = 1000;
 variance = 1000;
 max_val = mean + 10 * variance;
-nplots = 8;
+nplots = 9;
 
 % Poisson
 % lambda = mean
@@ -50,7 +50,7 @@ randwalk_p_exit = 0.002;
 randwalk_p_stay = 0.98;
 randwalk_right_step = 1;
 randwalk_left_step = 1;
-randwalkn_num_states = 4;
+randwalkn_num_states = 3;
 
 % test multiple methods of different random distributions
 values = zeros(niter, nplots);
@@ -200,6 +200,32 @@ end
 
 values(:,count) = randwalk3_values;
 names{count} = 'Rand Walk 3';
+
+% Random walk 4
+% same as rand walk 3 but with double the states
+count = count + 1;
+randwalk4_values = zeros(niter,1);
+for i=1:niter
+    size = 0;
+    state = 1;
+    while (state ~= 0)
+        size = size + 1;
+        
+        r = rand();
+        if (r < randwalk_p_exit)
+            state = state + 1;
+            if (state == (randwalkn_num_states*2))
+                state = 0;
+            end
+        end
+    end
+    
+    randwalk4_values(i,1) = size;
+end
+
+values(:,count) = randwalk4_values;
+names{count} = 'Rand Walk 4';
+
 
 % plot all the options
 figure;
