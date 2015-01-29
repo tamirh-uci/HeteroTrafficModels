@@ -3,6 +3,7 @@ niter = 160000;
 mean = 1000;
 variance = 1000;
 max_val = mean + 10 * variance;
+nplots = 8;
 
 % Poisson
 % lambda = mean
@@ -47,14 +48,13 @@ binomial_multiplier = mean/10;
 randwalk_median = 5000;
 randwalk_p_exit = 0.002;
 randwalk_p_stay = 0.98;
-randwalk_right_step = 7.15;
-randwalk_left_step = 7;
-
-% Random Walk #2
+randwalk_right_step = 1;
+randwalk_left_step = 1;
+randwalkn_num_states = 4;
 
 % test multiple methods of different random distributions
-values = zeros(niter, 7);
-names = cell(7,1);
+values = zeros(niter, nplots);
+names = cell(nplots,1);
 count = 0;
 
 % Poisson
@@ -174,10 +174,37 @@ values(:,count) = randwalk2_values;
 names{count} = 'Rand Walk 2';
 
 
+% Random walk 3
+% 3 states, the exit state, the filesize min state, loop until we find our start for
+% filesize. the filesize compute state, loop until we exit to determine
+% final size
+count = count + 1;
+randwalk3_values = zeros(niter,1);
+for i=1:niter
+    size = 0;
+    state = 1;
+    while (state ~= 0)
+        size = size + 1;
+        
+        r = rand();
+        if (r < randwalk_p_exit)
+            state = state + 1;
+            if (state == randwalkn_num_states)
+                state = 0;
+            end
+        end
+    end
+    
+    randwalk3_values(i,1) = size;
+end
+
+values(:,count) = randwalk3_values;
+names{count} = 'Rand Walk 3';
+
 % plot all the options
 figure;
 
-for i = 1:7
+for i = 1:nplots
     data = values(:,i);
     
     % get rid of negative values
