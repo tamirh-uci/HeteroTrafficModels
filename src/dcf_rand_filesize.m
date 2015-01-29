@@ -1,5 +1,5 @@
 function dcf_rand_filesize()
-niter = 160000;
+niter = 100000;
 mean = 1000;
 variance = 1000;
 max_val = mean + 10 * variance;
@@ -18,12 +18,6 @@ normal_mu = mean;
 normal_sigma = variance;
 normal_offset = 4*mean;
 normal_multiplier = 1;
-
-% Exponential
-% mu = mean
-exponential_mu = mean;
-exponential_offset = 0;
-exponential_multiplier = 1;
 
 % Extreme Value
 % mu = mean
@@ -46,11 +40,32 @@ binomial_multiplier = mean/10;
 % p = probability of exit
 % step = size of step
 randwalk_median = 5000;
-randwalk_p_exit = 0.002;
-randwalk_p_stay = 0.98;
+randwalk_p_exit = 0.004;
+randwalk_p_stay = 0.996;
 randwalk_right_step = 1;
 randwalk_left_step = 1;
-randwalkn_num_states = 3;
+randwalkn_num_states = 12;
+
+randwalk1_p_exit = 0.003;
+randwalk1_max_startstate = 3;
+randwalk1_state_total = 13;
+
+randwalk2_p_exit = 0.003;
+randwalk2_max_startstate = 3;
+randwalk2_state_total = 14;
+
+randwalk3_p_exit = 0.003;
+randwalk3_max_startstate = 3;
+randwalk3_state_total = 15;
+
+randwalk4_p_exit = 0.003;
+randwalk4_max_startstate = 3;
+randwalk4_state_total = 16;
+
+randwalk5_p_exit = 0.003;
+randwalk5_max_startstate = 3;
+randwalk5_state_total = 17;
+
 
 % test multiple methods of different random distributions
 values = zeros(niter, nplots);
@@ -71,13 +86,6 @@ normal_values = random(normal_dist, niter, 1);
 values(:,count) = normal_multiplier * (normal_offset + normal_values);
 names{count} = 'Normal';
 
-% Exponential
-count = count + 1;
-exponential_dist = makedist('Exponential', 'mu', exponential_mu);
-exponential_values = random(exponential_dist, niter, 1);
-values(:,count) = exponential_multiplier * (exponential_offset + exponential_values);
-names{count} = 'Exponential';
-
 % Extreme Value
 count = count + 1;
 extremevalue_dist = makedist('ExtremeValue', 'mu', extremevalue_mu, 'sigma', extremevalue_sigma);
@@ -91,141 +99,183 @@ binomial_dist = makedist('Binomial', 'N', binomial_N, 'p', binomial_p);
 binomial_values = random(binomial_dist, niter, 1);
 values(:,count) = binomial_multiplier * (binomial_offset + binomial_values);
 names{count} = 'Binomial';
+% 
+% % Random walk
+% % 3 states, the exit state and the walking left and walking right states
+% count = count + 1;
+% randwalk_values = zeros(niter,1);
+% for i=1:niter
+%     size = randwalk_median;
+%     state = 1;
+%     while (state ~= 0)
+%         r = rand();
+%         
+%         % We have previously walked right
+%         if (state == 1)
+%             if (r < randwalk_p_stay)
+%                 % Walk right again
+%                 size = size + randwalk_right_step;
+%             else
+%                 % Walk left and move states
+%                 size = size - randwalk_left_step;
+%                 state = 2;
+%             end
+%         % We have previously walked left
+%         else
+%             if (r < randwalk_p_stay)
+%                 % Walk left again
+%                 size = size - randwalk_left_step;
+%             else
+%                 % Walk right and move states
+%                 size = size + randwalk_right_step;
+%                 state = 1;
+%             end
+%         end
+%         
+%         % check for exit condition
+%         r = rand();
+%         if (r < randwalk_p_exit)
+%             state = 0;
+%         end
+%     end
+%     
+%     randwalk_values(i,1) = size;
+% end
+% 
+% values(:,count) = randwalk_values;
+% names{count} = 'Rand Walk';
+% 
+% 
+% % Random walk 2
+% % 2 states, the spin state and the exit state
+% count = count + 1;
+% randwalk2_values = zeros(niter,1);
+% for i=1:niter
+%     size = 0;
+%     state = 1;
+%     while (state ~= 0)
+%         size = size + randwalk_right_step;
+%         
+%         % check for exit condition
+%         r = rand();
+%         if (r < randwalk_p_exit)
+%             state = 0;
+%         end
+%     end
+%     
+%     % choose walk direction
+%     r = rand();
+%     if (r < 0.5)
+%         size = randwalk_median + size;
+%     else
+%         if (size > randwalk_median)
+%             size = 0;
+%         else
+%             size = randwalk_median - size;
+%         end
+%     end
+%     
+%     randwalk2_values(i,1) = size;
+% end
+% 
+% values(:,count) = randwalk2_values;
+% names{count} = 'Rand Walk 2';
+% 
+% 
+% % Random walk 3
+% % 3 states, the exit state, the filesize min state, loop until we find our start for
+% % filesize. the filesize compute state, loop until we exit to determine
+% % final size
+% count = count + 1;
+% randwalk3_values = zeros(niter,1);
+% for i=1:niter
+%     size = 0;
+%     state = 1;
+%     while (state ~= 0)
+%         size = size + 1;
+%         
+%         r = rand();
+%         if (r < randwalk_p_exit)
+%             state = state + 1;
+%             if (state == randwalkn_num_states)
+%                 state = 0;
+%             end
+%         end
+%     end
+%     
+%     randwalk3_values(i,1) = size;
+% end
+% 
+% values(:,count) = randwalk3_values;
+% names{count} = 'Rand Walk 3';
+% 
+% % Random walk 4
+% % same as rand walk 3 but with double the states
+% count = count + 1;
+% randwalk4_values = zeros(niter,1);
+% for i=1:niter
+%     size = 0;
+%     state = 1;
+%     while (state ~= 0)
+%         size = size + 1;
+%         
+%         r = rand();
+%         if (r < randwalk_p_exit)
+%             state = state + 1;
+%             if (state == (randwalkn_num_states*2))
+%                 state = 0;
+%             end
+%         end
+%     end
+%     
+%     randwalk4_values(i,1) = size;
+% end
+% 
+% values(:,count) = randwalk4_values;
+% names{count} = 'Rand Walk 4';
 
-% Random walk
-% 3 states, the exit state and the walking left and walking right states
+
+% Random walk - trying to emulate normal distribution
+% start in a random state, only move forward through symmetric states
 count = count + 1;
-randwalk_values = zeros(niter,1);
+randwalk1_values = zeros(niter,1);
 for i=1:niter
-    size = randwalk_median;
-    state = 1;
-    while (state ~= 0)
-        r = rand();
-        
-        % We have previously walked right
-        if (state == 1)
-            if (r < randwalk_p_stay)
-                % Walk right again
-                size = size + randwalk_right_step;
-            else
-                % Walk left and move states
-                size = size - randwalk_left_step;
-                state = 2;
-            end
-        % We have previously walked left
-        else
-            if (r < randwalk_p_stay)
-                % Walk left again
-                size = size - randwalk_left_step;
-            else
-                % Walk right and move states
-                size = size + randwalk_right_step;
-                state = 1;
-            end
-        end
-        
-        % check for exit condition
-        r = rand();
-        if (r < randwalk_p_exit)
-            state = 0;
-        end
-    end
-    
-    randwalk_values(i,1) = size;
+    randwalk1_values(i,1) = randwalk(randwalk1_p_exit, randwalk1_max_startstate, randwalk1_state_total);
 end
+values(:,count) = randwalk1_values;
+names{count} = 'Rand Walk 1';
 
-values(:,count) = randwalk_values;
-names{count} = 'Rand Walk';
-
-
-% Random walk 2
-% 2 states, the spin state and the exit state
 count = count + 1;
 randwalk2_values = zeros(niter,1);
 for i=1:niter
-    size = 0;
-    state = 1;
-    while (state ~= 0)
-        size = size + randwalk_right_step;
-        
-        % check for exit condition
-        r = rand();
-        if (r < randwalk_p_exit)
-            state = 0;
-        end
-    end
-    
-    % choose walk direction
-    r = rand();
-    if (r < 0.5)
-        size = randwalk_median + size;
-    else
-        if (size > randwalk_median)
-            size = 0;
-        else
-            size = randwalk_median - size;
-        end
-    end
-    
-    randwalk2_values(i,1) = size;
+    randwalk2_values(i,1) = randwalk(randwalk2_p_exit, randwalk2_max_startstate, randwalk2_state_total);
 end
-
 values(:,count) = randwalk2_values;
 names{count} = 'Rand Walk 2';
 
-
-% Random walk 3
-% 3 states, the exit state, the filesize min state, loop until we find our start for
-% filesize. the filesize compute state, loop until we exit to determine
-% final size
 count = count + 1;
 randwalk3_values = zeros(niter,1);
 for i=1:niter
-    size = 0;
-    state = 1;
-    while (state ~= 0)
-        size = size + 1;
-        
-        r = rand();
-        if (r < randwalk_p_exit)
-            state = state + 1;
-            if (state == randwalkn_num_states)
-                state = 0;
-            end
-        end
-    end
-    
-    randwalk3_values(i,1) = size;
+    randwalk3_values(i,1) = randwalk(randwalk3_p_exit, randwalk3_max_startstate, randwalk3_state_total);
 end
-
 values(:,count) = randwalk3_values;
 names{count} = 'Rand Walk 3';
 
-% Random walk 4
-% same as rand walk 3 but with double the states
 count = count + 1;
 randwalk4_values = zeros(niter,1);
 for i=1:niter
-    size = 0;
-    state = 1;
-    while (state ~= 0)
-        size = size + 1;
-        
-        r = rand();
-        if (r < randwalk_p_exit)
-            state = state + 1;
-            if (state == (randwalkn_num_states*2))
-                state = 0;
-            end
-        end
-    end
-    
-    randwalk4_values(i,1) = size;
+    randwalk4_values(i,1) = randwalk(randwalk4_p_exit, randwalk4_max_startstate, randwalk4_state_total);
 end
-
 values(:,count) = randwalk4_values;
 names{count} = 'Rand Walk 4';
 
+count = count + 1;
+randwalk5_values = zeros(niter,1);
+for i=1:niter
+    randwalk5_values(i,1) = randwalk(randwalk5_p_exit, randwalk5_max_startstate, randwalk5_state_total);
+end
+values(:,count) = randwalk5_values;
+names{count} = 'Rand Walk 5';
 
 % plot all the options
 figure;
