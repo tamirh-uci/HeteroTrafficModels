@@ -24,14 +24,6 @@ exponential_mu = mean;
 exponential_offset = 0;
 exponential_multiplier = 1;
 
-% Lognormal
-% mu = log(mean)
-% sigma = log(variance)
-lognormal_mu = log(mean);
-lognormal_sigma = log(variance);
-lognormal_offset = 0;
-lognormal_multiplier = 1;
-
 % Extreme Value
 % mu = mean
 % sigma = variance
@@ -47,6 +39,16 @@ binomial_N = 1000;
 binomial_p = 0.05;
 binomial_offset = 0;
 binomial_multiplier = mean/10;
+
+% Random Walk
+% median = start point
+% p = probability of exit
+% step = size of step
+randwalk_median = 5000;
+randwalk_p_exit = 0.002;
+randwalk_p_stay = 0.98;
+randwalk_right_step = 7.15;
+randwalk_left_step = 7;
 
 % test multiple methods of different random distributions
 values = zeros(niter, 6);
@@ -74,13 +76,6 @@ exponential_values = random(exponential_dist, niter, 1);
 values(:,count) = exponential_multiplier * (exponential_offset + exponential_values);
 names{count} = 'Exponential';
 
-% Lognormal
-count = count + 1;
-lognormal_dist = makedist('Lognormal', 'mu', lognormal_mu, 'sigma', lognormal_sigma);
-lognormal_values = random(lognormal_dist, niter, 1);
-values(:,count) = lognormal_multiplier * (lognormal_offset + lognormal_values);
-names{count} = 'Lognormal';
-
 % Extreme Value
 count = count + 1;
 extremevalue_dist = makedist('ExtremeValue', 'mu', extremevalue_mu, 'sigma', extremevalue_sigma);
@@ -95,6 +90,49 @@ binomial_values = random(binomial_dist, niter, 1);
 values(:,count) = binomial_multiplier * (binomial_offset + binomial_values);
 names{count} = 'Binomial';
 
+% Random walk
+count = count + 1;
+randwalk_values = zeros(niter,1);
+for i=1:niter
+    size = randwalk_median;
+    state = 1;
+    while (state ~= 0)
+        r = rand();
+        
+        % We have previously walked right
+        if (state == 1)
+            if (r < randwalk_p_stay)
+                % Walk right again
+                size = size + randwalk_right_step;
+            else
+                % Walk left and move states
+                size = size - randwalk_left_step;
+                state = 2;
+            end
+        % We have previously walked left
+        else
+            if (r < randwalk_p_stay)
+                % Walk left again
+                size = size - randwalk_left_step;
+            else
+                % Walk right and move states
+                size = size + randwalk_right_step;
+                state = 1;
+            end
+        end
+        
+        % check for exit condition
+        r = rand();
+        if (r < randwalk_p_exit)
+            state = 0;
+        end
+    end
+    
+    randwalk_values(i,1) = size;
+end
+
+values(:,count) = randwalk_values;
+names{count} = 'Rand Walk';
 
 % plot all the options
 figure;
