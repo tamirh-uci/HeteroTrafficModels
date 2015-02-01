@@ -13,10 +13,11 @@ dims
 pi
 
 %%%% Metrics computation
-T_s = 10; % TODO
-T_c = 10; % TODO
-n = 2; % number of nodes
-E_p = 5; % TODO
+% Note: all time parameters must have the same units
+E_p = 5; % TODO: depends on type of traffic
+T_s = 10; % TODO: depends on E_p
+T_c = 10; % TODO: depends on E_p
+n = 2; % number of nodes -- make this a parameter
 sigma = 5; % TODO
 
 % 1. Throughput
