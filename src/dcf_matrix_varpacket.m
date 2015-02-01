@@ -55,8 +55,42 @@ end
 
 % Verify we haven't written anywhere we shouldn't have
 % null out rows/columns corresponding to unused cells
-for i = 1:nrows
+doAssert = true;
+doOverwrite = false;
+overwriteValue = 0;
+
+% check for non-zero values in ununsed rows/cols
+if (doAssert)
+    for i = 1:nrows
+        nCols = W(1,i);
+        
+        for deadRow = nCols+1:nColsMax
+            ii = flatten(dims, [i,deadRow]);
+            assert( ~any(pi(ii,:)) );
+        end
+        
+        for deadCol = nCols+1:nColsMax
+            jj = flatten(dims, [i,deadCol]);
+            assert( ~any(pi(:,jj)) );
+        end
+    end
+end
     
+% overwrite values in unused rows/cols
+if (doOverwrite)
+    for i = 1:nrows
+        nCols = W(1,i);
+        
+        for deadRow = nCols+1:nColsMax
+            ii = flatten(dims, [i,deadRow]);
+            pi(ii,:) = overwriteValue;
+        end
+        
+        for deadCol = nCols+1:nColsMax
+            jj = flatten(dims, [i,deadCol]);
+            pi(:,jj) = overwriteValue;
+        end
+    end
 end
 
 end
