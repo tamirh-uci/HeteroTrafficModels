@@ -1,11 +1,8 @@
 function [ index ] = flatten( dims, point )
-    copy = point;
-    
-    ll = size(point);
-    length = ll(2);
-    for i = 1:length
-        copy(i) = copy(i) - 1; % reduce to 0-based indexing
-    end
+
+    % reduce to 0-based indexing    
+    copy = point - 1;
+    length = size(point,2);
     
     sum = 0;
     for i = 1:(length - 1)
