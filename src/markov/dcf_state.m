@@ -16,7 +16,7 @@ classdef dcf_state < handle
         
         % HashTable of nonzero transition probabilities to other states
         P@containers.Map = containers.Map('KeyType', 'char', 'ValueType', 'double');
-    end
+    end %properties
     
     methods(Static)
         % Convert array indices of dimensions into a character key
@@ -24,10 +24,10 @@ classdef dcf_state < handle
             if (ischar(array))
                 key = array;
             else
-                key = mat2str(array)
+                key = mat2str(array);
             end
         end
-    end
+    end %methods(Static)
     
     methods
         % Constructor for dcf_state
@@ -44,5 +44,5 @@ classdef dcf_state < handle
                 obj.Key = mat2str(key);
             end
         end
-    end
+    end %methods
 end

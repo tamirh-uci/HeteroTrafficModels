@@ -9,7 +9,7 @@ classdef dcf_container < handle
         
         % Current number of states held
         nStates@int32 = int32(0);
-    end
+    end %properties
     
     methods
         % Default Empty Constructor for dcf_container
@@ -59,25 +59,32 @@ classdef dcf_container < handle
         
         % Convert the states into a transition table
         function t = TransitionTable(this)
-            valueSet = values(this.S);
-            assert( size(valueSet,1)==this.nStates );
+            srcStates = this.S.values();
+            assert( size(srcStates,2)==this.nStates );
             
             t = zeros(this.nStates, this.nStates);
             
             % For all source states
             for i=1:this.nStates
-                src = valueSet(i);
-                dstSet = values(src.P);
-                nDst = size(dstSet, 1);
+                src = srcStates{i};
+                src.Key
                 
-                % For all destination states from this srouce
+                dstKeys = src.P.keys();
+                nDst = size(dstKeys, 2);
+                
+                % For all destination keys from this srouce
                 for j=1:nDst
-                    dst = dstSet(j);
+                    dstKey = dstKeys{1,j};
+                    
+                    % Find the actual state object
+                    assert(this.S.isKey(dstKey));
+                    dst = this.S(dstKey);
                     
                     % Set the probability in the 2d transition table
-                    t(src.IF, dst.IF) = src.P(dst);
+                    t(src.IF, dst.IF) = src.P(dstKey);
                 end
             end
         end
-    end 
-end
+        
+    end %methods
+end %classdef
