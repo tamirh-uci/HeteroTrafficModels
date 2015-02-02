@@ -82,10 +82,25 @@ classdef dcf_container < handle
                     % Set the probability in the 2d transition table
                     t(src.IF, dst.IF) = src.P(dstKey);
                 end
-                
-                % TODO: Figure out why not clearing means it doesn't get
-                % overwritten
-                dstKeys = 0;
+            end
+        end
+        
+        % Verify transitions are valid
+        % Currently just sums up rows and checks to see if it's 1
+        function valid = Verify(this)
+            epsilonThreshold = 0.0001;
+            valid = true;
+            
+            srcStates = this.S.values();
+            assert( size(srcStates,2)==this.nStates );
+            
+            % For all source states
+            for i=1:this.nStates
+                src = srcStates{i};
+                rowsum = sum( cell2mat(src.P.values()) );
+                if ( (1-rowsum) > epsilonThreshold )
+                    valid = false;
+                end
             end
         end
         
