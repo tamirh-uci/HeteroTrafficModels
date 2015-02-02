@@ -3,20 +3,39 @@ classdef dcf_container < handle
     
     properties (SetAccess = protected)
         % HashTable of all states
-        % key: dimensioned index
+        % key: dimensioned index as string
         % value: handle to dcf_state object
-        states@containers.Map = containers.Map('KeyType',int32, 'ValueType',dcf_state);   
+        S@containers.Map = containers.Map('KeyType', 'char', 'ValueType', 'any');
+        
+        % Current number of states held
+        nStates@int32 = int32(0);
     end
     
     methods
+        % Default Empty Constructor for dcf_container
+        function obj = dcf_container()
+            obj = obj@handle();
+        end
+        
+        % Insert a new state into the set
+        function NewState(this, state)
+            this.nStates = this.nStates + 1;
+            state.IF = this.nStates;
+            
+            % TODO: Do some analysis on the key so we know max dimensions
+            this.S(state.Key) = state;
+        end
+        
         % Return the probability of state->state transition (src->dst)
         % srcKey: dimensioned index
         % dstKey: dimensioned index
         function p = P(this, srcKey, dstKey)
-            p = 0;
+            srcKey = dcf_state.MakeKey(srcKey);
+            dstKey = dcf_state.MakeKey(dstKey);
             
-            if (this.states.isKey(srcKey) && this.states.isKey(dstKey))
-                srcState = this.states(srcKey);
+            p = 0;
+            if (this.S.isKey(srcKey) && this.S.isKey(dstKey))
+                srcState = this.S(srcKey);
                 
                 if (srcState.P.isKey(dstKey))
                     p = srcState.P(dstKey);
@@ -27,33 +46,26 @@ classdef dcf_container < handle
         % Set the probability of state->state transition (src->dst)
         % srcKey: dimensioned index
         % dstKey: dimensioned index
-        % p: probability [0,1]
-        function setP(this, srcKey, dstKey, p)
-            assert(this.states.isKey(srcKey));
+        % p: probability from [0,1]
+        function SetP(this, srcKey, dstKey, p)
+            srcKey = dcf_state.MakeKey(srcKey);
+            dstKey = dcf_state.MakeKey(dstKey);
             
-            srcState = this.states(srcKey);
+            assert(this.S.isKey(srcKey));
+            
+            srcState = this.S(srcKey);
             srcState.P(dstKey) = p;
         end
         
-        % Flatten all of the states and give them a 1d index
-        function flatten(this)
-            % TODO: Sort this so it comes out in a logical order
-            valueSet = values(this.states);
-            nStates = size(valueSet,1);
-            
-            for i=1:nStates
-                valueSet(i).IF = i;
-            end
-        end
-        
         % Convert the states into a transition table
-        function t = transitionTable(this)
-            valueSet = values(this.states);
-            nStates = size(valueSet, 1);
-            t = zeros(nStates, nStates);
+        function t = TransitionTable(this)
+            valueSet = values(this.S);
+            assert( size(valueSet,1)==this.nStates );
+            
+            t = zeros(this.nStates, this.nStates);
             
             % For all source states
-            for i=1:nStates
+            for i=1:this.nStates
                 src = valueSet(i);
                 dstSet = values(src.P);
                 nDst = size(dstSet, 1);
