@@ -3,11 +3,12 @@ p = 0.25;
 Wmin = 2;
 Wmax = 4; %1024;
 m = log2(Wmax / Wmin);
+packetMax = 2;
 % -> W = (2 4)
 
 %%%% Transition matrix generation
 %[pi, dims] = dcf_matrix(p, m, Wmin);
-[pi, dims] = dcf_matrix_varpacket(p, m, Wmin);
+[pi, dims] = dcf_matrix_varpacket(p, m, Wmin, packetMax);
 [groundProbability] = dcf_ground_state(p, Wmin, m);
 
 dims
