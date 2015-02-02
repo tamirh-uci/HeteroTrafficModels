@@ -5,7 +5,7 @@ classdef dcf_container < handle
         % HashTable of all states
         % key: dimensioned index as string
         % value: handle to dcf_state object
-        S@containers.Map = containers.Map('KeyType', 'char', 'ValueType', 'any');
+        S@containers.Map;
         
         % Current number of states held
         nStates@int32 = int32(0);
@@ -15,6 +15,7 @@ classdef dcf_container < handle
         % Default Empty Constructor for dcf_container
         function obj = dcf_container()
             obj = obj@handle();
+            obj.S = containers.Map('KeyType', 'char', 'ValueType', 'any')
         end
         
         % Insert a new state into the set
@@ -67,14 +68,12 @@ classdef dcf_container < handle
             % For all source states
             for i=1:this.nStates
                 src = srcStates{i};
-                src.Key
-                
                 dstKeys = src.P.keys();
                 nDst = size(dstKeys, 2);
                 
                 % For all destination keys from this srouce
                 for j=1:nDst
-                    dstKey = dstKeys{1,j};
+                    dstKey = dstKeys{j};
                     
                     % Find the actual state object
                     assert(this.S.isKey(dstKey));
@@ -83,6 +82,10 @@ classdef dcf_container < handle
                     % Set the probability in the 2d transition table
                     t(src.IF, dst.IF) = src.P(dstKey);
                 end
+                
+                % TODO: Figure out why not clearing means it doesn't get
+                % overwritten
+                dstKeys = 0;
             end
         end
         
