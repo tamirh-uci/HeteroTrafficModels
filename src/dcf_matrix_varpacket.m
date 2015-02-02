@@ -99,20 +99,29 @@ end
 doAssert = true;
 doOverwrite = true;
 overwriteValue = NaN;
+epsilonThreshold = 0.0001;
 
-% check for non-zero values in ununsed rows/cols
 if (doAssert)
     for i = 1:nRows
         nCols = endPktCol(1,i);
         
+        % check for non-zero values in ununsed rows
         for deadRow = nCols+1:nColsMax
             ii = flatten(dims, [i,deadRow]);
             assert( ~any(pi(ii,:)) );
         end
         
+        % check for non-zero values in ununsed cols
         for deadCol = nCols+1:nColsMax
             jj = flatten(dims, [i,deadCol]);
             assert( ~any(pi(:,jj)) );
+        end
+        
+        % check each valid row sums to 1
+        for liveRow = 1:nCols
+            ii = flatten(dims, [i,liveRow]);
+            s = sum(pi(ii,:));
+            assert( abs(1-s) < epsilonThreshold );
         end
     end
 end
