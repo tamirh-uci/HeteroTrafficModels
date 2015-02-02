@@ -49,11 +49,22 @@ for i = 1:nRows
     end
     
     % Success case
+    % If success, we have equal probability to go to each of the variable
+    % packet countdown states
     % CASE 2
     pSuccess = (1 - p) / W(1,1);
-    for k = beginXmitCol:W(1,1)
+    for k = beginBackoffCol:W(1,1)
         [ii, jj] = flattenXY(dims, [i,beginXmitCol], [beginXmitCol,k]);
         pi(ii,jj) = pSuccess;
+    end
+    
+    % Set probability to go to start and to each other packet variable equal
+    pVarPkt = pSuccess / nPktMax;
+    [ii, jj] = flattenXY(dims, [i,beginXmitCol], [beginXmitCol,1]);
+    pi(ii,jj) = pVarPkt;
+    for k = beginPktCol(1,i):endPktCol(1,i)
+        [ii, jj] = flattenXY(dims, [i,beginXmitCol], [i,k]);
+        pi(ii,jj) = pVarPkt;
     end
     
     % Initialize the probabilities from backoff stages to the transmission
@@ -64,11 +75,23 @@ for i = 1:nRows
         pi(ii,jj) = 1.0;
     end
     
-    % Variable packet transmission probabilities
-    % From column 1, with equal probability we can go to each other
-    % state of packet size with equal probability, they will then chain
-    % until they reach the end
-    
+    % Set probabilities for the packet chain to continue properly
+    for k = beginPktCol(1,i):endPktCol(1,i)
+        prev = k - 1;
+        if (prev < beginPktCol(1,i))
+            prev = beginXmitCol;
+        end
+        
+        % success, go to previous variable packet state
+        [ii, jj] = flattenXY(dims, [i,k], [i,prev]);
+        pi(ii,jj) = 1 - p;
+        
+        % failure, go to a backoff state
+        for j = beginXmitCol:wColsNext
+            [ii, jj] = flattenXY(dims, [i,k], [nextStage,j]);
+            pi(ii,jj) = pi(ii,jj) + pNext;
+        end
+    end
 end
 
 % Verify we haven't written anywhere we shouldn't have
@@ -94,7 +117,7 @@ if (doAssert)
     end
 end
 
-% overwrite values in unused rows/cols
+% overwrite values in unused rows/cols (just for visualizing the table)
 if (doOverwrite)
     for i = 1:nRows
         nCols = endPktCol(1,i);
