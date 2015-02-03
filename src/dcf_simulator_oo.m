@@ -71,32 +71,6 @@ classdef dcf_simulator_oo < handle
                     end
                 end
             end
-            
-            % TEST
-            foobar = zeros(nStates,nStates);
-            for src = 1:nStates
-                for dst = 1:nStates
-                    srcType = this.stateTypes(src);
-                    dstType = this.stateTypes(dst);
-                    
-                    % SUCCESSES
-                    if (dstType == dcf_state_type.Transmit)
-                        foobar(src,dst) = 1 + foobar(src,dst);
-                    end
-                    
-                    % FAILS
-                    if (srcType == dcf_state_type.Transmit && dstType == dcf_state_type.Backoff)
-                        foobar(src,dst) = 2 + foobar(src,dst);
-                    end
-                    
-                    % WAITS
-                    if (srcType == dstType && srcType == dcf_state_type.Backoff)
-                        foobar(src,dst) = 4 + foobar(src,dst);
-                    end
-                end
-            end
-            
-            foobar
         end
         
         % Count up failure transitions
