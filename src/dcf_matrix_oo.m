@@ -1,5 +1,5 @@
 % dcf_matrix Generate the transition probability matrix using classes
-function [ pi, dims ] = dcf_matrix_oo( p, m, Wmin )
+function [ pi, dims, dcf ] = dcf_matrix_oo( p, m, Wmin )
 
 % constants
 nRows = m + 1;
@@ -78,8 +78,5 @@ end
 
 pi = dcf.TransitionTable();
 assert( dcf.Verify() );
-
-steadyState = dcf.SteadyState(0.001, 100);
-steadyState
 
 end

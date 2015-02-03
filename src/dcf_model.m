@@ -8,8 +8,12 @@ packetMax = 2;
 
 %%%% Transition matrix generation
 %[pi, dims] = dcf_matrix(p, m, Wmin);
-[pi, dims] = dcf_matrix_oo(p, m, Wmin);
+[pi, dims, dcf] = dcf_matrix_oo(p, m, Wmin);
 [groundProbability] = dcf_ground_state(p, Wmin, m);
+
+sim = dcf_simulator_oo(dcf);
+sim.Setup();
+sim.Step(1000);
 
 dims
 pi

@@ -98,8 +98,8 @@ classdef dcf_container < handle
             end
         end
         
-        % Generate the steady state matrix
-        function m = SteadyState(this, threshold, maxIter)
+        % Generate the steady state matrix and reduce down to vector
+        function ss = SteadyState(this, threshold, maxIter)
             m = this.TransitionTable();
             
             diff = threshold;
@@ -111,8 +111,32 @@ classdef dcf_container < handle
                 iter = iter + 1;
                 diff = norm(mPrev - m);
             end
+            
+            % We only need a vector, one value for each state
+            ss = m(1,:);
         end
         
+        % Generate a vector which holds each state type
+        function st = StateTypes(this)
+            st = dcf_state_type.empty(0,this.nStates);
+            
+            % For all source states
+            srcStates = this.S.values();
+            for i=1:this.nStates
+                src = srcStates{i};
+                st(i) = src.Type;
+            end
+        end
+        
+        % Return a (1d) index to a state, weighted by the steady state
+        % probability given by function SteadyState()
+        function state = WeightedRandomState(this, threshold, maxIter)
+            steady = this.SteadyState(threshold, maxIter);
+            
+            % All rows should be equal at this point, just take the 1st
+            state = randsample(1:this.nStates, 1, true, steady);
+        end
+
         % Verify transitions are valid
         % Currently just sums up rows and checks to see if it's 1
         function valid = Verify(this)
