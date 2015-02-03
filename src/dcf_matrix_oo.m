@@ -21,12 +21,21 @@ dims = [nRows, nColsMax]; % store the dimensions of each state
 for i = 1:nRows
     wCols = W(1,i);
     
+    % transmit states
     for k = beginXmitCol:beginBackoffCol-1
         dcf.NewState( dcf_state( [i, k], dcf_state_type.Transmit ) );
     end
     
+    % backoff states
     for k = beginBackoffCol:wCols
         dcf.NewState( dcf_state( [i, k], dcf_state_type.Backoff ) );
+    end
+    
+    % unused states
+    if (wCols < nColsMax)
+        for k=wCols+1:nColsMax
+            dcf.NewState( dcf_state( [i, k], dcf_state_type.Null ) );
+        end
     end
 end
 
@@ -41,7 +50,6 @@ for i = 1:nRows
         nextStage = i + 1;
     end
     
-    fprintf('\n\nSetting failure cases 3+4\n');
     % Failure case
     % CASE 3/4
     wColsNext = W(1, nextStage);
@@ -51,7 +59,6 @@ for i = 1:nRows
         dcf.SetP( [i,beginXmitCol], [nextStage,k], pNext );
     end
     
-    fprintf('\n\nSetting success case 2\n');
     % Success case
     % If success, we have equal probability to go to each of the variable
     % packet countdown states
@@ -61,7 +68,6 @@ for i = 1:nRows
         dcf.SetP( [i,beginXmitCol], [beginXmitCol,k], pSuccess );
     end
     
-    fprintf('\n\nSetting backoff case 1\n');
     % Initialize the probabilities from backoff stages to the transmission
     % stage (all stages k > 1)
     % CASE 1

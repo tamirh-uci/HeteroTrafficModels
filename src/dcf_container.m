@@ -66,7 +66,7 @@ classdef dcf_container < handle
             srcState = this.S(srcKey);
             srcState.P(dstKey) = p;
             
-            fprintf('setting %s => %s to %f\n', srcKey, dstKey, p);
+            %fprintf('setting %s => %s to %f\n', srcKey, dstKey, p);
         end
         
         % Convert the states into a transition table
@@ -93,7 +93,7 @@ classdef dcf_container < handle
                     % Set the probability in the 2d transition table
                     t(src.IF, dst.IF) = src.P(dstKey);
                     
-                    fprintf('keys: %s => %s, index: %d => %d, prob: %f\n', src.Key, dstKey, src.IF, dst.IF, src.P(dstKey));
+                    %fprintf('keys: %s => %s, index: %d => %d, prob: %f\n', src.Key, dstKey, src.IF, dst.IF, src.P(dstKey));
                 end
             end
         end
@@ -111,8 +111,15 @@ classdef dcf_container < handle
             for i=1:this.nStates
                 src = srcStates{i};
                 rowsum = sum( cell2mat(src.P.values()) );
-                if ( (1-rowsum) > epsilonThreshold )
-                    valid = false;
+                
+                if ( src.Type == dcf_state_type.Null )
+                    if ( abs(0-rowsum) > epsilonThreshold )
+                        valid = false;
+                    end
+                else
+                    if ( abs(1-rowsum) > epsilonThreshold )
+                        valid = false;
+                    end    
                 end
             end
         end
