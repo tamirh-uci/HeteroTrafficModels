@@ -15,7 +15,7 @@ classdef dcf_container < handle
         % Default Empty Constructor for dcf_container
         function obj = dcf_container()
             obj = obj@handle();
-            obj.S = containers.Map('KeyType', 'char', 'ValueType', 'any')
+            obj.S = containers.Map('KeyType', 'char', 'ValueType', 'any');
         end
         
         % Insert a new state into the set
@@ -44,6 +44,15 @@ classdef dcf_container < handle
             end
         end
         
+        % Return the type of the given state, for use in simulation
+        % stateKey: dimensioned index
+        function t = Type(this, stateKey)
+            stateKey = dcf_state.MakeKey(stateKey);
+            
+            assert(this.S.isKey(stateKey));
+            t = this.S(stateKey).Type;
+        end
+        
         % Set the probability of state->state transition (src->dst)
         % srcKey: dimensioned index
         % dstKey: dimensioned index
@@ -56,6 +65,8 @@ classdef dcf_container < handle
             
             srcState = this.S(srcKey);
             srcState.P(dstKey) = p;
+            
+            fprintf('setting %s => %s to %f\n', srcKey, dstKey, p);
         end
         
         % Convert the states into a transition table
@@ -81,6 +92,8 @@ classdef dcf_container < handle
                     
                     % Set the probability in the 2d transition table
                     t(src.IF, dst.IF) = src.P(dstKey);
+                    
+                    fprintf('keys: %s => %s, index: %d => %d, prob: %f\n', src.Key, dstKey, src.IF, dst.IF, src.P(dstKey));
                 end
             end
         end
