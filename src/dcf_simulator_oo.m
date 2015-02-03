@@ -1,6 +1,7 @@
 classdef dcf_simulator_oo < handle
     %DCF Simulator using OO classes
     
+    % For multinode simulation, we need multiple of these 'structs'
     properties (SetAccess = public)
         CurrentState;
         PrevState;
@@ -21,13 +22,17 @@ classdef dcf_simulator_oo < handle
         
         % The possible indices of states we can roam to
         sampleIndices;
+        
+        % Total number of nodes we'll simultaneously simulate
+        nNodes;
     end %properties (SetAccess = protected)
     
     methods
         % Constructor
-        function obj = dcf_simulator_oo(dcfIn)
+        function obj = dcf_simulator_oo(dcfIn, nNodes)
             obj = obj@handle();
             obj.dcf = dcfIn;
+            obj.nNodes = nNodes;
         end
         
         % Initialize the object and ready it for calls to StepSimulate
@@ -37,23 +42,42 @@ classdef dcf_simulator_oo < handle
             nStates = size(this.stateTypes,2);
             
             this.sampleIndices = 1:nStates;
-            this.TransitionCount = zeros(nStates,nStates);
             
-            % Choose randomly based on weighted average of steady state
-            this.PrevState = this.dcf.WeightedRandomState(0.0001, 1000);
-            this.CurrentState = this.PrevState;
+            % Setup node data
+            this.TransitionCount(iNode) = zeros(this.nNodes, nStates, nStates);
+            for i=1:this.nNodes
+                this.SetupNode(i);
+            end
         end
+        
+        % Initialize a single node
+        function SetupNode(this, iNode)
+            % Choose randomly based on weighted average of steady state
+            startState = this.dcf.WeightedRandomState(0.0001, 1000);
+            this.PrevState(iNode) = startState;
+            this.CurrentState(iNode) = startState;
+        end
+        
 
-        % Simulate nIter number of state transitions
-        function Step(this, nIter)
-            for i=1:nIter
+        % Simulate single timer transition for all nodes
+        function Step(this)
+            for i=1:this.nNodes
                 % Advance to the next state with given probabilities
-                this.PrevState = this.CurrentState;
-                p = this.transitions(this.PrevState, :);
-                this.CurrentState = randsample(this.sampleIndices, 1, true, p);
-                
-                % Log metrics for this state
-                this.TransitionCount(this.PrevState, this.CurrentState) = 1 + this.TransitionCount(this.PrevState, this.CurrentState);
+                this.PrevState(i) = this.CurrentState(i);
+                p = this.transitions(this.PrevState(i), :);
+                this.CurrentState(i) = randsample(this.sampleIndices, 1, true, p);
+            end
+            
+            % Handle interactions between nodes
+            for i=1:this.nNodes
+                % TODO: Handle collisions
+            end
+            
+            % Log metrics for all nodes
+            for i=1:this.nNodes
+                src = this.PrevState(i);
+                dst = this.CurrentState(i);
+                this.TransitionCount(i, src, dst) = 1 + this.TransitionCount(i, src, dst);
             end
         end
         
