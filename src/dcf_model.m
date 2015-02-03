@@ -15,6 +15,10 @@ sim = dcf_simulator_oo(dcf);
 sim.Setup();
 sim.Step(1000);
 
+successes = sim.CountSuccesses()
+failures = sim.CountFailures()
+waits = sim.CountWaits()
+
 dims
 pi
 

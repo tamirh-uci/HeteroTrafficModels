@@ -41,13 +41,15 @@ classdef dcf_simulator_oo < handle
             
             % Choose randomly based on weighted average of steady state
             this.PrevState = this.dcf.WeightedRandomState(0.0001, 1000);
+            this.CurrentState = this.PrevState;
         end
 
         % Simulate nIter number of state transitions
         function Step(this, nIter)
             for i=1:nIter
                 % Advance to the next state with given probabilities
-                p = this.transitions(this.CurrentState, :);
+                this.PrevState = this.CurrentState;
+                p = this.transitions(this.PrevState, :);
                 this.CurrentState = randsample(this.sampleIndices, 1, true, p);
                 
                 % Log metrics for this state
@@ -55,26 +57,78 @@ classdef dcf_simulator_oo < handle
             end
         end
         
-        % Count up success states
+        % Count up success transitions
         function successes = CountSuccesses(this)
             successes = 0;
             
             nStates = size(this.stateTypes,2);
             for src = 1:nStates
                 for dst = 1:nStates
+                    dstType = this.stateTypes(dst);
                     
+                    if (dstType == dcf_state_type.Transmit)
+                        successes = successes + this.TransitionCount(src,dst);
+                    end
                 end
             end
+            
+            % TEST
+            foobar = zeros(nStates,nStates);
+            for src = 1:nStates
+                for dst = 1:nStates
+                    srcType = this.stateTypes(src);
+                    dstType = this.stateTypes(dst);
+                    
+                    % SUCCESSES
+                    if (dstType == dcf_state_type.Transmit)
+                        foobar(src,dst) = 1 + foobar(src,dst);
+                    end
+                    
+                    % FAILS
+                    if (srcType == dcf_state_type.Transmit && dstType == dcf_state_type.Backoff)
+                        foobar(src,dst) = 2 + foobar(src,dst);
+                    end
+                    
+                    % WAITS
+                    if (srcType == dstType && srcType == dcf_state_type.Backoff)
+                        foobar(src,dst) = 4 + foobar(src,dst);
+                    end
+                end
+            end
+            
+            foobar
         end
         
-        % Count up failure states
+        % Count up failure transitions
         function failures = CountFailures(this)
             failures = 0;
             
             nStates = size(this.stateTypes,2);
             for src = 1:nStates
                 for dst = 1:nStates
+                    srcType = this.stateTypes(src);
+                    dstType = this.stateTypes(dst);
                     
+                    if (srcType == dcf_state_type.Transmit && dstType == dcf_state_type.Backoff)
+                        failures = failures + this.TransitionCount(src,dst);
+                    end
+                end
+            end
+        end
+        
+        % Count up wait (backoff) transitions
+        function waits = CountWaits(this)
+            waits = 0;
+            
+            nStates = size(this.stateTypes,2);
+            for src = 1:nStates
+                for dst = 1:nStates
+                    srcType = this.stateTypes(src);
+                    dstType = this.stateTypes(dst);
+                    
+                    if (srcType == dstType && srcType == dcf_state_type.Backoff)
+                        waits = waits + this.TransitionCount(src,dst);
+                    end
                 end
             end
         end
