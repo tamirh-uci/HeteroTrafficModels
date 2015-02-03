@@ -79,4 +79,7 @@ end
 pi = dcf.TransitionTable();
 assert( dcf.Verify() );
 
+steadyState = dcf.SteadyState(0.001, 100);
+steadyState
+
 end

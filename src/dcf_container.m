@@ -98,6 +98,21 @@ classdef dcf_container < handle
             end
         end
         
+        % Generate the steady state matrix
+        function m = SteadyState(this, threshold, maxIter)
+            m = this.TransitionTable();
+            
+            diff = threshold;
+            iter = 1;
+            while(diff >= threshold && iter <= maxIter)
+                mPrev = m;
+                m = m * m;
+                
+                iter = iter + 1;
+                diff = norm(mPrev - m);
+            end
+        end
+        
         % Verify transitions are valid
         % Currently just sums up rows and checks to see if it's 1
         function valid = Verify(this)
