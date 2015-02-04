@@ -11,11 +11,17 @@ classdef dcf_simulator_oo < handle
     end %properties (SetAccess = public)
     
     properties (SetAccess = protected)
-        % The DCF we are simulating
+        % The DCFs we are simulating, expect 2 DCF objects
+        % 1: Normal probability
+        % 2: 100% Failure probability
         dcf@dcf_container;
+        dcfFail@dcf_container;
         
-        % The transition table for the DCF
+        % The transition table for the DCF with normal p
         transitions;
+        
+        % The transition table for the DCF with p=0
+        transitionsFails;
         
         % The vector of state types for each state
         stateTypes;
@@ -29,18 +35,21 @@ classdef dcf_simulator_oo < handle
     
     methods
         % Constructor
-        function obj = dcf_simulator_oo(dcfIn, nNodesIn)
+        function obj = dcf_simulator_oo(dcfIn, dcfFailIn, nNodesIn)
             obj = obj@handle();
             obj.dcf = dcfIn;
+            obj.dcfFail = dcfFailIn;
             obj.nNodes = nNodesIn;
         end
         
         % Initialize the object and ready it for calls to StepSimulate
         function Setup(this)
-            this.transitions = this.dcf.TransitionTable();
             this.stateTypes = this.dcf.StateTypes();
-            nStates = size(this.stateTypes,2);
             
+            this.transitions = this.dcf.TransitionTable();
+            this.transitionsFails = this.dcfFail.TransitionTable();
+            
+            nStates = size(this.stateTypes,2);
             this.sampleIndices = 1:nStates;
             
             % Setup node data
@@ -70,13 +79,20 @@ classdef dcf_simulator_oo < handle
             for i=1:this.nNodes
                 % Advance to the next state with given probabilities
                 this.PrevState(i) = this.CurrentState(i);
-                p = this.transitions(this.PrevState(i), :);
-                this.CurrentState(i) = randsample(this.sampleIndices, 1, true, p);
+                pCur = this.transitions(this.PrevState(i), :);
+                this.CurrentState(i) = randsample(this.sampleIndices, 1, true, pCur);
             end
             
-            % Handle interactions between nodes
-            for i=1:this.nNodes
-                % TODO: Handle collisions
+            % Handle multiple nodes trying to transmit at once
+            transmitting = find(this.CurrentState == dcf_state_type.Transmit);
+            nTransmitting = size(transmitting,2);
+            if (nTransmitting > 1)
+                for i=1:nTransmitting
+                    % Force all of these into failure states by using the
+                    % transition table for when there are 100% failures
+                    pCur = this.transitionsFails(this.PrevState(i), :);
+                    this.CurrentState(i) = randsample(this.sampleIndices, 1, true, pCur);
+                end
             end
             
             % Log metrics for all nodes
