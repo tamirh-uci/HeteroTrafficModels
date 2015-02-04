@@ -29,10 +29,10 @@ classdef dcf_simulator_oo < handle
     
     methods
         % Constructor
-        function obj = dcf_simulator_oo(dcfIn, nNodes)
+        function obj = dcf_simulator_oo(dcfIn, nNodesIn)
             obj = obj@handle();
             obj.dcf = dcfIn;
-            obj.nNodes = nNodes;
+            obj.nNodes = nNodesIn;
         end
         
         % Initialize the object and ready it for calls to StepSimulate
@@ -44,7 +44,7 @@ classdef dcf_simulator_oo < handle
             this.sampleIndices = 1:nStates;
             
             % Setup node data
-            this.TransitionCount(iNode) = zeros(this.nNodes, nStates, nStates);
+            this.TransitionCount = zeros(this.nNodes, nStates, nStates);
             for i=1:this.nNodes
                 this.SetupNode(i);
             end
@@ -58,6 +58,12 @@ classdef dcf_simulator_oo < handle
             this.CurrentState(iNode) = startState;
         end
         
+        % Simulate multipler timer transitions for all nodes
+        function Steps(this, nSteps)
+            for i=1:nSteps
+                this.Step();
+            end
+        end
 
         % Simulate single timer transition for all nodes
         function Step(this)
@@ -83,7 +89,7 @@ classdef dcf_simulator_oo < handle
         
         % Count up success transitions
         function successes = CountSuccesses(this)
-            successes = 0;
+            successes = zeros(1, this.nNodes);
             
             nStates = size(this.stateTypes,2);
             for src = 1:nStates
@@ -91,7 +97,7 @@ classdef dcf_simulator_oo < handle
                     dstType = this.stateTypes(dst);
                     
                     if (dstType == dcf_state_type.Transmit)
-                        successes = successes + this.TransitionCount(src,dst);
+                        successes = successes + this.TransitionCount(:,src,dst);
                     end
                 end
             end
@@ -99,7 +105,7 @@ classdef dcf_simulator_oo < handle
         
         % Count up failure transitions
         function failures = CountFailures(this)
-            failures = 0;
+            failures = zeros(1, this.nNodes);
             
             nStates = size(this.stateTypes,2);
             for src = 1:nStates
@@ -108,7 +114,7 @@ classdef dcf_simulator_oo < handle
                     dstType = this.stateTypes(dst);
                     
                     if (srcType == dcf_state_type.Transmit && dstType == dcf_state_type.Backoff)
-                        failures = failures + this.TransitionCount(src,dst);
+                        failures = failures + this.TransitionCount(:,src,dst);
                     end
                 end
             end
@@ -116,7 +122,7 @@ classdef dcf_simulator_oo < handle
         
         % Count up wait (backoff) transitions
         function waits = CountWaits(this)
-            waits = 0;
+            waits = zeros(1, this.nNodes);
             
             nStates = size(this.stateTypes,2);
             for src = 1:nStates
@@ -125,7 +131,7 @@ classdef dcf_simulator_oo < handle
                     dstType = this.stateTypes(dst);
                     
                     if (srcType == dstType && srcType == dcf_state_type.Backoff)
-                        waits = waits + this.TransitionCount(src,dst);
+                        waits = waits + this.TransitionCount(:,src,dst);
                     end
                 end
             end
