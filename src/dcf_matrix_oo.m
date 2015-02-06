@@ -21,7 +21,7 @@ dims = [nRows, nColsMax]; % store the dimensions of each state
 for i = 1:nRows
     wCols = W(1,i);
     
-    % transmit states
+    % transmit attempt states
     for k = beginXmitCol:beginBackoffCol-1
         dcf.NewState( dcf_state( [i, k], dcf_state_type.Transmit ) );
     end
@@ -34,7 +34,7 @@ for i = 1:nRows
     % unused states
     if (wCols < nColsMax)
         for k=wCols+1:nColsMax
-            dcf.NewState( dcf_state( [i, k], dcf_state_type.Null ) );
+            %dcf.NewState( dcf_state( [i, k], dcf_state_type.Null ) );
         end
     end
 end
@@ -56,7 +56,7 @@ for i = 1:nRows
     pNext = p / wColsNext;
     
     for k = beginXmitCol:wColsNext
-        dcf.SetP( [i,beginXmitCol], [nextStage,k], pNext );
+        dcf.SetP( [i,beginXmitCol], [nextStage,k], pNext, dcf_transition_type.TxFailure );
     end
     
     % Success case
@@ -65,18 +65,18 @@ for i = 1:nRows
     % CASE 2
     pSuccess = (1 - p) / W(1,1);
     for k = beginXmitCol:W(1,1)
-        dcf.SetP( [i,beginXmitCol], [beginXmitCol,k], pSuccess );
+        dcf.SetP( [i,beginXmitCol], [beginXmitCol,k], pSuccess, dcf_transition_type.TxSuccess );
     end
     
     % Initialize the probabilities from backoff stages to the transmission
     % stage (all stages k > 1)
     % CASE 1
     for k = beginBackoffCol:wCols
-        dcf.SetP( [i,k], [i,k-1], 1.0 );
+        dcf.SetP( [i,k], [i,k-1], 1.0, dcf_transition_type.Backoff );
     end
 end
 
-pi = dcf.TransitionTable();
+[pi, ~] = dcf.TransitionTable();
 assert( dcf.Verify() );
 
 end
