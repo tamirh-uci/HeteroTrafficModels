@@ -8,11 +8,21 @@ packetMax = 2;
 
 %%%% Transition matrix generation
 %[pi, dims] = dcf_matrix(p, m, Wmin);
-[pi, dims] = dcf_matrix_varpacket(p, m, Wmin, packetMax);
-[groundProbability] = dcf_ground_state(p, Wmin, m);
+[piFail, dimsFail, dcfFail] = dcf_matrix_oo(0, m, Wmin);
+[pi, dims, dcf] = dcf_matrix_oo(p, m, Wmin);
+
+sim = dcf_simulator_oo(dcf, dcfFail, 1);
+sim.Setup();
+sim.Steps(1000);
+
+successes = sim.CountSuccesses()
+failures = sim.CountFailures()
+waits = sim.CountWaits()
 
 dims
 pi
+
+[groundProbability] = dcf_ground_state(p, Wmin, m);
 
 %%%% Metrics computation
 % Note: all time parameters must have the same units
