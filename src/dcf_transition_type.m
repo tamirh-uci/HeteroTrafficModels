@@ -7,5 +7,6 @@ classdef dcf_transition_type < int32
         TxSuccess (1)
         TxFailure (2)
         Backoff (4)
+        PacketSize (8)
     end
 end
