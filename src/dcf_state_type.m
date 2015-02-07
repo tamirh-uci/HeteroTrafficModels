@@ -5,6 +5,7 @@ classdef dcf_state_type < int32
         Null (0)
         Transmit (1)
         Backoff (2)
-        PacketLength (4)
+        PacketSize (4)
+        Interarrival (8)
     end
 end
