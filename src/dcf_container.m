@@ -57,7 +57,7 @@ classdef dcf_container < handle
         % srcKey: dimensioned index
         % dstKey: dimensioned index
         % p: probability from [0,1]
-        function SetP(this, srcKey, dstKey, p)
+        function SetP(this, srcKey, dstKey, p, txLabel)
             srcKey = dcf_state.MakeKey(srcKey);
             dstKey = dcf_state.MakeKey(dstKey);
             
@@ -65,16 +65,20 @@ classdef dcf_container < handle
             
             srcState = this.S(srcKey);
             srcState.P(dstKey) = p;
+            srcState.TX(dstKey) = int32(txLabel);
             
             %fprintf('setting %s => %s to %f\n', srcKey, dstKey, p);
         end
         
         % Convert the states into a transition table
-        function t = TransitionTable(this)
+        % pi: transition probabilities
+        % tx: transition labels
+        function [pi, tx] = TransitionTable(this)
             srcStates = this.S.values();
             assert( size(srcStates,2)==this.nStates );
             
-            t = zeros(this.nStates, this.nStates);
+            pi = zeros(this.nStates, this.nStates);
+            tx = zeros(this.nStates, this.nStates);
             
             % For all source states
             for i=1:this.nStates
@@ -91,7 +95,8 @@ classdef dcf_container < handle
                     dst = this.S(dstKey);
                     
                     % Set the probability in the 2d transition table
-                    t(src.IF, dst.IF) = src.P(dstKey);
+                    pi(src.IF, dst.IF) = src.P(dstKey);
+                    tx(src.IF, dst.IF) = src.TX(dstKey);
                     
                     %fprintf('keys: %s => %s, index: %d => %d, prob: %f\n', src.Key, dstKey, src.IF, dst.IF, src.P(dstKey));
                 end

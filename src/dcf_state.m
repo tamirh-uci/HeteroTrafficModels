@@ -16,6 +16,9 @@ classdef dcf_state < handle
         
         % HashTable of nonzero transition probabilities to other states
         P@containers.Map
+        
+        % HashTable of types of transitions to other states
+        TX@containers.Map
     end %properties
     
     methods(Static)
@@ -37,6 +40,7 @@ classdef dcf_state < handle
             obj = obj@handle();
             obj.Type = type;
             obj.P = containers.Map('KeyType', 'char', 'ValueType', 'double');
+            obj.TX = containers.Map('KeyType', 'char', 'ValueType', 'int32');
             
             if (ischar(key))
                 obj.Key = key;

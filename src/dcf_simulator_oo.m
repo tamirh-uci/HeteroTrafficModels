@@ -18,10 +18,13 @@ classdef dcf_simulator_oo < handle
         dcfFail@dcf_container;
         
         % The transition table for the DCF with normal p
-        transitions;
+        txP;
         
         % The transition table for the DCF with p=0
-        transitionsFails;
+        txPFail;
+        
+        % The transition table with labels of types of transitions
+        txTypes;
         
         % The vector of state types for each state
         stateTypes;
@@ -46,8 +49,9 @@ classdef dcf_simulator_oo < handle
         function Setup(this)
             this.stateTypes = this.dcf.StateTypes();
             
-            this.transitions = this.dcf.TransitionTable();
-            this.transitionsFails = this.dcfFail.TransitionTable();
+            [this.txP, this.txTypes]= this.dcf.TransitionTable();
+            this.txPFail = this.dcfFail.TransitionTable();
+            this.txTypes
             
             nStates = size(this.stateTypes,2);
             this.sampleIndices = 1:nStates;
@@ -79,7 +83,7 @@ classdef dcf_simulator_oo < handle
             for i=1:this.nNodes
                 % Advance to the next state with given probabilities
                 this.PrevState(i) = this.CurrentState(i);
-                pCur = this.transitions(this.PrevState(i), :);
+                pCur = this.txP(this.CurrentState(i), :);
                 this.CurrentState(i) = randsample(this.sampleIndices, 1, true, pCur);
             end
             
@@ -90,7 +94,8 @@ classdef dcf_simulator_oo < handle
                 for i=1:nTransmitting
                     % Force all of these into failure states by using the
                     % transition table for when there are 100% failures
-                    pCur = this.transitionsFails(this.PrevState(i), :);
+                    % TODO: Verify this works correctly
+                    pCur = this.txPFail(this.PrevState(i), :);
                     this.CurrentState(i) = randsample(this.sampleIndices, 1, true, pCur);
                 end
             end
@@ -106,14 +111,12 @@ classdef dcf_simulator_oo < handle
         % Count up success transitions
         function successes = CountSuccesses(this)
             successes = zeros(1, this.nNodes);
-            
+
             nStates = size(this.stateTypes,2);
             for src = 1:nStates
                 for dst = 1:nStates
-                    dstType = this.stateTypes(dst);
-                    
-                    if (dstType == dcf_state_type.Transmit)
-                        successes = successes + this.TransitionCount(:,src,dst);
+                    if (this.txTypes(src,dst) == dcf_transition_type.TxSuccess)
+                        successes = successes + this.TransitionCount(:, src, dst);
                     end
                 end
             end
@@ -126,11 +129,8 @@ classdef dcf_simulator_oo < handle
             nStates = size(this.stateTypes,2);
             for src = 1:nStates
                 for dst = 1:nStates
-                    srcType = this.stateTypes(src);
-                    dstType = this.stateTypes(dst);
-                    
-                    if (srcType == dcf_state_type.Transmit && dstType == dcf_state_type.Backoff)
-                        failures = failures + this.TransitionCount(:,src,dst);
+                    if (this.txTypes(src,dst) == dcf_transition_type.TxFailure)
+                        failures = failures + this.TransitionCount(:, src, dst);
                     end
                 end
             end
@@ -143,11 +143,8 @@ classdef dcf_simulator_oo < handle
             nStates = size(this.stateTypes,2);
             for src = 1:nStates
                 for dst = 1:nStates
-                    srcType = this.stateTypes(src);
-                    dstType = this.stateTypes(dst);
-                    
-                    if (srcType == dstType && srcType == dcf_state_type.Backoff)
-                        waits = waits + this.TransitionCount(:,src,dst);
+                    if (this.txTypes(src,dst) == dcf_transition_type.Backoff)
+                        waits = waits + this.TransitionCount(:, src, dst);
                     end
                 end
             end
