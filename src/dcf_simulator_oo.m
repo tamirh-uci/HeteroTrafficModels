@@ -92,7 +92,6 @@ classdef dcf_simulator_oo < handle
             nTransmitting = size(transmitting,2);
             if (nTransmitting > 1)
                 for i=1:nTransmitting
-                    assert(false);
                     % Force all of these into failure states by using the
                     % transition table for when there are 100% failures
                     % TODO: Verify this works correctly
