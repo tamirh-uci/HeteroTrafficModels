@@ -15,18 +15,13 @@ classdef dcf_matrix_oo < handle
         % transmissions will be [1:nPkt] length
         nPkt;
 
-        % number of states in the interarrival chain, the more states the
-        % closer to a normal distribution it will have
-        % TODO: chose a distribution and don't just use a prob to exit chain
+        % number of states in the interarrival chain, we will jump to one
+        % randomly with probability pEnterInterarrival
         nInterarrival;
         
         % probability to enter the interarrival chain, so probability there is
         % not a packet immediately ready to send
         pEnterInterarrival;
-
-        % probability to exit the interarrival chain
-        % TODO: choose a distribution and don't just use a prob to exit chain
-        pExitInterarrival;
     end %properties (SetAccess = public)
 
     properties (SetAccess = protected)
@@ -56,7 +51,6 @@ classdef dcf_matrix_oo < handle
             obj.nPkt = 0;
             obj.nInterarrival = 0;
             obj.pEnterInterarrival = 0;
-            obj.pExitInterarrival = 1;
         end
         
         function CalculateConstants(this)
@@ -66,7 +60,6 @@ classdef dcf_matrix_oo < handle
 
             if (this.nInterarrival < 1 || this.pEnterInterarrival == 0)
                 this.nInterarrival = 0;
-                this.pExitInterarrival = 1;
                 this.pEnterInterarrival = 0;
             end
 
@@ -154,6 +147,9 @@ classdef dcf_matrix_oo < handle
                 pInterarrivalSuccess = 1 - pDistSuccess;
                 pDistSuccess = pDistSuccess / this.W(1,1);
                 
+                % TODO: The way it's set up now it will always send 1
+                % packet and then go to interarrival chain to see if there
+                % are more. It should go straight to interarrival chain.
                 for k = 1:this.W(1,1)
                     dcf.SetP( [i,1], [1,k], pDistSuccess, dcf_transition_type.TxSuccess );
                 end
@@ -167,16 +163,10 @@ classdef dcf_matrix_oo < handle
                         % probability we enter the interarrival chain at any of
                         % the possible chain locations
                         dcf.SetP( [i,1], [i,1,1,k], pInterarrivalSuccess, dcf_transition_type.Interarrival );
-
-                        % probability we stay in this state
-                        dcf.SetP( [i,1,1,k], [i,1,1,k], pInterarrivalSuccess, dcf_transition_type.Interarrival );
                         
                         if (k > 1)
-                            % stay in the chain
-                            dcf.SetP( [i,1,1,k], [i,1,1,k], 1 - this.pExitInterarrival, dcf_transition_type.Interarrival );
-                            
                             % move down along the chain
-                            dcf.SetP( [i,1,1,k], [i,1,1,k-1], this.pExitInterarrival, dcf_transition_type.Interarrival );
+                            dcf.SetP( [i,1,1,k], [i,1,1,k-1], 1, dcf_transition_type.Interarrival );
                         else % we are exiting the chain
                             % possible success
                             for j = 1:this.W(1,1)
