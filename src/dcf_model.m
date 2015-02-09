@@ -7,19 +7,25 @@ packetMax = 2;
 % -> W = (2 4)
 
 %%%% Transition matrix generation
-%[pi, dims] = dcf_matrix(p, m, Wmin);
-[piFail, dimsFail, dcfFail] = dcf_matrix_oo(1.0, m, Wmin, 1);
-[pi, dims, dcf] = dcf_matrix_oo(p, m, Wmin, 1);
+dcf_matrix = dcf_matrix_oo();
+dcf_matrix.m = m;
+dcf_matrix.wMin = Wmin;
+dcf_matrix.pEnterInterarrival = 0.5;
+dcf_matrix.pExitInterarrival = 0.1;
+
+[piFail, dimsFail, dcfFail] = dcf_matrix.CreateMatrix(1.0, 0, 0);
+[pi, dims, dcf] = dcf_matrix.CreateMatrix(p, 0, 0);
 
 sim = dcf_simulator_oo(dcf, dcfFail, 1);
 sim.Setup();
 sim.Steps(10000);
 
-successes = sim.CountSuccesses()
-failures = sim.CountFailures()
-waits = sim.CountWaits()
+successes = sim.CountSuccesses();
+failures = sim.CountFailures();
+waits = sim.CountWaits();
+successPercent = successes/(successes+failures)
+transmitPercent = successes/(successes+failures+waits)
 
-dims
 pi
 
 [groundProbability] = dcf_ground_state(p, Wmin, m);
@@ -38,6 +44,6 @@ P_tr = (1 - (1 - tau)^n)
 P_s = (n * tau * (1 - tau)^(n - 1)) / (1 - (1 - tau)^n)
 [S] = dcf_throughput( P_s, P_tr, E_p, sigma, T_s, T_c );
 
-S
+S;
 
 % 2. Packet loss probability

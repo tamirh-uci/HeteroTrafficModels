@@ -51,7 +51,6 @@ classdef dcf_simulator_oo < handle
             
             [this.txP, this.txTypes]= this.dcf.TransitionTable();
             this.txPFail = this.dcfFail.TransitionTable();
-            this.txTypes
             
             nStates = size(this.stateTypes,2);
             this.sampleIndices = 1:nStates;
