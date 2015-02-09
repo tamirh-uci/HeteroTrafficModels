@@ -1,7 +1,8 @@
 % dcf_matrix Generate the transition probability matrix using classes
-function [ pi, dims, dcf ] = dcf_matrix_oo( p, m, Wmin, nPkt )
+function [ pi, dims, dcf ] = dcf_matrix_oo( pFail, m, Wmin, nPkt, nInterarrival )
 
 % constants
+pSuccess = 1 - pFail;
 nRows = m + 1;
 beginXmitCol = 1;
 beginBackoffCol = beginXmitCol + 1;
@@ -18,7 +19,7 @@ dcf = dcf_container();
 dims = [nRows, nColsMax]; % store the dimensions of each state
 
 % Create all of the states
-% current format is [row, col, nPkt]
+% current format is [row, col, nPkt, nInterarrival]
 for i = 1:nRows
     wCols = W(1,i);
     
@@ -32,11 +33,16 @@ for i = 1:nRows
         dcf.NewState( dcf_state( [i, k], dcf_state_type.Backoff ) );
     end
     
-    % packet size 'calculation' stages
+    % packet size 'calculation' states
     if (nPkt > 1)
         for k = 2:nPkt
-            dcf.NewState( dcf_state( [i, 1, k], dcf_state_type.Backoff ) );
+            dcf.NewState( dcf_state( [i, 1, k], dcf_state_type.PacketSize ) );
         end
+    end
+    
+    % interarival time 'calculation' states
+    for k = 1:nInterarrival
+        dcf.NewState( dcf_state( [i, 1, 1, k], dcf_state_type.Interarrival ) );
     end
     
     % unused states
@@ -61,30 +67,30 @@ for i = 1:nRows
     % Failure case
     % CASE 3/4
     wColsNext = W(1, nextStage);
-    pNext = p / wColsNext;
+    pDistFail = pFail / wColsNext;
     
     for k = beginXmitCol:wColsNext
-        dcf.SetP( [i,beginXmitCol], [nextStage,k], pNext, dcf_transition_type.TxFailure );
+        dcf.SetP( [i,beginXmitCol], [nextStage,k], pDistFail, dcf_transition_type.TxFailure );
     end
         
     % Success case
     % If success, we have equal probability to go to each of the variable
     % packet countdown states
     % CASE 2
-    pSuccess = (1 - p) / W(1,1);
+    pDistSuccess = pSuccess / W(1,1);
     for k = beginXmitCol:W(1,1)
-        dcf.SetP( [i,beginXmitCol], [beginXmitCol,k], pSuccess, dcf_transition_type.TxSuccess );
+        dcf.SetP( [i,beginXmitCol], [beginXmitCol,k], pDistSuccess, dcf_transition_type.TxSuccess );
     end
 
     
     if (nPkt > 1)
-        pPktNSuccess = (1 - p) / nPkt;
+        pPktNSuccess = pSuccess / nPkt;
         
         % Recalculate success transitions for when a single packet succeeds
         % We go into the regular success states in stage 0
         % This is the same for our packet chain at 2
         pPkt1Success = pPktNSuccess / W(1,1);
-        pPkt2Success = (1 - p) / W(1,1);
+        pPkt2Success = pSuccess / W(1,1);
         for k = 1:W(1,1)
             dcf.SetP( [i, 1],    [1,k], pPkt1Success, dcf_transition_type.TxSuccess );
             dcf.SetP( [i, 1, 2], [1,k], pPkt2Success, dcf_transition_type.TxSuccess );
@@ -107,7 +113,7 @@ for i = 1:nRows
         % chain states (dst same as the normal transmit attempt states)
         for srcK = 2:nPkt
             for destK = beginXmitCol:wColsNext
-                dcf.SetP( [i, 1, srcK], [nextStage, destK], pNext, dcf_transition_type.TxFailure );
+                dcf.SetP( [i, 1, srcK], [nextStage, destK], pDistFail, dcf_transition_type.TxFailure );
             end
         end
     end
@@ -121,7 +127,6 @@ for i = 1:nRows
 end
 
 [pi, ~] = dcf.TransitionTable();
-pi
 assert( dcf.Verify() );
 
 end
