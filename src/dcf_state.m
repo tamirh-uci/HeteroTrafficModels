@@ -8,11 +8,11 @@ classdef dcf_state < handle
         % Logical indexing in N dimensions as an array of indices
         % format: "[<dimension1>, <dimension2>, ... <dimensionN>]"
         % format: can be obtained by using mat2str
-        Key@char = '[-1, -1]';
+        Key@char = '[Null]';
         
         % The calculated index for the flattened version of the state table
         % TODO: Figure out why we can't restrict this to int32 w/o error?
-        IF = -1;
+        IF@int32 = int32(-1);
         
         % HashTable of nonzero transition probabilities to other states
         P@containers.Map
