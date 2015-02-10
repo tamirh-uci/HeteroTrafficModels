@@ -9,6 +9,9 @@ classdef dcf_container < handle
         
         % Current number of states held
         nStates@int32 = int32(0);
+        
+        % Mapping from original indices to collapsed table size indices
+        CollapseIndex@containers.Map;
     end %properties
     
     methods
@@ -16,6 +19,7 @@ classdef dcf_container < handle
         function obj = dcf_container()
             obj = obj@handle();
             obj.S = containers.Map('KeyType', 'char', 'ValueType', 'any');
+            obj.CollapseIndex = containers.Map('KeyType', 'int32', 'ValueType', 'int32');
         end
         
         % Insert a new state into the set
@@ -91,7 +95,7 @@ classdef dcf_container < handle
                         dstKey = dstKeys{j};
                         dst = this.S(dstKey);
                         
-                        % Perform collapse passes on this state
+                        % Perform collapse pass on this state
                         if (dst.Type == dcf_state_type.Collapsible)
                             % Our probability to go to collapsible state
                             pBase = src.P(dstKey);
@@ -112,12 +116,41 @@ classdef dcf_container < handle
                                 this.SetP(src.Key, dstFromCollapsibleKey, pCurrent, src.TX(dstKey));
                             end
                             
-                            % Now remove the state transitions from the
-                            % collapsible state so it will be removed
-                            dst.P.remove(dstFromCollapsibleKeys);
-                            dst.TX.remove(dstFromCollapsibleKeys);
+                            % Remove the transition to this collapsible
+                            % state because we have already 'traveled' it
+                            src.P.remove(dstKey);
+                            src.TX.remove(dstKey);
                         end
                     end
+                end
+            end
+            
+            % Calculate new indicies
+            validStates = int32(0);
+            for i=1:this.nStates
+                src = srcStates{i};
+                
+                if (src.Type == dcf_state_type.Collapsible)
+                    continue;
+                end
+                
+                validStates = validStates + 1;
+                this.CollapseIndex(src.IF) = validStates;
+            end
+        end
+        
+        function nNonCollapsible = CountNonCollapsibleStates(this)
+            % Look at all of the source states
+            srcStates = this.S.values();
+            assert(size(srcStates,2) == this.nStates);
+            
+            nNonCollapsible = 0;
+            for i=1:this.nStates
+                src = srcStates{i};
+                
+                % We only care about non-collapsible sources
+                if (src.Type ~= dcf_state_type.Collapsible)
+                    nNonCollapsible = nNonCollapsible + 1;
                 end
             end
         end
@@ -132,22 +165,23 @@ classdef dcf_container < handle
                 src = srcStates{i};
                 
                 % We only care about non-collapsible sources
-                if (src.Type ~= dcf_state_type.Collapsible)
-                    dstKeys = src.P.keys();
-                    nDst = size(dstKeys, 2);
+                if (src.Type == dcf_state_type.Collapsible)
+                    continue;
+                end
+                
+                % For all destination keys from this source
+                dstKeys = src.P.keys();
+                nDst = size(dstKeys, 2);
+                for j=1:nDst
+                    dstKey = dstKeys{j};
+                    dst = this.S(dstKey);
 
-                    % For all destination keys from this source
-                    for j=1:nDst
-                        dstKey = dstKeys{j};
-                        dst = this.S(dstKey);
-
-                        % We only carea about collapsible destinations
-                        if (dst.Type == dcf_state_type.Collapsible)
-                            % Must have non-zero probability of transition
-                            if (src.P(dstKey) > 0)
-                                % We have a non-collapsed transition still
-                                nCollapsible = nCollapsible + 1;
-                            end
+                    % We only carea about collapsible destinations
+                    if (dst.Type == dcf_state_type.Collapsible)
+                        % Must have non-zero probability of transition
+                        if (src.P(dstKey) > 0)
+                            % We have a non-collapsed transition still
+                            nCollapsible = nCollapsible + 1;
                         end
                     end
                 end
@@ -161,12 +195,19 @@ classdef dcf_container < handle
             srcStates = this.S.values();
             assert( size(srcStates,2)==this.nStates );
             
-            pi = zeros(this.nStates, this.nStates);
-            tx = zeros(this.nStates, this.nStates);
+            nNonCollapsible = this.CountNonCollapsibleStates();
+            pi = zeros(nNonCollapsible, nNonCollapsible);
+            tx = zeros(nNonCollapsible, nNonCollapsible);
             
             % For all source states
             for i=1:this.nStates
                 src = srcStates{i};
+                
+                % Ignore collapsible states
+                if (src.Type == dcf_state_type.Collapsible)
+                    continue; 
+                end
+                
                 dstKeys = src.P.keys();
                 nDst = size(dstKeys, 2);
                 
@@ -177,10 +218,21 @@ classdef dcf_container < handle
                     % Find the actual state object
                     assert(this.S.isKey(dstKey));
                     dst = this.S(dstKey);
+                
+                    % Ignore collapsible states
+                    if (dst.Type == dcf_state_type.Collapsible)
+                        continue;
+                    end
+
+                    % TODO: Add code to verify all collapsible states are
+                    % at the end so we don't need to re-index
                     
                     % Set the probability in the 2d transition table
-                    pi(src.IF, dst.IF) = src.P(dstKey);
-                    tx(src.IF, dst.IF) = src.TX(dstKey);
+                    srcIndex = this.CollapseIndex(src.IF);
+                    dstIndex = this.CollapseIndex(dst.IF);
+                    
+                    pi(srcIndex, dstIndex) = src.P(dstKey);
+                    tx(srcIndex, dstIndex) = src.TX(dstKey);
                     
                     %fprintf('keys: %s => %s, index: %d => %d, prob: %f\n', src.Key, dstKey, src.IF, dst.IF, src.P(dstKey));
                 end
@@ -207,13 +259,20 @@ classdef dcf_container < handle
         
         % Generate a vector which holds each state type
         function st = StateTypes(this)
-            st = dcf_state_type.empty(0,this.nStates);
+            st = dcf_state_type.empty(0,this.CountNonCollapsibleStates());
             
             % For all source states
+            validIndex = 0;
             srcStates = this.S.values();
             for i=1:this.nStates
                 src = srcStates{i};
-                st(i) = src.Type;
+                
+                if (src.Type == dcf_state_type.Collapsible)
+                    continue;
+                end
+                
+                validIndex = validIndex + 1;
+                st(validIndex) = src.Type;
             end
         end
         
@@ -223,7 +282,7 @@ classdef dcf_container < handle
             steady = this.SteadyState(threshold, maxIter);
             
             % All rows should be equal at this point, just take the 1st
-            state = randsample(1:this.nStates, 1, true, steady);
+            state = randsample(1:this.CountNonCollapsibleStates(), 1, true, steady);
         end
 
         % Verify transitions are valid

@@ -52,11 +52,11 @@ classdef dcf_simulator_oo < handle
             [this.txP, this.txTypes]= this.dcf.TransitionTable();
             this.txPFail = this.dcfFail.TransitionTable();
             
-            nStates = size(this.stateTypes,2);
-            this.sampleIndices = 1:nStates;
+            nValidStates = size(this.txP, 2);
+            this.sampleIndices = 1:nValidStates;
             
             % Setup node data
-            this.TransitionCount = zeros(this.nNodes, nStates, nStates);
+            this.TransitionCount = zeros(this.nNodes, nValidStates, nValidStates);
             for i=1:this.nNodes
                 this.SetupNode(i);
             end
