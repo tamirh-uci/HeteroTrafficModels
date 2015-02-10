@@ -100,7 +100,7 @@ classdef dcf_container < handle
                             dstFromCollapsibleKeys = dst.P.keys();
                             nDstFromCollapsible = size(dstFromCollapsibleKeys, 2);
                             for k=1:nDstFromCollapsible
-                                dstFromCollapsibleKey = dstFromCollapsibleKeys(k);
+                                dstFromCollapsibleKey = dstFromCollapsibleKeys{k};
                                 
                                 % multiply this probability out and add it
                                 % to the original source probabilities to
@@ -109,7 +109,7 @@ classdef dcf_container < handle
                                 pCurrent = pCurrent + (pBase * dst.P(dstFromCollapsibleKey));
                                 
                                 assert(src.TX(dstKey) == dst.TX(dstFromCollapsibleKey));
-                                this.SetP(src.Key, dstFromCollapsibleKey, pCurrent, src.TX(dst));
+                                this.SetP(src.Key, dstFromCollapsibleKey, pCurrent, src.TX(dstKey));
                             end
                             
                             % Now remove the state transitions from the
