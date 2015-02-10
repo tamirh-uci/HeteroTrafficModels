@@ -70,6 +70,89 @@ classdef dcf_container < handle
             %fprintf('setting %s => %s to %f\n', srcKey, dstKey, p);
         end
         
+        % Collapse all 'instant' states down and calculate the final state
+        % probabilities
+        function Collapse(this)
+            nCollapsePasses = 0;
+            while (this.CountCollapsibleStates() > 0 && nCollapsePasses < 16)
+                % Make sure we don't infinite loop somehow
+                nCollapsePasses = nCollapsePasses + 1;
+                assert(nCollapsePasses < 16);
+                
+                % Look at all of the source states
+                srcStates = this.S.values();
+                for i=1:this.nStates
+                    src = srcStates{i};
+                    
+                    % For all dst states in the original src
+                    dstKeys = src.P.keys();
+                    nDst = size(dstKeys, 2);
+                    for j=1:nDst
+                        dstKey = dstKeys{j};
+                        dst = this.S(dstKey);
+                        
+                        % Perform collapse passes on this state
+                        if (dst.Type == dcf_state_type.Collapsible)
+                            % Our probability to go to collapsible state
+                            pBase = src.P(dstKey);
+                            
+                            % For all states reachable from collapsible
+                            dstFromCollapsibleKeys = dst.P.keys();
+                            nDstFromCollapsible = size(dstFromCollapsibleKeys, 2);
+                            for k=1:nDstFromCollapsible
+                                dstFromCollapsibleKey = dstFromCollapsibleKeys(i);
+                                
+                                % multiply this probability out and add it
+                                % to the original source probabilities to
+                                % this current state
+                                pCurrent = this.P(srcKey, dstFromCollapsibleKey);
+                                pCurrent = pCurrent + (pBase * dst.P(dstFromCollapsibleKey));
+                                
+                                assert(src.TX(dstKey) == dst.TX(dstFromCollapsibleKey));
+                                this.SetP(srcKey, dstFromCollapsibleKey, pCurrent, src.TX(dst));
+                            end
+                            
+                            % Now remove the state transitions from the
+                            % collapsible state so it will be removed
+                            dst.P.remove(dstFromCollapsibleKeys);
+                            dst.TX.remove(dstFromCollapsibleKeys);
+                        end
+                    end
+                end
+            end
+        end
+        
+        function nCollapsible = CountCollapsibleStates(this)
+            nCollapsible = 0;
+            
+            % Look at all of the source states
+            srcStates = this.S.values();
+            for i=1:this.nStates
+                src = srcStates{i};
+                
+                % We only care about non-collapsible sources
+                if (src.Type ~= dcf_state_type.Collapsible)
+                    dstKeys = src.P.keys();
+                    nDst = size(dstKeys, 2);
+
+                    % For all destination keys from this source
+                    for j=1:nDst
+                        dstKey = dstKeys{j};
+                        dst = this.S(dstKey);
+
+                        % We only carea about collapsible destinations
+                        if (dst.Type == dcf_state_type.Collapsible)
+                            % Must have non-zero probability of transition
+                            if (src.P(dstKey) > 0)
+                                % We have a non-collapsed transition still
+                                nCollapsible = nCollapsible + 1;
+                            end
+                        end
+                    end
+                end
+            end
+        end
+        
         % Convert the states into a transition table
         % pi: transition probabilities
         % tx: transition labels
@@ -86,7 +169,7 @@ classdef dcf_container < handle
                 dstKeys = src.P.keys();
                 nDst = size(dstKeys, 2);
                 
-                % For all destination keys from this srouce
+                % For all destination keys from this source
                 for j=1:nDst
                     dstKey = dstKeys{j};
                     

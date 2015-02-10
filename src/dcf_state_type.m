@@ -7,5 +7,6 @@ classdef dcf_state_type < int32
         Backoff (2)
         PacketSize (4)
         Interarrival (8)
+        Collapsible (16)
     end
 end

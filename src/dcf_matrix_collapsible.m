@@ -1,75 +1,7 @@
-classdef dcf_matrix_oo < handle
-
-    properties (SetAccess = public)
-        % probability any given packet transmission will succeed, given the
-        % channel is free
-        pRawFail;
-
-        % number of stages
-        m;
-
-        % minimum number of backoff states
-        wMin;
-
-        % maximum size of packets
-        % transmissions will be [1:nPkt] length
-        nPkt;
-
-        % number of states in the interarrival chain, we will jump to one
-        % randomly with probability pEnterInterarrival
-        nInterarrival;
-        
-        % probability to enter the interarrival chain, so probability there is
-        % not a packet immediately ready to send
-        pEnterInterarrival;
-    end %properties (SetAccess = public)
-
-    properties (SetAccess = protected)
-        % W matrix which holds number of DCF states in each row
-        W;
-        
-        % 1 - pRawFail
-        pRawSuccess;
-        
-        % number of rows in the basic DCF matrix
-        nRows;
-        
-        % column where backoff states start
-        beginBackoffCol;
-        
-        % maximum number of columns in any of the rows
-        nColsMax;
-    end %properties (SetAccess = protected)
-
+classdef dcf_matrix_collapsible < dcf_matrix_oo
     methods
-        function obj = dcf_matrix_oo()
-            obj = obj@handle();
-            
-            obj.pRawFail = 0.25;
-            obj.m = 1;
-            obj.wMin = 2;
-            obj.nPkt = 0;
-            obj.nInterarrival = 0;
-            obj.pEnterInterarrival = 0;
-        end
-        
-        function CalculateConstants(this)
-            this.pRawSuccess = 1 - this.pRawFail;
-            this.nRows = this.m + 1;
-            this.beginBackoffCol = 2;
-
-            if (this.nInterarrival < 1 || this.pEnterInterarrival == 0)
-                this.nInterarrival = 0;
-                this.pEnterInterarrival = 0;
-            end
-
-            % Compute values for W
-            this.W = zeros(1,this.nRows);
-            for i = 1:this.nRows
-                this.W(1,i) = (2^(i - 1)) * this.wMin;
-            end
-            
-            this.nColsMax = this.W(1, this.nRows);
+        function obj = dcf_matrix_collapsible()
+            obj = obj@dcf_matrix_oo;
         end
         
         function [pi, dims, dcf] = CreateMatrix(this, pFail, nPacketSizeStates, nInterarrivalStates)
@@ -147,9 +79,6 @@ classdef dcf_matrix_oo < handle
                 pInterarrivalSuccess = 1 - pDistSuccess;
                 pDistSuccess = pDistSuccess / this.W(1,1);
                 
-                % TODO: The way it's set up now it will always send 1
-                % packet and then go to interarrival chain to see if there
-                % are more. It should go straight to interarrival chain.
                 for k = 1:this.W(1,1)
                     dcf.SetP( [i,1], [1,k], pDistSuccess, dcf_transition_type.TxSuccess );
                 end
@@ -163,10 +92,16 @@ classdef dcf_matrix_oo < handle
                         % probability we enter the interarrival chain at any of
                         % the possible chain locations
                         dcf.SetP( [i,1], [i,1,1,k], pInterarrivalSuccess, dcf_transition_type.Interarrival );
+
+                        % probability we stay in this state
+                        dcf.SetP( [i,1,1,k], [i,1,1,k], pInterarrivalSuccess, dcf_transition_type.Interarrival );
                         
                         if (k > 1)
+                            % stay in the chain
+                            dcf.SetP( [i,1,1,k], [i,1,1,k], 1 - this.pExitInterarrival, dcf_transition_type.Interarrival );
+                            
                             % move down along the chain
-                            dcf.SetP( [i,1,1,k], [i,1,1,k-1], 1, dcf_transition_type.Interarrival );
+                            dcf.SetP( [i,1,1,k], [i,1,1,k-1], this.pExitInterarrival, dcf_transition_type.Interarrival );
                         else % we are exiting the chain
                             % possible success
                             for j = 1:this.W(1,1)
@@ -233,6 +168,6 @@ classdef dcf_matrix_oo < handle
             assert( dcf.Verify() );
 
         end %function CreateMatrix
+    end    
+end
 
-    end %methods
-end %classdef
