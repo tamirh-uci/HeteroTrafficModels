@@ -7,11 +7,11 @@ classdef dcf_container < handle
         % value: handle to dcf_state object
         S@containers.Map;
         
-        % Current number of states held
-        nStates@int32 = int32(0);
+        % Current number of states held (including collapsible)
+        nTotalStates@int32 = int32(0);
         
-        % Mapping from original indices to collapsed table size indices
-        CollapseIndex@containers.Map;
+        % Current number of states held (excluding collapsible)
+        nValidStates@int32 = int32(0);
     end %properties
     
     methods
@@ -19,15 +19,18 @@ classdef dcf_container < handle
         function obj = dcf_container()
             obj = obj@handle();
             obj.S = containers.Map('KeyType', 'char', 'ValueType', 'any');
-            obj.CollapseIndex = containers.Map('KeyType', 'int32', 'ValueType', 'int32');
         end
         
         % Insert a new state into the set
         function NewState(this, state)
-            this.nStates = this.nStates + 1;
-            state.IF = this.nStates;
+            this.nTotalStates = this.nTotalStates + 1;
             
-            % TODO: Do some analysis on the key so we know max dimensions
+            if (state.Type == dcf_state_type.Collapsible)
+                state.IF = int32(-1);
+            else
+                state.IF = this.nValidStates;
+            end
+            
             this.S(state.Key) = state;
         end
         
@@ -78,14 +81,14 @@ classdef dcf_container < handle
         % probabilities
         function Collapse(this)
             nCollapsePasses = 0;
-            while (this.CountCollapsibleStates() > 0 && nCollapsePasses < 16)
+            while (this.HasUncollapsedStates() > 0 && nCollapsePasses < 16)
                 % Make sure we don't infinite loop somehow
                 nCollapsePasses = nCollapsePasses + 1;
                 assert(nCollapsePasses < 16);
                 
                 % Look at all of the source states
                 srcStates = this.S.values();
-                for i=1:this.nStates
+                for i=1:this.nTotalStates
                     src = srcStates{i};
                     
                     % For all dst states in the original src
@@ -124,44 +127,15 @@ classdef dcf_container < handle
                     end
                 end
             end
-            
-            % Calculate new indicies
-            validStates = int32(0);
-            for i=1:this.nStates
-                src = srcStates{i};
-                
-                if (src.Type == dcf_state_type.Collapsible)
-                    continue;
-                end
-                
-                validStates = validStates + 1;
-                this.CollapseIndex(src.IF) = validStates;
-            end
         end
         
-        function nNonCollapsible = CountNonCollapsibleStates(this)
-            % Look at all of the source states
-            srcStates = this.S.values();
-            assert(size(srcStates,2) == this.nStates);
-            
-            nNonCollapsible = 0;
-            for i=1:this.nStates
-                src = srcStates{i};
-                
-                % We only care about non-collapsible sources
-                if (src.Type ~= dcf_state_type.Collapsible)
-                    nNonCollapsible = nNonCollapsible + 1;
-                end
-            end
-        end
-        
-        function nCollapsible = CountCollapsibleStates(this)
+        function nCollapsible = HasUncollapsedStates(this)
             nCollapsible = 0;
             
             % Look at all of the source states
             srcStates = this.S.values();
-            assert(size(srcStates,2) == this.nStates);
-            for i=1:this.nStates
+            assert(size(srcStates,2) == this.nTotalStates);
+            for i=1:this.nTotalStates
                 src = srcStates{i};
                 
                 % We only care about non-collapsible sources
@@ -193,14 +167,13 @@ classdef dcf_container < handle
         % tx: transition labels
         function [pi, tx] = TransitionTable(this)
             srcStates = this.S.values();
-            assert( size(srcStates,2)==this.nStates );
+            assert( size(srcStates,2)==this.nTotalStates );
             
-            nNonCollapsible = this.CountNonCollapsibleStates();
-            pi = zeros(nNonCollapsible, nNonCollapsible);
-            tx = zeros(nNonCollapsible, nNonCollapsible);
+            pi = zeros(this.nValidStates, this.nValidStates);
+            tx = zeros(this.nValidStates, this.nValidStates);
             
             % For all source states
-            for i=1:this.nStates
+            for i=1:this.nTotalStates
                 src = srcStates{i};
                 
                 % Ignore collapsible states
@@ -223,13 +196,13 @@ classdef dcf_container < handle
                     if (dst.Type == dcf_state_type.Collapsible)
                         continue;
                     end
-
-                    % TODO: Add code to verify all collapsible states are
-                    % at the end so we don't need to re-index
                     
                     % Set the probability in the 2d transition table
-                    srcIndex = this.CollapseIndex(src.IF);
-                    dstIndex = this.CollapseIndex(dst.IF);
+                    srcIndex = src.IF;
+                    assert(srcIndex > 0);
+                    
+                    dstIndex = dst.IF;
+                    assert(dstIndex > 0);
                     
                     pi(srcIndex, dstIndex) = src.P(dstKey);
                     tx(srcIndex, dstIndex) = src.TX(dstKey);
@@ -259,12 +232,12 @@ classdef dcf_container < handle
         
         % Generate a vector which holds each state type
         function st = StateTypes(this)
-            st = dcf_state_type.empty(0,this.CountNonCollapsibleStates());
+            st = dcf_state_type.empty(0, this.nValidStates);
             
             % For all source states
             validIndex = 0;
             srcStates = this.S.values();
-            for i=1:this.nStates
+            for i=1:this.nTotalStates
                 src = srcStates{i};
                 
                 if (src.Type == dcf_state_type.Collapsible)
@@ -292,10 +265,10 @@ classdef dcf_container < handle
             valid = true;
             
             srcStates = this.S.values();
-            assert( size(srcStates,2)==this.nStates );
+            assert( size(srcStates,2)==this.nTotalStates );
             
             % For all source states
-            for i=1:this.nStates
+            for i=1:this.nTotalStates
                 src = srcStates{i};
                 rowsum = sum( cell2mat(src.P.values()) );
                 
