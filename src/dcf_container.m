@@ -116,8 +116,8 @@ classdef dcf_container < handle
                                 pCurrent = this.P(src.Key, dstFromCollapsibleKey);
                                 pCurrent = pCurrent + (pBase * dst.P(dstFromCollapsibleKey));
                                 
-                                assert(src.TX(dstKey) == dst.TX(dstFromCollapsibleKey));
-                                this.SetP(src.Key, dstFromCollapsibleKey, pCurrent, src.TX(dstKey));
+                                assert(src.TX(dstKey) == dcf_transition_type.Collapsible);
+                                this.SetP(src.Key, dstFromCollapsibleKey, pCurrent, dst.TX(dstFromCollapsibleKey));
                             end
                             
                             % Remove the transition to this collapsible

@@ -4,11 +4,6 @@ classdef dcf_matrix_collapsible < dcf_matrix_oo
             key = [int32(type) indices];
         end
         
-        % there is only 1 'transmit attempt, decide what to do' state
-        function key = TransmitAttemptState()
-            key = dcf_matrix_collapsible.Dim(dcf_state_type.CollapsibleTransmit, 0);
-        end
-        
         % there is only 1 success state, no need for indices
         function key = SuccessState()
             key = dcf_matrix_collapsible.Dim(dcf_state_type.CollapsibleSuccess, 0);
@@ -18,6 +13,11 @@ classdef dcf_matrix_collapsible < dcf_matrix_oo
         function key = FailState(indices)
             assert(size(indices,1)==1 && size(indices,1));
             key = dcf_matrix_collapsible.Dim(dcf_state_type.CollapsibleFailure, indices);
+        end
+        
+        % indices = [stage]
+        function key = TransmitAttemptState(indices)
+            key = dcf_matrix_collapsible.Dim(dcf_state_type.CollapsibleTransmit, indices);
         end
         
         % indices = [stage, backoffTimer]
@@ -62,13 +62,16 @@ classdef dcf_matrix_collapsible < dcf_matrix_oo
             
             % all transmit success will go back to stage 1 for
             % redistribution of what happens next
-            dcf.NewState( dcf_state( this.TransmitAttemptState(), dcf_state_type.CollapsibleTransmit ) );
             dcf.NewState( dcf_state( this.SuccessState(), dcf_state_type.CollapsibleSuccess ) );
             
             for i = 1:this.nRows
                 wCols = this.W(1,i);
 
-                % transmit attempt states
+                % going into this state means we are going to attempt to
+                % transmit a packet (which may not be there to transmit)
+                dcf.NewState( dcf_state( this.TransmitAttemptState(i), dcf_state_type.CollapsibleTransmit ) );
+                
+                % backoff timer has reached 0
                 for k = 1:this.beginBackoffCol-1
                     key = this.DCFState([i, k]);
                     dcf.NewState( dcf_state(key, dcf_state_type.Transmit) );
@@ -98,10 +101,9 @@ classdef dcf_matrix_collapsible < dcf_matrix_oo
                 dcf.NewState( dcf_state(this.FailState(i), dcf_state_type.CollapsibleFailure) );
             end
 
-            
+            % CASE 2
             % If success, we have equal probability to go to each of
             % stage 1 backoff or transmit immediately
-            % CASE 2
             pDistSuccess = 1.0 / this.W(1,1);
             for k = 1:this.W(1,1)
                 dstKey = this.DCFState([1, k]);
@@ -111,18 +113,33 @@ classdef dcf_matrix_collapsible < dcf_matrix_oo
             % Initialize the probabilities from all transmission stages 
             for i = 1:this.nRows
                 wCols = this.W(1,i);
-                transmitKey = this.DCFState([i, 1]);
-
+                
                 % Handle the last stage specially -- it loops on top of itself
                 nextStage = this.nRows;
                 if (i < this.nRows)
                     nextStage = i + 1;
                 end
-
-                % Failure case
+                
+                % CASE 1
+                % Initialize the probabilities from backoff stages to the transmission
+                % stage (all timers k>1)
+                for k = this.beginBackoffCol:wCols
+                    srcKey = this.DCFState([i, k]);
+                    dstKey = this.DCFState([i, k-1]);
+                    dcf.SetP( srcKey, dstKey, 1.0, dcf_transition_type.Backoff );
+                end
+                
+                % Once the backoff timer reaches 0, we will attempt to send
+                dcf.SetP( this.DCFState([i,1]), this.TransmitAttemptState(i), 1.0, dcf_transition_type.Collapsible );
+                
+                % CASE 2                
+                % Success case
+                % Transition from success to stage 1 states already calculated
+                dcf.SetP( this.TransmitAttemptState(i), this.SuccessState(), this.pRawSuccess, dcf_transition_type.Collapsible );
+                
                 % CASE 3/4
-                % Going from our transmit attempt to failure state
-                dcf.SetP( transmitKey, this.FailState(i), this.pRawFail, dcf_transition_type.TxFailure );
+                % Failure case
+                dcf.SetP( this.TransmitAttemptState(i), this.FailState(i), this.pRawFail, dcf_transition_type.Collapsible );
                 
                 % Going from failure state to backoff states of next stage
                 wColsNext = this.W(1, nextStage);
@@ -130,22 +147,6 @@ classdef dcf_matrix_collapsible < dcf_matrix_oo
                 for k = 1:wColsNext
                     dstKey = this.DCFState([nextStage, k]);
                     dcf.SetP( this.FailState(i), dstKey, pDistFail, dcf_transition_type.TxFailure );    
-                end
-
-                
-                % Success case
-                % CASE 2                
-                % Set the probabilities for each of the transmit attempt states to succeed
-                dcf.SetP( transmitKey, this.SuccessState(), this.pRawSuccess, dcf_transition_type.TxSuccess );
-                
-                
-                % Initialize the probabilities from backoff stages to the transmission
-                % stage (all stages k > 1)
-                % CASE 1
-                for k = this.beginBackoffCol:wCols
-                    srcKey = this.DCFState([i, k]);
-                    dstKey = this.DCFState([i, k-1]);
-                    dcf.SetP( srcKey, dstKey, 1.0, dcf_transition_type.Backoff );
                 end
             end
 
