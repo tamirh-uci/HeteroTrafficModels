@@ -1,4 +1,4 @@
-classdef dcf_transition_type < int32
+classdef(Enumeration) dcf_transition_type < int32
     %DCF Transition Type - Describes what happens on a given transition of
     %src->dst states
     
