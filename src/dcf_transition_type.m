@@ -3,11 +3,11 @@ classdef(Enumeration) dcf_transition_type < int32
     %src->dst states
     
     enumeration
-        Null (0)
-        TxSuccess (1)
-        TxFailure (2)
-        Backoff (4)
-        PacketSize (8)
-        Interarrival (16)
+        Null
+        TxSuccess
+        TxFailure
+        Backoff
+        PacketSize
+        Interarrival
     end
 end

@@ -25,7 +25,7 @@ classdef dcf_container < handle
         function NewState(this, state)
             this.nTotalStates = this.nTotalStates + 1;
             
-            if (state.Type == dcf_state_type.Collapsible)
+            if (state.Type >= dcf_state_type.Collapsible)
                 state.IF = int32(-1);
             else
                 this.nValidStates = this.nValidStates + 1;
@@ -100,7 +100,7 @@ classdef dcf_container < handle
                         dst = this.S(dstKey);
                         
                         % Perform collapse pass on this state
-                        if (dst.Type == dcf_state_type.Collapsible)
+                        if (dst.Type >= dcf_state_type.Collapsible)
                             % Our probability to go to collapsible state
                             pBase = src.P(dstKey);
                             
@@ -140,7 +140,7 @@ classdef dcf_container < handle
                 src = srcStates{i};
                 
                 % We only care about non-collapsible sources
-                if (src.Type == dcf_state_type.Collapsible)
+                if (src.Type >= dcf_state_type.Collapsible)
                     continue;
                 end
                 
@@ -152,7 +152,7 @@ classdef dcf_container < handle
                     dst = this.S(dstKey);
 
                     % We only carea about collapsible destinations
-                    if (dst.Type == dcf_state_type.Collapsible)
+                    if (dst.Type >= dcf_state_type.Collapsible)
                         % Must have non-zero probability of transition
                         if (src.P(dstKey) > 0)
                             % We have a non-collapsed transition still
@@ -178,7 +178,7 @@ classdef dcf_container < handle
                 src = srcStates{i};
                 
                 % Ignore collapsible states
-                if (src.Type == dcf_state_type.Collapsible)
+                if (src.Type >= dcf_state_type.Collapsible)
                     continue; 
                 end
                 
@@ -194,7 +194,7 @@ classdef dcf_container < handle
                     dst = this.S(dstKey);
                 
                     % Ignore collapsible states
-                    if (dst.Type == dcf_state_type.Collapsible)
+                    if (dst.Type >= dcf_state_type.Collapsible)
                         continue;
                     end
                     
@@ -241,7 +241,7 @@ classdef dcf_container < handle
             for i=1:this.nTotalStates
                 src = srcStates{i};
                 
-                if (src.Type == dcf_state_type.Collapsible)
+                if (src.Type >= dcf_state_type.Collapsible)
                     continue;
                 end
                 
@@ -268,19 +268,35 @@ classdef dcf_container < handle
             srcStates = this.S.values();
             assert( size(srcStates,2)==this.nTotalStates );
             
+            % Verify the raw state transition hash table
             % For all source states
             for i=1:this.nTotalStates
                 src = srcStates{i};
                 rowsum = sum( cell2mat(src.P.values()) );
                 
-                if ( src.Type == dcf_state_type.Null )
-                    if ( abs(0-rowsum) > epsilonThreshold )
-                        valid = false;
-                    end
+                % We only care about real states
+                if ( src.Type == dcf_state_type.Null || src.Type >= dcf_state_type.Collapsible )
+                    continue;
                 else
                     if ( abs(1-rowsum) > epsilonThreshold )
                         valid = false;
                     end    
+                end
+            end
+            
+            % Verify the transition tables also
+            [pi, tx] = this.TransitionTable();
+            
+            assert(size(pi,1)==this.nValidStates);
+            assert(size(pi,2)==this.nValidStates);
+            assert(size(tx,1)==this.nValidStates);
+            assert(size(tx,2)==this.nValidStates);
+            
+            for i=1:this.nValidStates
+                % all row probabilities should sum to 1
+                rowsum = sum( pi(i,:) );
+                if ( abs(1-rowsum) > epsilonThreshold )
+                    valid = false;
                 end
             end
         end

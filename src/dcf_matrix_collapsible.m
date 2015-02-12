@@ -4,15 +4,20 @@ classdef dcf_matrix_collapsible < dcf_matrix_oo
             key = [int32(type) indices];
         end
         
+        % there is only 1 'transmit attempt, decide what to do' state
+        function key = TransmitAttemptState()
+            key = dcf_matrix_collapsible.Dim(dcf_state_type.CollapsibleTransmit, 0);
+        end
+        
         % there is only 1 success state, no need for indices
         function key = SuccessState()
-            key = dcf_matrix_collapsible.Dim(dcf_state_type.Collapsible, -1);
+            key = dcf_matrix_collapsible.Dim(dcf_state_type.CollapsibleSuccess, 0);
         end
         
         % indices = [stage]
         function key = FailState(indices)
             assert(size(indices,1)==1 && size(indices,1));
-            key = dcf_matrix_collapsible.Dim(dcf_state_type.Collapsible, indices);
+            key = dcf_matrix_collapsible.Dim(dcf_state_type.CollapsibleFailure, indices);
         end
         
         % indices = [stage, backoffTimer]
@@ -57,7 +62,8 @@ classdef dcf_matrix_collapsible < dcf_matrix_oo
             
             % all transmit success will go back to stage 1 for
             % redistribution of what happens next
-            dcf.NewState( dcf_state( this.SuccessState(), dcf_state_type.Collapsible ) );
+            dcf.NewState( dcf_state( this.TransmitAttemptState(), dcf_state_type.CollapsibleTransmit ) );
+            dcf.NewState( dcf_state( this.SuccessState(), dcf_state_type.CollapsibleSuccess ) );
             
             for i = 1:this.nRows
                 wCols = this.W(1,i);
@@ -89,7 +95,7 @@ classdef dcf_matrix_collapsible < dcf_matrix_oo
                 end
                 
                 % collapsible failure state for each stage
-                dcf.NewState( dcf_state(this.FailState(i), dcf_state_type.Collapsible) );
+                dcf.NewState( dcf_state(this.FailState(i), dcf_state_type.CollapsibleFailure) );
             end
 
             
