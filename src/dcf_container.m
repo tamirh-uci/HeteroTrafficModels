@@ -28,6 +28,7 @@ classdef dcf_container < handle
             if (state.Type == dcf_state_type.Collapsible)
                 state.IF = int32(-1);
             else
+                this.nValidStates = this.nValidStates + 1;
                 state.IF = this.nValidStates;
             end
             
@@ -255,7 +256,7 @@ classdef dcf_container < handle
             steady = this.SteadyState(threshold, maxIter);
             
             % All rows should be equal at this point, just take the 1st
-            state = randsample(1:this.CountNonCollapsibleStates(), 1, true, steady);
+            state = randsample(1:this.nValidStates, 1, true, steady);
         end
 
         % Verify transitions are valid
