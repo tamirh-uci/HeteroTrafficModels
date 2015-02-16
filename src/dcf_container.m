@@ -163,6 +163,36 @@ classdef dcf_container < handle
             end
         end
         
+        % Print out the mapping from indicies to keys
+        function PrintMapping(this)
+            srcStates = this.S.values();
+            assert( size(srcStates,2)==this.nTotalStates );
+            
+            mappings = cell(this.nValidStates, 1);
+            
+            % For all source states
+            for i=1:this.nTotalStates
+                src = srcStates{i};
+                
+                % Ignore collapsible states
+                if (src.Type >= dcf_state_type.Collapsible)
+                    continue; 
+                end
+                
+                srcIndex = int32(src.IF);
+                assert(srcIndex > 0);
+                
+                srcKey = ( eval(src.Key) );
+                s = sprintf('%s\t(%s)\n', src.Key, char( dcf_state_type(srcKey(1)) ) );
+                mappings{ srcIndex } = s;
+            end
+            
+            % Print
+            for i=1:this.nValidStates
+                fprintf('KEY: %d\t = %s', i, mappings{i});
+            end
+        end
+        
         % Convert the states into a transition table
         % pi: transition probabilities
         % tx: transition labels

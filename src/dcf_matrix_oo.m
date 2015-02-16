@@ -230,6 +230,7 @@ classdef dcf_matrix_oo < handle
 
             dcf.Collapse();
             [pi, ~] = dcf.TransitionTable();
+            dcf.PrintMapping();
             assert( dcf.Verify() );
 
         end %function CreateMatrix
