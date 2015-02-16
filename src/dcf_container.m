@@ -163,6 +163,36 @@ classdef dcf_container < handle
             end
         end
         
+        % Print out the mapping from indicies to keys
+        function PrintMapping(this)
+            srcStates = this.S.values();
+            assert( size(srcStates,2)==this.nTotalStates );
+            
+            mappings = cell(this.nValidStates, 1);
+            
+            % For all source states
+            for i=1:this.nTotalStates
+                src = srcStates{i};
+                
+                % Ignore collapsible states
+                if (src.Type >= dcf_state_type.Collapsible)
+                    continue; 
+                end
+                
+                srcIndex = int32(src.IF);
+                assert(srcIndex > 0);
+                
+                srcKey = ( eval(src.Key) );
+                s = sprintf('%s\t(%s)\n', src.Key, char( dcf_state_type(srcKey(1)) ) );
+                mappings{ srcIndex } = s;
+            end
+            
+            % Print
+            for i=1:this.nValidStates
+                fprintf('KEY: %d\t = %s', i, mappings{i});
+            end
+        end
+        
         % Convert the states into a transition table
         % pi: transition probabilities
         % tx: transition labels
@@ -185,6 +215,9 @@ classdef dcf_container < handle
                 dstKeys = src.P.keys();
                 nDst = size(dstKeys, 2);
                 
+                srcIndex = src.IF;
+                assert(srcIndex > 0);
+                
                 % For all destination keys from this source
                 for j=1:nDst
                     dstKey = dstKeys{j};
@@ -198,13 +231,10 @@ classdef dcf_container < handle
                         continue;
                     end
                     
-                    % Set the probability in the 2d transition table
-                    srcIndex = src.IF;
-                    assert(srcIndex > 0);
-                    
                     dstIndex = dst.IF;
                     assert(dstIndex > 0);
                     
+                    % Set the probability in the 2d transition table
                     pi(srcIndex, dstIndex) = src.P(dstKey);
                     tx(srcIndex, dstIndex) = src.TX(dstKey);
                     
@@ -267,6 +297,10 @@ classdef dcf_container < handle
             
             srcStates = this.S.values();
             assert( size(srcStates,2)==this.nTotalStates );
+            [pi, tx] = this.TransitionTable();
+            tx
+            pi
+            
             
             % Verify the raw state transition hash table
             % For all source states
@@ -280,11 +314,13 @@ classdef dcf_container < handle
                 else
                     if ( abs(1-rowsum) > epsilonThreshold )
                         valid = false;
-                    end    
+                    end
                 end
             end
             
             % Verify the transition tables also
+            % If conversion went without a hitch, this should yield the
+            % same results as the above checks
             [pi, tx] = this.TransitionTable();
             
             assert(size(pi,1)==this.nValidStates);
