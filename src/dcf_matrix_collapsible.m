@@ -240,15 +240,15 @@ classdef dcf_matrix_collapsible < handle
 
             % With probability of success, we travel down the
             % packetsize chain
-            for k = 2:this.nPkt
+            for k = 1:this.nPkt-1
                 src = this.PacketsizeState(i, k);
-                dst = this.PacketsizeSingleChainState(i, k-1);
+                dst = this.PacketsizeSingleChainState(i, k+1);
                 dcf.SetP( src, dst, this.pRawSuccess, dcf_transition_type.PacketSize );
             end
 
-            % The index 1 of the packetsize chain going into the
+            % The last index of the packetsize chain going into the
             % actual success state if it succeeds
-            src = this.PacketsizeState(i, 1);
+            src = this.PacketsizeSingleChainState(i, this.nPkt);
             dst = this.SuccessState();
             dcf.SetP( src, dst, this.pRawSuccess, dcf_transition_type.Collapsible );
 
@@ -261,8 +261,36 @@ classdef dcf_matrix_collapsible < handle
         end % function GenerateSingleChainPacketsizeStates
         
         function GenerateMultichainPacketsizeStates(this, i)
-            % TODO: Write me
-            this.GenerateSingleChainPacketsizeStates(i);
+            % Equal probability to go to any start of the packetsize chain
+            pPacketState = 1.0 / this.nPkt;
+            for k = 1:this.nPkt
+                src = this.PacketsizeAttemptState(i);
+                dst = this.PacketsizeMultiChainState(i, k, 1);
+                dcf.SetP( src, dst, pPacketState, dcf_transition_type.PacketSize );
+            end
+            
+            % Travel down the packetsize chains
+            for k = 2:this.nPkt
+                for j = 1:k-1
+                    src = this.PacketsizeMultiChainState(i, k, j);
+                    dst = this.PacketsizeMultiChainState(i, k, j+1);
+                    dcf.SetP( src, dst, 1.0, dcf_transition_type.PacketSize );
+                end
+            end
+            
+            % The last index of the packetsize chain will calculate if it
+            % succeeded or failed
+            for k = 1:this.nPkt
+                src = this.PacketsizeSingleChainState(i, k, k);
+                pAllSucceed = this.pRawSuccess ^ k;
+                pOneFail = 1 - pAllSucceed;
+                
+                dst = this.SuccessState();
+                dcf.SetP( src, dst, pAllSucceed, dcf_transition_type.Collapsible );
+                
+                dst = this.FailState(i);
+                dcf.SetP( src, dst, pOneFail, dcf_transition_type.Collapsible );
+            end
         end % function GenerateMultichainPacketsizeStates
         
         function GenerateInterarrivalStates(this, i)
