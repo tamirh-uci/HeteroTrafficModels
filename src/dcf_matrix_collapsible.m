@@ -68,7 +68,6 @@ classdef dcf_matrix_collapsible < dcf_matrix_oo
             dims = [this.nRows, this.nColsMax]; 
 
             % Create all of the states
-            % current format is [row, col, nPkt, nInterarrival]
             
             % all transmit success will go back to stage 1 for
             % redistribution of what happens next
@@ -169,9 +168,26 @@ classdef dcf_matrix_collapsible < dcf_matrix_oo
                     dcf.SetP( this.PacketsizeAttemptState(i), this.FailState(i), this.pRawFail, dcf_transition_type.Collapsible );
                     dcf.SetP( this.PacketsizeAttemptState(i), this.SuccessState(), this.pRawSuccess, dcf_transition_type.Collapsible );
                 else
-                    % TODO: Chain here
-                    dcf.SetP( this.PacketsizeAttemptState(i), this.FailState(i), this.pRawFail, dcf_transition_type.Collapsible );
-                    dcf.SetP( this.PacketsizeAttemptState(i), this.SuccessState(), this.pRawSuccess, dcf_transition_type.Collapsible );
+                    % Equal probability to go to any packetsize
+                    pPacketState = 1.0 / nPacketSizeStates;
+                    for k = 1:nPacketSizeStates
+                        dcf.SetP( this.PacketsizeAttemptState(i), this.PacketsizeState(i, k), pPacketState, dcf_transition_type.PacketSize );
+                    end
+                    
+                    % With probability of success, we travel down the
+                    % packetsize chain
+                    for k = 2:nPacketSizeStates
+                        dcf.SetP( this.PacketsizeState(i, k), this.PacketsizeState(i, k-1), this.pRawSuccess, dcf_transition_type.PacketSize );
+                    end
+                    
+                    % The index 1 of the packetsize chain going into the
+                    % actual success state if it succeeds
+                    dcf.SetP( this.PacketsizeState(i, 1), this.SuccessState(), this.pRawSuccess, dcf_transition_type.Collapsible );
+                    
+                    % All failures in the chain go straight to the fail state
+                    for k = 1:nPacketSizeStates
+                        dcf.SetP( this.PacketsizeState(i, k), this.FailState(i), this.pRawFail, dcf_transition_type.Collapsible );
+                    end
                 end
 
                 % We have nothing to transmit

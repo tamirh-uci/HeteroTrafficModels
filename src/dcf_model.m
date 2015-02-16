@@ -11,7 +11,6 @@ dcf_matrix = dcf_matrix_oo();
 dcf_matrix.m = m;
 dcf_matrix.wMin = Wmin;
 dcf_matrix.pEnterInterarrival = 0.5;
-dcf_matrix.pExitInterarrival = 0.1;
 
 [piFail, dimsFail, dcfFail] = dcf_matrix.CreateMatrix(1.0, 0, 0);
 [pi, dims, dcf] = dcf_matrix.CreateMatrix(p, 0, 0);

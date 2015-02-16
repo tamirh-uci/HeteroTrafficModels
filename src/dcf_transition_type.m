@@ -10,6 +10,7 @@ classdef(Enumeration) dcf_transition_type < int32
         PacketSize(4)
         Interarrival(5)
         
+        % All values here and below are considered collapsible states
         Collapsible(64)
     end
 end
