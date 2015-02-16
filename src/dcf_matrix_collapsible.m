@@ -190,16 +190,28 @@ classdef dcf_matrix_collapsible < dcf_matrix_oo
                     end
                 end
 
-                % We have nothing to transmit
+                % We have nothing to transmit -- go into interarrival chain
                 if (nInterarrivalStates < 1)
                     % We are not simulating buffer emptying, so really we do
                     % have a packet to send
                     dcf.SetP( this.InterarrivalAttemptState(i), this.FailState(i), this.pRawFail, dcf_transition_type.Collapsible );
                     dcf.SetP( this.InterarrivalAttemptState(i), this.SuccessState(), this.pRawSuccess, dcf_transition_type.Collapsible );
                 else
-                    % TODO: Chain here
-                    dcf.SetP( this.InterarrivalAttemptState(i), this.FailState(i), this.pRawFail, dcf_transition_type.Collapsible );
-                    dcf.SetP( this.InterarrivalAttemptState(i), this.SuccessState(), this.pRawSuccess, dcf_transition_type.Collapsible );
+                    % Equal probabilities to go to any state in the chain
+                    pInterarrivalState = 1.0 / nInterarrivalStates;
+                    for k = 1:nInterarrivalStates
+                        dcf.SetP( this.InterarrivalAttemptState(i), this.InterarrivalState(i, k), pInterarrivalState, dcf_transition_type.Interarrival );
+                    end
+                    
+                    % Traveling down the interarrival chain (no chance of
+                    % failure because we're not really doing anything)
+                    for k = 2:nInterarrivalStates
+                        dcf.SetP( this.InterarrivalState(i, k), this.InterarrivalState(i, k-1), 1.0, dcf_transition_type.PacketSize );
+                    end
+                    
+                    % At the last state in the chain, we will attempt send
+                    dcf.SetP( this.InterarrivalState(i, 1), this.TransmitAttemptState(i), this.pRawSuccess, dcf_transition_type.Collapsible );
+                    dcf.SetP( this.InterarrivalState(i, 1), this.FailState(i), this.pRawFail, dcf_transition_type.Collapsible );
                 end
             end
 
