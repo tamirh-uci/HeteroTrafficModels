@@ -7,6 +7,8 @@ classdef dcf_state_type < int32
         Backoff(2)
         PacketSize(3)
         Interarrival(4)
+        PostbackoffStage(5)
+        PostbackoffTimer(6)
         
         % All values here and below are considered collapsible states
         Collapsible(64)
@@ -14,6 +16,7 @@ classdef dcf_state_type < int32
         CollapsibleSuccess(66)
         CollapsibleFailure(67)
         CollapsiblePacketSize(68)
-        CollapsibleInterarrival(69)
+        CollapsiblePostbackoffStage(69)
+        CollapsiblePostbackoffTimer(70)
     end
 end

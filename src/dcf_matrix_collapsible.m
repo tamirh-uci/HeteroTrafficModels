@@ -48,6 +48,16 @@ classdef dcf_matrix_collapsible < dcf_matrix_oo
             assert(size(indices,1)==1 && size(indices,2));
             key = dcf_matrix_collapsible.Dim(dcf_state_type.Interarrival, indices);
         end
+        
+        % indices = [stage, postbackoffLength]
+        function key = PostbackoffStageState(indices)
+            key = dcf_matrix_collapsible.Dim(dcf_state_type.PostbackoffStage, indices);
+        end
+        
+        % indices = [stage, postbackoffLength]
+        function key = PostbackoffTimerState(indices)
+            key = dcf_matrix_collapsible.Dim(dcf_state_type.PostbackoffTimer, indices);
+        end
     end
     
     methods
