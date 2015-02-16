@@ -221,7 +221,7 @@ classdef dcf_matrix_collapsible < handle
                     dst = this.FailState(i);
                     dcf.SetP( src, dst, this.pRawFail, dcf_transition_type.Collapsible );
                     
-                    dst = this.SuccessState()
+                    dst = this.SuccessState();
                     dcf.SetP( src, dst, this.pRawSuccess, dcf_transition_type.Collapsible );
                 else
                     this.GenerateInterarrivalStates(i);
