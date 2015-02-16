@@ -125,11 +125,21 @@ classdef dcf_matrix_collapsible < handle
 
                 % packet size 'calculation' states
                 if (this.bUseSingleChainPacketsize)
+                    % # states = max packet size
+                    % Jump into the chain at a random point
+                    % At every state, test success vs. failure
+                    % At last state, jump back into normal DCF
                     for k = 1:this.nPkt
                         key = this.PacketsizeSingleChainState([i, k]);
                         dcf.NewState( dcf_state(key, dcf_state_type.PacketSize) );
                     end
                 else
+                    % # chains = max packet size
+                    % sending packetsize=X gives X states in that chain
+                    % Jump to tail of that chain, and with p=1 traverse
+                    % When you reach the head of the chain, check
+                    % probability that all of the slots should have
+                    % succeeded
                     for k = 1:this.nPkt
                         for j = 1:k
                             key = this.PacketsizeMultiChainState([i, k, j]);
@@ -140,6 +150,10 @@ classdef dcf_matrix_collapsible < handle
 
                 % interarival time 'calculation' states
                 for k = 1:this.nInterarrival
+                    % # states = max interarrival wait time
+                    % jump randomly into any location in the chain
+                    % with p=1 traverse down the chain
+                    % when you reach the end, go back into the normal DCF
                     key = this.InterarrivalState([i, k]);
                     dcf.NewState( dcf_state(key, dcf_state_type.Interarrival) );
                 end
@@ -181,6 +195,7 @@ classdef dcf_matrix_collapsible < handle
                 src = this.DCFState([i,1]);
                 dst = this.TransmitAttemptState(i);
                 dcf.SetP( src, dst, 1.0, dcf_transition_type.Collapsible );
+                
                 
                 % CASE 2                
                 % "Success" case 
@@ -240,6 +255,7 @@ classdef dcf_matrix_collapsible < handle
             end
         end % function SetProbabilities
         
+        
         function GenerateSingleChainPacketsizeStates(this, i, dcf)
             % Equal probability to go to any packetsize
             pPacketState = 1.0 / this.nPkt;
@@ -270,6 +286,7 @@ classdef dcf_matrix_collapsible < handle
                 dcf.SetP( src, dst, this.pRawFail, dcf_transition_type.Collapsible );
             end
         end % function GenerateSingleChainPacketsizeStates
+        
         
         function GenerateMultichainPacketsizeStates(this, i, dcf)
             % Equal probability to go to any start of the packetsize chain
@@ -303,6 +320,7 @@ classdef dcf_matrix_collapsible < handle
                 dcf.SetP( src, dst, pOneFail, dcf_transition_type.Collapsible );
             end
         end % function GenerateMultichainPacketsizeStates
+        
         
         function GenerateInterarrivalStates(this, i)
             % Equal probabilities to go to any state in the chain
@@ -396,4 +414,3 @@ classdef dcf_matrix_collapsible < handle
         nColsMax;
     end %properties (SetAccess = protected)
 end % classdef
-
