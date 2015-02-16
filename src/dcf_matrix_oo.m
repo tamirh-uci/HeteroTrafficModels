@@ -1,3 +1,4 @@
+% OLD VERSION, SEE dcf_matrix_collapsible.m
 classdef dcf_matrix_oo < handle
 
     properties (SetAccess = public)
@@ -22,6 +23,9 @@ classdef dcf_matrix_oo < handle
         % probability to enter the interarrival chain, so probability there is
         % not a packet immediately ready to send
         pEnterInterarrival;
+        
+        % use single chain or multichain packetsize states (0 or 1)
+        bUseSingleChainPacketsize;
     end %properties (SetAccess = public)
 
     properties (SetAccess = protected)
@@ -51,6 +55,7 @@ classdef dcf_matrix_oo < handle
             obj.nPkt = 0;
             obj.nInterarrival = 0;
             obj.pEnterInterarrival = 0;
+            obj.bUseSingleChainPacketsize = true;
         end
         
         function CalculateConstants(this)
