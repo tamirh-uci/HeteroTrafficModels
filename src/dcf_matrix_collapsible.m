@@ -174,7 +174,10 @@ classdef dcf_matrix_collapsible < handle
             src = this.SuccessState();
             for k = 1:this.W(1,1)
                 dst = this.DCFState([1, k]);
-                dcf.SetP( src, dst, pDistSuccess, dcf_transition_type.TxSuccess );
+                dcf.SetP( src, dst, pDistSuccess * this.qRawArrive, dcf_transition_type.TxSuccess );
+                
+                dst = this.PostbackoffState([1, k]);
+                dcf.SetP( src, dst, pDistSuccess * (1 - this.qRawArrive), dcf_transition_type.Postbackoff );
             end
             
             % Initialize the probabilities from all transmission stages 
@@ -234,7 +237,7 @@ classdef dcf_matrix_collapsible < handle
                     
                     dst = this.SuccessState();
                     dcf.SetP( src, dst, this.pRawSuccess, dcf_transition_type.Collapsible );
-                else
+                else 
                     if (this.bUseSingleChainPacketsize)
                         this.GenerateSingleChainPacketsizeStates(i, dcf);
                     else
