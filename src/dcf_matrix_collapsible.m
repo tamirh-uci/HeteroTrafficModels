@@ -30,6 +30,7 @@ classdef dcf_matrix_collapsible < handle
         % indices = [stage]
         function key = InterarrivalAttemptState(indices)
             assert( size(indices,1)==1 && size(indices,2)==1 );
+            % TODO: Depricated w/ postbackoff?
             key = dcf_matrix_collapsible.Dim(dcf_state_type.CollapsibleInterarrival, indices);
         end
         
@@ -216,9 +217,9 @@ classdef dcf_matrix_collapsible < handle
                     dcf.SetP( src, dst, this.pRawSuccess, dcf_transition_type.Collapsible );
                 else
                     if (this.bUseSingleChainPacketsize)
-                        this.GenerateSingleChainPacketsizeStates(i);
+                        this.GenerateSingleChainPacketsizeStates(i, dcf);
                     else
-                        this.GenerateMultichainPacketsizeStates(i);
+                        this.GenerateMultichainPacketsizeStates(i, dcf);
                     end
                 end
 
@@ -239,51 +240,51 @@ classdef dcf_matrix_collapsible < handle
             end
         end % function SetProbabilities
         
-        function GenerateSingleChainPacketsizeStates(this, i)
+        function GenerateSingleChainPacketsizeStates(this, i, dcf)
             % Equal probability to go to any packetsize
             pPacketState = 1.0 / this.nPkt;
             for k = 1:this.nPkt
                 src = this.PacketsizeAttemptState(i);
-                dst = this.PacketsizeSingleChainState(i, k);
+                dst = this.PacketsizeSingleChainState([i, k]);
                 dcf.SetP( src, dst, pPacketState, dcf_transition_type.PacketSize );
             end
 
             % With probability of success, we travel down the
             % packetsize chain
             for k = 1:this.nPkt-1
-                src = this.PacketsizeState(i, k);
-                dst = this.PacketsizeSingleChainState(i, k+1);
+                src = this.PacketsizeState([i, k]);
+                dst = this.PacketsizeSingleChainState([i, k+1]);
                 dcf.SetP( src, dst, this.pRawSuccess, dcf_transition_type.PacketSize );
             end
 
             % The last index of the packetsize chain going into the
             % actual success state if it succeeds
-            src = this.PacketsizeSingleChainState(i, this.nPkt);
+            src = this.PacketsizeSingleChainState([i, this.nPkt]);
             dst = this.SuccessState();
             dcf.SetP( src, dst, this.pRawSuccess, dcf_transition_type.Collapsible );
 
             % All failures in the chain go straight to the fail state
             for k = 1:this.nPkt
-                src = this.PacketsizeState(i, k);
+                src = this.PacketsizeSingleChainState([i, k]);
                 dst = this.FailState(i);
                 dcf.SetP( src, dst, this.pRawFail, dcf_transition_type.Collapsible );
             end
         end % function GenerateSingleChainPacketsizeStates
         
-        function GenerateMultichainPacketsizeStates(this, i)
+        function GenerateMultichainPacketsizeStates(this, i, dcf)
             % Equal probability to go to any start of the packetsize chain
             pPacketState = 1.0 / this.nPkt;
             for k = 1:this.nPkt
                 src = this.PacketsizeAttemptState(i);
-                dst = this.PacketsizeMultiChainState(i, k, 1);
+                dst = this.PacketsizeMultiChainState([i, k, 1]);
                 dcf.SetP( src, dst, pPacketState, dcf_transition_type.PacketSize );
             end
             
             % Travel down the packetsize chains
             for k = 2:this.nPkt
                 for j = 1:k-1
-                    src = this.PacketsizeMultiChainState(i, k, j);
-                    dst = this.PacketsizeMultiChainState(i, k, j+1);
+                    src = this.PacketsizeMultiChainState([i, k, j]);
+                    dst = this.PacketsizeMultiChainState([i, k, j+1]);
                     dcf.SetP( src, dst, 1.0, dcf_transition_type.PacketSize );
                 end
             end
@@ -291,7 +292,7 @@ classdef dcf_matrix_collapsible < handle
             % The last index of the packetsize chain will calculate if it
             % succeeded or failed
             for k = 1:this.nPkt
-                src = this.PacketsizeSingleChainState(i, k, k);
+                src = this.PacketsizeSingleChainState([i, k, k]);
                 pAllSucceed = this.pRawSuccess ^ k;
                 pOneFail = 1 - pAllSucceed;
                 
@@ -306,19 +307,28 @@ classdef dcf_matrix_collapsible < handle
         function GenerateInterarrivalStates(this, i)
             % Equal probabilities to go to any state in the chain
             pInterarrivalState = 1.0 / this.nInterarrival;
+            src = this.InterarrivalAttemptState(i);
             for k = 1:this.nInterarrival
-                dcf.SetP( this.InterarrivalAttemptState(i), this.InterarrivalState(i, k), pInterarrivalState, dcf_transition_type.Interarrival );
+                dst = this.InterarrivalState([i, k]);
+                dcf.SetP( src, dst, pInterarrivalState, dcf_transition_type.Interarrival );
             end
 
             % Traveling down the interarrival chain (no chance of
             % failure because we're not really doing anything)
             for k = 2:this.nInterarrival
-                dcf.SetP( this.InterarrivalState(i, k), this.InterarrivalState(i, k-1), 1.0, dcf_transition_type.PacketSize );
+                src = this.InterarrivalState([i, k]);
+                dst = this.InterarrivalState([i, k-1]);
+                dcf.SetP( src, dst, 1.0, dcf_transition_type.PacketSize );
             end
 
             % At the last state in the chain, we will attempt send
-            dcf.SetP( this.InterarrivalState(i, 1), this.TransmitAttemptState(i), this.pRawSuccess, dcf_transition_type.Collapsible );
-            dcf.SetP( this.InterarrivalState(i, 1), this.FailState(i), this.pRawFail, dcf_transition_type.Collapsible );
+            src = this.InterarrivalState([i, 1]);
+            
+            dst = this.TransmitAttemptState(i);
+            dcf.SetP( src, dst, this.pRawSuccess, dcf_transition_type.Collapsible );
+            
+            dst = this.FailState(i);
+            dcf.SetP( src, dst, this.pRawFail, dcf_transition_type.Collapsible );
         end % function GenerateInterarrivalStates
         
         

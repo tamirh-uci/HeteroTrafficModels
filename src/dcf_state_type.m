@@ -18,5 +18,6 @@ classdef dcf_state_type < int32
         CollapsiblePacketSize(68)
         CollapsiblePostbackoffStage(69)
         CollapsiblePostbackoffTimer(70)
+        CollapsibleInterarrival(71) % TODO: Depricated w/ postbackoff?
     end
 end
