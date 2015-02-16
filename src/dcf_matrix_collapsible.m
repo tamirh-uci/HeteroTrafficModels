@@ -86,6 +86,7 @@ classdef dcf_matrix_collapsible < handle
             % Remove temporary states and format output for 
             dcf.Collapse();
             [pi, ~] = dcf.TransitionTable();
+            dcf.PrintMapping();
             assert( dcf.Verify() );
 
         end %function CreateMatrix
@@ -268,7 +269,7 @@ classdef dcf_matrix_collapsible < handle
             % With probability of success, we travel down the
             % packetsize chain
             for k = 1:this.nPkt-1
-                src = this.PacketsizeState([i, k]);
+                src = this.PacketsizeSingleChainState([i, k]);
                 dst = this.PacketsizeSingleChainState([i, k+1]);
                 dcf.SetP( src, dst, this.pRawSuccess, dcf_transition_type.PacketSize );
             end

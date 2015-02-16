@@ -298,9 +298,6 @@ classdef dcf_container < handle
             srcStates = this.S.values();
             assert( size(srcStates,2)==this.nTotalStates );
             [pi, tx] = this.TransitionTable();
-            tx
-            pi
-            
             
             % Verify the raw state transition hash table
             % For all source states
