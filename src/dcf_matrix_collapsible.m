@@ -77,9 +77,8 @@ classdef dcf_matrix_collapsible < handle
             obj = obj@handle;
         end
         
-        function [pi, dims, dcf] = CreateMatrix(this, pFail, qArrive)
+        function [pi, dims, dcf] = CreateMatrix(this, pFail)
             this.pRawFail = pFail;
-            this.qRawArrive = qArrive;
             this.CalculateConstants();
             
             % Initialize the transition matrix
@@ -171,12 +170,13 @@ classdef dcf_matrix_collapsible < handle
                 end
             end
             
-                        
             % Postbackoff is a single stage, mirroring the first stage (i = 1), 
             % and is indexed by the stage and timer value
-            for i = 1:this.W(1,1)
-               key = this.PostbackoffState([1, i]);
-               dcf.NewState( dcf_state(key, dcf_state_type.Postbackoff) );
+            if (this.pRawArrive < 1.0)
+                for i = 1:this.W(1,1)
+                   key = this.PostbackoffState([1, i]);
+                   dcf.NewState( dcf_state(key, dcf_state_type.Postbackoff) );
+                end
             end
                 
         end % function GenerateStates
@@ -189,13 +189,16 @@ classdef dcf_matrix_collapsible < handle
             % If we did have a packet, we have equal probability to go to
             % each of the stage 1 backoff states
             pHavePacket = 1.0 - this.pEnterInterarrival;
-            pDistSuccess = pHavePacket / this.W(1,1);
+            pDistSuccess = this.pRawArrive * pHavePacket / this.W(1,1);
+            pDistPostbackoff = (1.0 - this.pRawArrive) * pHavePacket / this.W(1,1);
             for k = 1:this.W(1,1)
                 dst = this.DCFState([1, k]);
-                dcf.SetP( src, dst, pDistSuccess * this.qRawArrive, dcf_transition_type.TxSuccess );
+                dcf.SetP( src, dst, pDistSuccess, dcf_transition_type.TxSuccess );
                 
-                dst = this.PostbackoffState([1, k]);
-                dcf.SetP( src, dst, pDistSuccess * (1 - this.qRawArrive), dcf_transition_type.Postbackoff );
+                if (pDistPostbackoff > 0)
+                    dst = this.PostbackoffState([1, k]);
+                    dcf.SetP( src, dst, pDistPostbackoff, dcf_transition_type.Postbackoff );
+                end
             end
             
             % Interarrival states, for when we have nothing to send
@@ -205,6 +208,11 @@ classdef dcf_matrix_collapsible < handle
                 dcf.SetP( src, dst, this.pEnterInterarrival, dcf_transition_type.TxSuccess );
             end
             
+            % Handle backoff countdowns -- each one with probability 1-q
+            % (a new packet does not arrive)
+            if (this.pRawArrive < 1.0)
+                this.GenerateBackofProbabilities(dcf);
+            end
             
             % Initialize the probabilities from all transmission stages 
             for i = 1:this.nStages
@@ -259,46 +267,46 @@ classdef dcf_matrix_collapsible < handle
                     this.GenerateMultichainPacketsizeStates(i, dcf);
                 end
             end
-            
-            % Handle backoff countdowns -- each one with probability 1-q
-            % (a new packet does not arrive)
+        end % function SetProbabilities
+        
+        
+        function GenerateBackofProbabilities(this, dcf)
             for k = 2:this.W(1,1)
                 src = this.PostbackoffState([1, k]); % (1,k)_e
 
                 postbackoffDst = this.PostbackoffState([1, k - 1]); % (1, k-1)_e
-                dcf.SetP( src, postbackoffDst, 1 - this.qRawArrive, dcf_transition_type.Postbackoff );
+                dcf.SetP( src, postbackoffDst, 1 - this.pRawArrive, dcf_transition_type.Postbackoff );
 
                 backoffDst = this.DCFState([1, k - 1]); % (1, k-1) -> normal DCF state
-                dcf.SetP( src, backoffDst, this.qRawArrive, dcf_transition_type.Backoff );
+                dcf.SetP( src, backoffDst, this.pRawArrive, dcf_transition_type.Backoff );
             end
-            
+
             %%% Handle backoff transitions from (0,0)_e === (1,1)_e
             %%% Source: Modelling the 802.11 Distributed Coordination Function with Heterogenous Finite Load
-            
+
             % Case 1: loop
             postbackoffOrigin = this.PostbackoffState([1, 1]);
-            postbackoffOriginLoopProbability = 1 - this.qRawArrive + ((this.qRawArrive * (1 - this.pRawFail) * (1 - this.pRawFail)) / this.W(1,1));
+            postbackoffOriginLoopProbability = 1 - this.pRawArrive + ((this.pRawArrive * (1 - this.pRawFail) * (1 - this.pRawFail)) / this.W(1,1));
             dcf.SetP( postbackoffOrigin, postbackoffOrigin, postbackoffOriginLoopProbability, dcf_transition_type.Postbackoff );
-            
+
             % Case 2/4: Loop back to post backoff and real backoff
             for k = 1:this.W(1,1)
-                baseBackoffProbability = this.qRawArrive * (1 - this.pRawFail);
+                baseBackoffProbability = this.pRawArrive * (1 - this.pRawFail);
                 if (k > 1) % case 2
                     postbackoffDst = this.PostbackoffState([1, k]); % (1, k)_e
                     dcf.SetP( postbackoffOrigin, postbackoffDst, (baseBackoffProbability * (1 - this.pRawFail)) / this.W(1,1), dcf_transition_type.Postbackoff );
                 end
-                
+
                 backoffDst = this.DCFState([1, k]); % (1, k) -> normal DCF state
                 dcf.SetP( postbackoffOrigin, backoffDst, (baseBackoffProbability * this.pRawFail) / this.W(1,1), dcf_transition_type.Backoff );
             end
-            
+
             for k = 1:this.W(1,2)
-                baseBackoffProbability = this.qRawArrive * (1 - this.pRawFail);
+                baseBackoffProbability = this.pRawArrive * (1 - this.pRawFail);
                 backoffFailDst = this.DCFState([2, k]); % (2, k) -> normal DCF state
                 dcf.SetP( postbackoffOrigin, backoffFailDst, baseBackoffProbability / this.W(1,2), dcf_transition_type.Backoff );
             end
-        end % function SetProbabilities
-        
+        end % function GenerateBackofProbabilities
         
         function GenerateSingleChainPacketsizeStates(this, i, dcf)
             % Equal probability to go to any packetsize
@@ -393,15 +401,29 @@ classdef dcf_matrix_collapsible < handle
         
         
         function CalculateConstants(this)
+            % Basic assumptions
+            assert( this.pRawFail >= 0 && this.pRawFail <= 1 );
+            assert( this.pRawArrive >= 0 && this.pRawArrive <= 1 );
+            assert( this.pEnterInterarrival >= 0 && this.pEnterInterarrival <= 1 );
+            assert( this.m >= 1 );
+            assert( this.wMin >= 0 );
+            assert( this.nPkt >= 0 );
+            assert( this.nInterarrival >= 0 );
+            
+            % Compute some useful variables based on our input params
             this.pRawSuccess = 1 - this.pRawFail;
             this.nStages = this.m + 1;
             this.beginBackoffCol = 2;
 
-            if (this.nInterarrival < 1 || this.pEnterInterarrival == 0)
+            % If either interarrival variable tells us to turn it off, then
+            % ensure both tell us to turn it off
+            if (this.nInterarrival < 1 || this.pEnterInterarrival <= 0)
                 this.nInterarrival = 0;
                 this.pEnterInterarrival = 0;
             end
             
+            % internally we treat 0 packetsize chains the same as 1
+            % packetsize chains (since it takes over the DCF(1 1) state
             if (this.nPkt < 1)
                 this.nPkt = 1;
             end
@@ -439,6 +461,9 @@ classdef dcf_matrix_collapsible < handle
         % not a packet immediately ready to send
         pEnterInterarrival;
         
+        % probability a packet shows up when it's supposed to
+        pRawArrive;
+        
         % use single chain or multichain packetsize states (0 or 1)
         bUseSingleChainPacketsize;
     end %properties (SetAccess = public)
@@ -449,9 +474,6 @@ classdef dcf_matrix_collapsible < handle
         
         % 1 - pRawFail
         pRawSuccess;
-        
-        % TODO: Description
-        qRawArrive;
         
         % number of stages (rows) in the basic DCF matrix
         nStages;

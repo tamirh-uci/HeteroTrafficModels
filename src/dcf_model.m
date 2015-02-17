@@ -14,10 +14,10 @@ dcf_matrix.pEnterInterarrival = 0.5;
 dcf_matrix.nPkt = 0;
 dcf_matrix.bUseSingleChainPacketsize = true;
 dcf_matrix.nInterarrival = 0;
+dcf_matrix.pRawArrive = 1.0
 
-qArrive = 0;
-[piFail, dimsFail, dcfFail] = dcf_matrix.CreateMatrix(1.0, qArrive);
-[pi, dims, dcf] = dcf_matrix.CreateMatrix(p, qArrive);
+[piFail, dimsFail, dcfFail] = dcf_matrix.CreateMatrix(1.0);
+[pi, dims, dcf] = dcf_matrix.CreateMatrix(p);
 dcf.PrintMapping();
 
 sim = dcf_simulator_oo(dcf, dcfFail, 1);
