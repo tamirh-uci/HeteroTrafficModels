@@ -206,7 +206,14 @@ classdef dcf_matrix_collapsible < handle
                 % stage (all timers k>1)
                 for k = this.beginBackoffCol:wCols
                     src = this.DCFState([i, k]);
-                    dst = this.DCFState([i, k-1]);
+                    
+                    % for stage 1, we go straight to the TransmitAttempt
+                    % once we are done with backoff
+                    if (i == 1 && k == 2)
+                        dst = this.TransmitAttemptState(1);
+                    else
+                        dst = this.DCFState([i, k-1]);
+                    end
                     dcf.SetP( src, dst, 1.0, dcf_transition_type.Backoff );
                 end
                 
