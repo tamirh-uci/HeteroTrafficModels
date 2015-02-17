@@ -10,10 +10,10 @@ packetMax = 2;
 dcf_matrix = dcf_matrix_collapsible();
 dcf_matrix.m = m;
 dcf_matrix.wMin = Wmin;
-dcf_matrix.pEnterInterarrival = 0.5;
 dcf_matrix.nPkt = 1;
 dcf_matrix.bUseSingleChainPacketsize = true;
 dcf_matrix.nInterarrival = 0;
+dcf_matrix.pEnterInterarrival = 0.0;
 dcf_matrix.pRawArrive = 1.0;
 
 [piFail, dcfFail] = dcf_matrix.CreateMatrix(1.0);

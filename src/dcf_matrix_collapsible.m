@@ -308,7 +308,7 @@ classdef dcf_matrix_collapsible < handle
                 dcf.SetP( src, dst, 1.0 - this.pEnterInterarrival, dcf_transition_type.Collapsible );
                 
                 if (this.pEnterInterarrival > 0)
-                    dst = this.InterarrivalAttemptState(i);
+                    dst = this.InterarrivalAttemptState();
                     dcf.SetP( src, dst, this.pEnterInterarrival, dcf_transition_type.Collapsible );
                 end
             else
@@ -395,7 +395,7 @@ classdef dcf_matrix_collapsible < handle
             % The last index of the packetsize chain will calculate if it
             % succeeded or failed
             for k = 1:this.nPkt
-                src = this.PacketsizeSingleChainState([i, k, k]);
+                src = this.PacketsizeMultiChainState([i, k, k]);
                 pAllSucceed = this.pRawSuccess ^ k;
                 pOneFail = 1 - pAllSucceed;
                 
@@ -449,11 +449,10 @@ classdef dcf_matrix_collapsible < handle
             this.nStages = this.m + 1;
             this.beginBackoffCol = 2;
 
-            % If either interarrival variable tells us to turn it off, then
-            % ensure both tell us to turn it off
-            if (this.nInterarrival < 1 || this.pEnterInterarrival <= 0)
-                this.nInterarrival = 0;
-                this.pEnterInterarrival = 0;
+            % If pEnterInterarrival is 0, assume we have an equal chance of
+            % every interarrival state (and zero wait)
+            if (this.pEnterInterarrival == 0)
+                this.pEnterInterarrival = 1.0 / (1+this.nInterarrival);
             end
             
             % internally we treat 0 packetsize chains the same as 1
