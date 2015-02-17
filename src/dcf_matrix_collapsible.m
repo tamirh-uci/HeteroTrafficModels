@@ -30,7 +30,6 @@ classdef dcf_matrix_collapsible < handle
         % indices = [stage]
         function key = InterarrivalAttemptState(indices)
             assert( size(indices,1)==1 && size(indices,2)==1 );
-            % TODO: Depricated w/ postbackoff?
             key = dcf_matrix_collapsible.Dim(dcf_state_type.CollapsibleInterarrival, indices);
         end
         
@@ -38,7 +37,15 @@ classdef dcf_matrix_collapsible < handle
         % backoffTimer = 1 means a transmit state
         function key = DCFState(indices)
             assert( size(indices,1)==1 && size(indices,2)==2 );
-            key = dcf_matrix_collapsible.Dim(dcf_state_type.Backoff, indices);
+            
+            % DCFState [1,1] will be serviced by TransmitAttempt(1)
+            % This makes it easier to make the packetsize chain as it
+            % doesn't need to split its logic
+            if (indices(1,1)==1 && indices(1,2)==1)
+                key = dcf_matrix_collapsible.TransmitAttemptState(1);
+            else
+                key = dcf_matrix_collapsible.Dim(dcf_state_type.Backoff, indices);
+            end
         end
         
         % indices = [stage, packetSize]
@@ -60,13 +67,9 @@ classdef dcf_matrix_collapsible < handle
         end
         
         % indices = [stage, postbackoffLength]
-        function key = PostbackoffStageState(indices)
-            key = dcf_matrix_collapsible.Dim(dcf_state_type.PostbackoffStage, indices);
-        end
-        
-        % indices = [stage, postbackoffLength]
-        function key = PostbackoffTimerState(indices)
-            key = dcf_matrix_collapsible.Dim(dcf_state_type.PostbackoffTimer, indices);
+        function key = PostbackoffState(indices)
+            assert( size(indices,1)==1 && size(indices,2)==2 );
+            key = dcf_matrix_collapsible.Dim(dcf_state_type.Postbackoff, indices);
         end
     end
     
@@ -75,8 +78,9 @@ classdef dcf_matrix_collapsible < handle
             obj = obj@handle;
         end
         
-        function [pi, dims, dcf] = CreateMatrix(this, pFail)
+        function [pi, dims, dcf] = CreateMatrix(this, pFail, qArrive)
             this.pRawFail = pFail;
+            this.qRawArrive = qArrive;
             this.CalculateConstants();
             
             % Initialize the transition matrix
@@ -96,7 +100,6 @@ classdef dcf_matrix_collapsible < handle
             assert( dcf.Verify() );
 
         end %function CreateMatrix
-        
         
         function GenerateStates(this, dcf)
             % all transmit success will go back to stage 1 for
@@ -169,6 +172,15 @@ classdef dcf_matrix_collapsible < handle
                     dcf.NewState( dcf_state(key, dcf_state_type.Interarrival) );
                 end
             end
+            
+                        
+            % Postbackoff is a single stage, mirroring the first stage (i = 1), 
+            % and is indexed by the stage and timer value
+            for i = 1:this.W(1,1)
+               key = this.PostbackoffState([1, i]);
+               dcf.NewState( dcf_state(key, dcf_state_type.Postbackoff) );
+            end
+                
         end % function GenerateStates
         
         
@@ -179,18 +191,14 @@ classdef dcf_matrix_collapsible < handle
             % packet
             pDistSuccess = 1.0 / this.W(1,1);
             src = this.SuccessState();
-            for k = 2:this.W(1,1)
+            for k = 1:this.W(1,1)
                 dst = this.DCFState([1, k]);
-                dcf.SetP( src, dst, pDistSuccess, dcf_transition_type.TxSuccess );
+                dcf.SetP( src, dst, pDistSuccess * this.qRawArrive, dcf_transition_type.TxSuccess );
+                
+                dst = this.PostbackoffState([1, k]);
+                dcf.SetP( src, dst, pDistSuccess * (1 - this.qRawArrive), dcf_transition_type.Postbackoff );
             end
-            
-            % From success, instead of going to DCFState[1 1] we go to
-            % TransmitAttempt with the probability we would have used to go
-            % to DCFState[1 1]
-            dst = this.TransmitAttemptState(1);
-            dcf.SetP( src, dst, pDistSuccess, dcf_transition_type.TxSuccess );
-            
-            
+                        
             % Initialize the probabilities from all transmission stages 
             for i = 1:this.nStages
                 wCols = this.W(1,i);
@@ -206,14 +214,7 @@ classdef dcf_matrix_collapsible < handle
                 % stage (all timers k>1)
                 for k = this.beginBackoffCol:wCols
                     src = this.DCFState([i, k]);
-                    
-                    % for stage 1, we go straight to the TransmitAttempt
-                    % once we are done with backoff
-                    if (i == 1 && k == 2)
-                        dst = this.TransmitAttemptState(1);
-                    else
-                        dst = this.DCFState([i, k-1]);
-                    end
+                    dst = this.DCFState([i, k-1]);
                     dcf.SetP( src, dst, 1.0, dcf_transition_type.Backoff );
                 end
                 
@@ -270,6 +271,44 @@ classdef dcf_matrix_collapsible < handle
                 else
                     this.GenerateInterarrivalStates(i);
                 end
+            end
+            
+            % Handle backoff countdowns -- each one with probability 1-q
+            % (a new packet does not arrive)
+            for k = 2:this.W(1,1)
+                src = this.PostbackoffState([1, k]); % (1,k)_e
+
+                postbackoffDst = this.PostbackoffState([1, k - 1]); % (1, k-1)_e
+                dcf.SetP( src, postbackoffDst, 1 - this.qRawArrive, dcf_transition_type.Postbackoff );
+
+                backoffDst = this.DCFState([1, k - 1]); % (1, k-1) -> normal DCF state
+                dcf.SetP( src, backoffDst, this.qRawArrive, dcf_transition_type.Backoff );
+            end
+            
+            %%% Handle backoff transitions from (0,0)_e === (1,1)_e
+            %%% Source: Modelling the 802.11 Distributed Coordination Function with Heterogenous Finite Load
+            
+            % Case 1: loop
+            postbackoffOrigin = this.PostbackoffState([1, 1]);
+            postbackoffOriginLoopProbability = 1 - this.qRawArrive + ((this.qRawArrive * (1 - this.pRawFail) * (1 - this.pRawFail)) / this.W(1,1));
+            dcf.SetP( postbackoffOrigin, postbackoffOrigin, postbackoffOriginLoopProbability, dcf_transition_type.Postbackoff );
+            
+            % Case 2/4: Loop back to post backoff and real backoff
+            for k = 1:this.W(1,1)
+                baseBackoffProbability = this.qRawArrive * (1 - this.pRawFail);
+                if (k > 1) % case 2
+                    postbackoffDst = this.PostbackoffState([1, k]); % (1, k)_e
+                    dcf.SetP( postbackoffOrigin, postbackoffDst, (baseBackoffProbability * (1 - this.pRawFail)) / this.W(1,1), dcf_transition_type.Postbackoff );
+                end
+                
+                backoffDst = this.DCFState([1, k]); % (1, k) -> normal DCF state
+                dcf.SetP( postbackoffOrigin, backoffDst, (baseBackoffProbability * this.pRawFail) / this.W(1,1), dcf_transition_type.Backoff );
+            end
+            
+            for k = 1:this.W(1,2)
+                baseBackoffProbability = this.qRawArrive * (1 - this.pRawFail);
+                backoffFailDst = this.DCFState([2, k]); % (2, k) -> normal DCF state
+                dcf.SetP( postbackoffOrigin, backoffFailDst, baseBackoffProbability / this.W(1,2), dcf_transition_type.Backoff );
             end
         end % function SetProbabilities
         
@@ -423,6 +462,9 @@ classdef dcf_matrix_collapsible < handle
         
         % 1 - pRawFail
         pRawSuccess;
+        
+        % TODO: Description
+        qRawArrive;
         
         % number of stages (rows) in the basic DCF matrix
         nStages;

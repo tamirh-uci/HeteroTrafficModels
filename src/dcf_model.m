@@ -15,8 +15,9 @@ dcf_matrix.nPkt = 0;
 dcf_matrix.bUseSingleChainPacketsize = true;
 dcf_matrix.nInterarrival = 0;
 
-[piFail, dimsFail, dcfFail] = dcf_matrix.CreateMatrix(1.0);
-[pi, dims, dcf] = dcf_matrix.CreateMatrix(p);
+qArrive = 0;
+[piFail, dimsFail, dcfFail] = dcf_matrix.CreateMatrix(1.0, qArrive);
+[pi, dims, dcf] = dcf_matrix.CreateMatrix(p, qArrive);
 
 sim = dcf_simulator_oo(dcf, dcfFail, 1);
 sim.Setup();
