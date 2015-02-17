@@ -11,13 +11,13 @@ dcf_matrix = dcf_matrix_collapsible();
 dcf_matrix.m = m;
 dcf_matrix.wMin = Wmin;
 dcf_matrix.pEnterInterarrival = 0.5;
-dcf_matrix.nPkt = 0;
+dcf_matrix.nPkt = 1;
 dcf_matrix.bUseSingleChainPacketsize = true;
 dcf_matrix.nInterarrival = 0;
-dcf_matrix.pRawArrive = 1.0
+dcf_matrix.pRawArrive = 1.0;
 
-[piFail, dimsFail, dcfFail] = dcf_matrix.CreateMatrix(1.0);
-[pi, dims, dcf] = dcf_matrix.CreateMatrix(p);
+[piFail, dcfFail] = dcf_matrix.CreateMatrix(1.0);
+[pi, dcf] = dcf_matrix.CreateMatrix(p);
 dcf.PrintMapping();
 
 sim = dcf_simulator_oo(dcf, dcfFail, 1);
