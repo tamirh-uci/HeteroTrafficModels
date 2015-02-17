@@ -18,6 +18,7 @@ dcf_matrix.nInterarrival = 0;
 qArrive = 0;
 [piFail, dimsFail, dcfFail] = dcf_matrix.CreateMatrix(1.0, qArrive);
 [pi, dims, dcf] = dcf_matrix.CreateMatrix(p, qArrive);
+dcf.PrintMapping();
 
 sim = dcf_simulator_oo(dcf, dcfFail, 1);
 sim.Setup();
