@@ -70,6 +70,11 @@ classdef dcf_container < handle
             dstKey = dcf_state.MakeKey(dstKey);
             
             assert(this.S.isKey(srcKey));
+            assert(this.S.isKey(dstKey));
+            dst = this.S(dstKey);
+            if (dst.Type >= dcf_state_type.Collapsible)
+                txLabel = dcf_state_type.Collapsible;
+            end
             
             srcState = this.S(srcKey);
             srcState.P(dstKey) = p;
