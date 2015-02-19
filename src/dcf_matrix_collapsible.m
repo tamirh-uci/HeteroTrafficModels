@@ -30,7 +30,7 @@ classdef dcf_matrix_collapsible < handle
         
         % packetsize attempt means there was a packet in the buffer,
         % calculate the size of the packet
-        % there is only 1 success state (for stage 1)
+        % there is only 1 packetsize calculation (for stage 1)
         function key = PacketsizeCalculateAttemptState()
             key = dcf_matrix_collapsible.Dim(dcf_state_type.CollapsiblePacketSize, 0);
         end
@@ -126,7 +126,7 @@ classdef dcf_matrix_collapsible < handle
                     % packetsize chain
                     for chainIndex = 1:packetsize
                         key = this.PacketsizeChainState([stage, packetsize, chainIndex]);
-                        if ( chainIndex == 1 )
+                        if ( chainIndex == packetsize )
                             dcf.NewState( dcf_state(key, dcf_state_type.Transmit) );
                         else
                             dcf.NewState( dcf_state(key, dcf_state_type.PacketSize) );
@@ -134,7 +134,7 @@ classdef dcf_matrix_collapsible < handle
                     end
 
                     % backoff states (timer > 1)
-                    for k = this.beginBackoffCol:wCols
+                    for k = 2:wCols
                         key = this.DCFState([stage, packetsize, k]);
                         dcf.NewState( dcf_state(key, dcf_state_type.Backoff) );
                     end
@@ -175,9 +175,11 @@ classdef dcf_matrix_collapsible < handle
                     % Initialize the probabilities from backoff stages to the transmission
                     % stage (all timers k > 1)
                     this.SetBackoffChainProbabilities(dcf, stage, packetsize);
+                    
+                    % We go into packetsize chain after backoff timer==1
+                    this.SetPacketsizeChainProbabilities(dcf, stage, packetsize);
 
-                    % Set what happens once we are done with our backoff chain
-                    % backoff timers where k == 1
+                    % We go into transmit attempt after packetsize chain
                     this.SetTransmitAttemptProbabilities(dcf, stage, packetsize);
 
                     % Going from failure state to backoff states of next stage
@@ -278,7 +280,7 @@ classdef dcf_matrix_collapsible < handle
             % number of backoff states in this stage
             wCols = this.W(1,stage);
             
-            for k = this.beginBackoffCol:wCols
+            for k = 2:wCols
                 src = this.DCFState([stage, packetsize, k]);
                 dst = this.DCFState([stage, packetsize, k-1]);
                 dcf.SetP( src, dst, 1.0, dcf_transition_type.Backoff );
@@ -319,6 +321,12 @@ classdef dcf_matrix_collapsible < handle
 
         
         function SetPacketsizeChainProbabilities(this, dcf, stage, packetsize)
+            % Enter into the packetsize chain from DCF state where timer
+            % expired
+            src = this.DCFState([stage, packetsize, 1]);
+            dst = this.PacketsizeChainState([stage, packetsize, 1]);
+            dcf.SetP( src, dst, 1.0, dcf_transition_type.Collapsible );
+            
             % Travel down the packetsize chain
             for k = 1:packetsize-1
                 src = this.PacketsizeChainState([stage, packetsize, k]);
@@ -365,21 +373,21 @@ classdef dcf_matrix_collapsible < handle
             % Compute some useful variables based on our input params
             this.pRawSuccess = 1 - this.pRawFail;
             this.nStages = this.m + 1;
-            this.beginBackoffCol = 2;
 
-            % If pEnterInterarrival is 0, assume we have an equal chance of
-            % every interarrival state (and zero wait)
-            if (this.pEnterInterarrival == 0)
-                this.pEnterInterarrival = 1.0 / (1+this.nInterarrival);
+            % TODO: We can use this to calc it as 1/nInterarrival or
+            % something like that?
+            if (this.pEnterInterarrival < 0)
+                this.pEnterInterarrival = 0;
             end
             
-            % internally we treat 0 packetsize chains the same as 1
-            % packetsize chains (since it takes over the DCF(1 1) state
+            % packetsize chain of 0 is just the regular model, the
+            % equivilent of packetsize chain of 1
             if (this.nPkt < 1)
                 this.nPkt = 1;
             end
 
-            % Compute values for W
+            % Compute values for W -- how many backoff states there are
+            % each stage
             this.W = zeros(1,this.nStages);
             for i = 1:this.nStages
                 this.W(1,i) = (2^(i - 1)) * this.wMin;
@@ -425,9 +433,6 @@ classdef dcf_matrix_collapsible < handle
         
         % number of stages (rows) in the basic DCF matrix
         nStages;
-        
-        % column where backoff states start
-        beginBackoffCol;
         
         % maximum number of columns in any of the rows
         nColsMax;
