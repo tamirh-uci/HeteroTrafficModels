@@ -84,6 +84,7 @@ classdef dcf_matrix_collapsible < handle
             % Remove temporary states and format output for 
             dcf.Collapse();
             [pi, ~] = dcf.TransitionTable();
+            pi
             assert( dcf.Verify() );
 
         end %function CreateMatrix
@@ -163,14 +164,14 @@ classdef dcf_matrix_collapsible < handle
             
             this.SetPacketsizeCalculateProbabilities(dcf);
             
-            % Handle backoff countdowns -- each one with probability 1-q
-            % (a new packet does not arrive)
-            if (this.pRawArrive < 1.0)
-                this.SetPostBackoffProbabilities(dcf);
-            end
-            
             % Initialize the probabilities from all transmission stages
             for packetsize = 1:this.nPkt
+                % Handle backoff countdowns -- each one with probability 1-q
+                % (a new packet does not arrive)
+                if (this.pRawArrive < 1.0)
+                    this.SetPostBackoffProbabilities(dcf, packetsize);
+                end
+                
                 for stage = 1:this.nStages
                     % Initialize the probabilities from backoff stages to the transmission
                     % stage (all timers k > 1)
