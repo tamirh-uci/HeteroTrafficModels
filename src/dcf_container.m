@@ -69,8 +69,21 @@ classdef dcf_container < handle
             srcKey = dcf_state.MakeKey(srcKey);
             dstKey = dcf_state.MakeKey(dstKey);
             
-            assert(this.S.isKey(srcKey));
-            assert(this.S.isKey(dstKey));
+            try
+                assert(this.S.isKey(srcKey));
+            catch err
+                err
+                foo = 'bar';
+            end
+            
+            try
+                assert(this.S.isKey(dstKey));
+            catch err
+                err2
+                foo2 = 'bar';
+            end
+            
+                
             dst = this.S(dstKey);
             if (dst.Type >= dcf_state_type.Collapsible)
                 txLabel = dcf_state_type.Collapsible;
@@ -109,6 +122,11 @@ classdef dcf_container < handle
                             % Our probability to go to collapsible state
                             pBase = src.P(dstKey);
                             
+                            % The transition we are taking into the
+                            % collapsible state
+                            enterTransition = src.TX(dstKey);
+                            assert(enterTransition >= dcf_transition_type.Collapsible);
+                            
                             % For all states reachable from collapsible
                             dstFromCollapsibleKeys = dst.P.keys();
                             nDstFromCollapsible = size(dstFromCollapsibleKeys, 2);
@@ -121,8 +139,23 @@ classdef dcf_container < handle
                                 pCurrent = this.P(src.Key, dstFromCollapsibleKey);
                                 pCurrent = pCurrent + (pBase * dst.P(dstFromCollapsibleKey));
                                 
-                                assert(src.TX(dstKey) == dcf_transition_type.Collapsible);
-                                this.SetP(src.Key, dstFromCollapsibleKey, pCurrent, dst.TX(dstFromCollapsibleKey));
+                                % If our enter transition was plain
+                                % 'Collapsible' then we will use our exit
+                                % transition type. Otherwise, we will use
+                                % our enter transition type
+                                if (enterTransition == dcf_transition_type.Collapsible)
+                                    transition = dst.TX(dstFromCollapsibleKey);
+                                else
+                                    transition = enterTransition;
+                                end
+                                
+                                % We should end up with a 'real' transition
+                                try
+                                    assert(transition < dcf_transition_type.Collapsible);
+                                catch err
+                                    foo = 'bar';
+                                end
+                                this.SetP(src.Key, dstFromCollapsibleKey, pCurrent, transition);
                             end
                             
                             % Remove the transition to this collapsible
@@ -302,7 +335,7 @@ classdef dcf_container < handle
             
             srcStates = this.S.values();
             assert( size(srcStates,2)==this.nTotalStates );
-            [pi, tx] = this.TransitionTable();
+            [~, ~] = this.TransitionTable();
             
             % Verify the raw state transition hash table
             % For all source states
