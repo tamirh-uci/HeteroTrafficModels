@@ -28,6 +28,13 @@ classdef dcf_matrix_collapsible < handle
             key = dcf_matrix_collapsible.Dim(dcf_state_type.CollapsibleTransmit, indices);
         end
         
+        % initial transmit will distribute between stage 1 and postbackoff
+        % indices = [packetsize]
+        function key = InitialTransmitAttemptState(indices)
+            assert( size(indices,1)==1 && size(indices,2)==1 );
+            key = dcf_matrix_collapsible.Dim(dcf_state_type.CollapsibleInitialTransmit, indices);
+        end
+        
         % packetsize attempt means there was a packet in the buffer,
         % calculate the size of the packet
         % there is only 1 packetsize calculation (for stage 1)
@@ -110,7 +117,7 @@ classdef dcf_matrix_collapsible < handle
             assert( this.nPkt > 0 );
             for packetsize = 1:this.nPkt
                 % where we make our 'initial' attempt to send calculations
-                dcf.NewState( dcf_state( this.TransmitAttemptState([0, packetsize]), dcf_state_type.Collapsible ) );
+                dcf.NewState( dcf_state( this.InitialTransmitAttemptState(packetsize), dcf_state_type.Collapsible ) );
                 
                 for stage = 1:this.nStages
                     wCols = this.W(1, stage);
@@ -199,29 +206,31 @@ classdef dcf_matrix_collapsible < handle
             
             % If we do have interarrival
             % Equal probabilities to go to any state in the interarrival chain
-            pInterarrivalState = this.pEnterInterarrival / this.nInterarrival;
-            for k = 1:this.nInterarrival
-                dst = this.InterarrivalState(k);
-                dcf.SetP( src, dst, pInterarrivalState, dcf_transition_type.Interarrival );
+            if (this.pEnterInterarrival > 0)
+                assert( this.nInterarrival > 0 );
+                pInterarrivalState = this.pEnterInterarrival / this.nInterarrival;
+                for k = 1:this.nInterarrival
+                    dst = this.InterarrivalState(k);
+                    dcf.SetP( src, dst, pInterarrivalState, dcf_transition_type.Interarrival );
+                end
             end
 
         end % function SetSuccessProbabilities
         
         
         function SetPacketsizeCalculateProbabilities(this, dcf)
-            % Equally probable to go to any packetsize depth
-            src = this.PacketsizeCalculateAttemptState();
+            % Equal chance to go to any packetsize depth
             p = 1.0 / this.nPkt;
+            src = this.PacketsizeCalculateAttemptState();
             
             for packetsize = 1:this.nPkt
-                % Equal chance to loop back on itself as go on
-                dst = this.TransmitAttemptState([0, packetsize]);
+                dst = this.InitialTransmitAttemptState(packetsize);
                 dcf.SetP( src, dst, p, dcf_transition_type.Collapsible );
-                
-                % We use TransmitAttemptState with stage=0 as a point to
-                % redistribute on our first attempt at a send
-                src = this.TransmitAttemptState([0, packetsize]);
-
+            end
+            
+            % redistribute our first attempt at a send
+            src = this.InitialTransmitAttemptState(packetsize);
+            for packetsize = 1:this.nPkt
                 % Equal probability to go to each of the stage 1 backoff states
                 pDistNorm = this.pRawArrive / this.W(1,1);
                 pDistPostbackoff = (1.0 - this.pRawArrive) / this.W(1,1);

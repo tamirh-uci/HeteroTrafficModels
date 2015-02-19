@@ -17,5 +17,6 @@ classdef dcf_state_type < int32
         CollapsiblePacketSize(68)
         CollapsiblePostbackoff(69)
         CollapsibleInterarrival(70) 
+        CollapsibleInitialTransmit(71)
     end
 end
