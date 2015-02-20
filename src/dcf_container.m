@@ -69,26 +69,10 @@ classdef dcf_container < handle
             srcKey = dcf_state.MakeKey(srcKey);
             dstKey = dcf_state.MakeKey(dstKey);
             
-            try
-                assert(this.S.isKey(srcKey));
-            catch err
-                err
-                foo = 'bar';
-            end
+            assert(this.S.isKey(srcKey));
+            assert(this.S.isKey(dstKey));
             
-            try
-                assert(this.S.isKey(dstKey));
-            catch err
-                err2
-                foo2 = 'bar';
-            end
-            
-                
             dst = this.S(dstKey);
-            if (dst.Type >= dcf_state_type.Collapsible)
-                txLabel = dcf_state_type.Collapsible;
-            end
-            
             srcState = this.S(srcKey);
             srcState.P(dstKey) = p;
             srcState.TX(dstKey) = int32(txLabel);
@@ -125,7 +109,6 @@ classdef dcf_container < handle
                             % The transition we are taking into the
                             % collapsible state
                             enterTransition = src.TX(dstKey);
-                            assert(enterTransition >= dcf_transition_type.Collapsible);
                             
                             % For all states reachable from collapsible
                             dstFromCollapsibleKeys = dst.P.keys();
@@ -139,23 +122,22 @@ classdef dcf_container < handle
                                 pCurrent = this.P(src.Key, dstFromCollapsibleKey);
                                 pCurrent = pCurrent + (pBase * dst.P(dstFromCollapsibleKey));
                                 
-                                % If our enter transition was plain
-                                % 'Collapsible' then we will use our exit
-                                % transition type. Otherwise, we will use
-                                % our enter transition type
-                                if (enterTransition == dcf_transition_type.Collapsible)
-                                    transition = dst.TX(dstFromCollapsibleKey);
-                                else
+                                % Prioritize using enter transition
+                                % otherwise, choose the non-collapsible
+                                exitTransition = dst.TX(dstFromCollapsibleKey);
+                                if (enterTransition < dcf_transition_type.Collapsible)
                                     transition = enterTransition;
+                                else
+                                    transition = exitTransition;
                                 end
                                 
-                                % We should end up with a 'real' transition
-                                try
-                                    assert(transition < dcf_transition_type.Collapsible);
-                                catch err
-                                    foo = 'bar';
-                                end
                                 this.SetP(src.Key, dstFromCollapsibleKey, pCurrent, transition);
+                                
+                                % We should end up with a 'real' transition
+                                % if we're done collapsing
+                                if (dst.Type < dcf_state_type.Collapsible)
+                                    assert(transition < dcf_transition_type.Collapsible);
+                                end
                             end
                             
                             % Remove the transition to this collapsible
@@ -228,6 +210,29 @@ classdef dcf_container < handle
             % Print
             for i=1:this.nValidStates
                 fprintf('KEY: %d\t = %s', i, mappings{i});
+            end
+        end
+        
+        % Print transitions from all source states to destination states
+        % Include collapsible
+        function PrintAllTransitions(this)
+            srcStates = this.S.values();
+            
+            % For all source states
+            for i=1:this.nTotalStates
+                src = srcStates{i};
+                
+                dstKeys = src.P.keys();
+                nDst = size(dstKeys, 2);
+                
+                fprintf('\nFrom: %s\n', src.Key);
+                % For all destination keys from this source
+                for j=1:nDst
+                    dstKey = dstKeys{j};
+                    type = char( dcf_transition_type( src.TX(dstKey) ) );
+                    p = src.P(dstKey);
+                    fprintf(' to: %s = %f (%s)\n', dstKey, p, type);
+                end
             end
         end
         
@@ -330,12 +335,13 @@ classdef dcf_container < handle
         % Verify transitions are valid
         % Currently just sums up rows and checks to see if it's 1
         function valid = Verify(this)
+            this.PrintMapping();
+            
             epsilonThreshold = 0.0001;
             valid = true;
             
             srcStates = this.S.values();
             assert( size(srcStates,2)==this.nTotalStates );
-            [~, ~] = this.TransitionTable();
             
             % Verify the raw state transition hash table
             % For all source states
@@ -357,6 +363,7 @@ classdef dcf_container < handle
             % If conversion went without a hitch, this should yield the
             % same results as the above checks
             [pi, tx] = this.TransitionTable();
+            tx
             
             assert(size(pi,1)==this.nValidStates);
             assert(size(pi,2)==this.nValidStates);

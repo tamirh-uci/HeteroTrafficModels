@@ -13,6 +13,5 @@ classdef(Enumeration) dcf_transition_type < int32
         
         % All values here and below are considered collapsible states
         Collapsible(64)
-        CollapsibleSuccess(65)
     end
 end
