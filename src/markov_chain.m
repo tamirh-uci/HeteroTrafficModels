@@ -1,4 +1,4 @@
-classdef dcf_container < handle
+classdef markov_chain < handle
     %DCF Container - Holds set of states of markov chain
     
     properties (SetAccess = protected)
@@ -15,8 +15,8 @@ classdef dcf_container < handle
     end %properties
     
     methods
-        % Default Empty Constructor for dcf_container
-        function obj = dcf_container()
+        % Default Empty Constructor for markov_chain
+        function obj = markov_chain()
             obj = obj@handle();
             obj.S = containers.Map('KeyType', 'char', 'ValueType', 'any');
         end

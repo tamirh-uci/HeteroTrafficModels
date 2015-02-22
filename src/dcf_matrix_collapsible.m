@@ -91,7 +91,7 @@ classdef dcf_matrix_collapsible < handle
             this.CalculateConstants();
             
             % Initialize the transition matrix
-            dcf = dcf_container();
+            dcf = markov_chain();
             
             % Create all of the states and set probabilities of transitions
             this.GenerateStates(dcf);

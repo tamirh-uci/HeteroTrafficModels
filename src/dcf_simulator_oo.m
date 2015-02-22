@@ -14,8 +14,8 @@ classdef dcf_simulator_oo < handle
         % The DCFs we are simulating, expect 2 DCF objects
         % 1: Normal probability
         % 2: 100% Failure probability
-        dcf@dcf_container;
-        dcfFail@dcf_container;
+        dcf@markov_chain;
+        dcfFail@markov_chain;
         
         % The transition table for the DCF with normal p
         txP;
