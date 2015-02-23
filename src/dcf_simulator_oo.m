@@ -22,7 +22,7 @@ classdef dcf_simulator_oo < handle
         
         function add_dcf_matrix(this, dcfmatrix)
             nNodes = size(this.nodes, 2);
-            this.nodes{nNodes+1} = dcf_sim_node(dcfmatrix, this.pSuccess, this.pFail);
+            this.nodes{nNodes+1} = dcf_sim_node(dcfmatrix, this.pSuccessSingleTransmit, this.pSuccessMultiTransmit);
         end
         
         % Initialize the object and ready it for calls to StepSimulate
