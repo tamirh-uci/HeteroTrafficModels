@@ -86,8 +86,8 @@ classdef dcf_matrix_collapsible < handle
             obj = obj@handle;
         end
         
-        function [pi, dcf] = CreateMatrix(this, pFail)
-            this.pRawFail = pFail;
+        function dcf = CreateMarkovChain(this, pSuccess)
+            this.pRawSuccess = pSuccess;
             this.CalculateConstants();
             
             % Initialize the transition matrix
@@ -96,11 +96,9 @@ classdef dcf_matrix_collapsible < handle
             % Create all of the states and set probabilities of transitions
             this.GenerateStates(dcf);
             this.SetProbabilities(dcf);
-
-            % Remove temporary states and format output for 
+            
+            % Remove temporary states
             dcf.Collapse();
-            [pi, ~] = dcf.TransitionTable();
-            pi
             assert( dcf.Verify() );
 
         end %function CreateMatrix
@@ -381,7 +379,7 @@ classdef dcf_matrix_collapsible < handle
         
         function CalculateConstants(this)
             % Basic assumptions
-            assert( this.pRawFail >= 0 && this.pRawFail <= 1 );
+            assert( this.pRawSuccess >= 0 && this.pRawSuccess <= 1 );
             assert( this.pRawArrive >= 0 && this.pRawArrive <= 1 );
             assert( this.pEnterInterarrival >= 0 && this.pEnterInterarrival <= 1 );
             assert( this.m >= 1 );
@@ -390,7 +388,7 @@ classdef dcf_matrix_collapsible < handle
             assert( this.nInterarrival >= 0 );
             
             % Compute some useful variables based on our input params
-            this.pRawSuccess = 1 - this.pRawFail;
+            this.pRawFail = 1 - this.pRawSuccess;
             this.nStages = this.m + 1;
 
             % TODO: We can use this to calc it as 1/nInterarrival or

@@ -4,8 +4,6 @@ Wmax = 4; %1024;
 m = log2(Wmax / Wmin);
 % -> W = (2 4)
 
-p = 0.25;
-
 %%%% Transition matrix generation
 dcf_matrix = dcf_matrix_collapsible();
 dcf_matrix.m = m;
@@ -15,10 +13,14 @@ dcf_matrix.nInterarrival = 0;
 dcf_matrix.pEnterInterarrival = 0.0;
 dcf_matrix.pRawArrive = 1.0;
 
-[piFail, dcfFail] = dcf_matrix.CreateMatrix(1.0);
-[pi, dcf] = dcf_matrix.CreateMatrix(p);
+pSuccessSingleTransmit = 0.75;
+pSuccessMultiTransmit = 0.0;
+sim = dcf_simulator_oo(pSuccessSingleTransmit, pSuccessMultiTransmit);
 
-sim = dcf_simulator_oo(dcf, dcfFail, 1);
+for i=1:1
+    sim.add_dcf_matrix(dcf_matrix);
+end
+
 sim.Setup();
 sim.Steps(10000);
 
@@ -28,7 +30,7 @@ waits = sim.CountWaits();
 successPercent = successes/(successes+failures);
 transmitPercent = successes/(successes+failures+waits);
 
-[groundProbability] = dcf_ground_state(p, Wmin, m);
+[groundProbability] = dcf_ground_state(pSuccessSingleTransmit, Wmin, m);
 
 %%%% Metrics computation
 % Note: all time parameters must have the same units
@@ -39,7 +41,7 @@ n = 2; % number of nodes -- make this a parameter
 sigma = 5; % TODO
 
 % 1. Throughput
-[tau] = dcf_tau(p, Wmin, m)
+[tau] = dcf_tau(pSuccessSingleTransmit, Wmin, m)
 P_tr = (1 - (1 - tau)^n)
 P_s = (n * tau * (1 - tau)^(n - 1)) / (1 - (1 - tau)^n)
 [S] = dcf_throughput( P_s, P_tr, E_p, sigma, T_s, T_c );

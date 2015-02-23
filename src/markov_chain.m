@@ -335,8 +335,6 @@ classdef markov_chain < handle
         % Verify transitions are valid
         % Currently just sums up rows and checks to see if it's 1
         function valid = Verify(this)
-            this.PrintMapping();
-            
             epsilonThreshold = 0.0001;
             valid = true;
             
@@ -363,7 +361,6 @@ classdef markov_chain < handle
             % If conversion went without a hitch, this should yield the
             % same results as the above checks
             [pi, tx] = this.TransitionTable();
-            tx
             
             assert(size(pi,1)==this.nValidStates);
             assert(size(pi,2)==this.nValidStates);
