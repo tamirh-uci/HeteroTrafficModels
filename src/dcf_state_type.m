@@ -9,6 +9,10 @@ classdef dcf_state_type < int32
         Interarrival(4)
         Postbackoff(5)
         
+        IFrame(20)
+        BFrame(21)
+        PFrame(22)
+        
         % All values here and below are considered collapsible states
         Collapsible(64)
         CollapsibleTransmit(65)

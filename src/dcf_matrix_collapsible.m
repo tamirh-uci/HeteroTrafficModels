@@ -1,4 +1,6 @@
 classdef dcf_matrix_collapsible < handle
+    %DCF_MATRIX_COLLAPSIBLE Markov chain for DCF backoff simulation
+    
     methods (Static)
         function key = Dim(type, indices)
             key = [int32(type) indices];
@@ -79,7 +81,7 @@ classdef dcf_matrix_collapsible < handle
             assert( size(indices,1)==1 && size(indices,2)==2 );
             key = dcf_matrix_collapsible.Dim(dcf_state_type.Postbackoff, indices);
         end
-    end
+    end % methods (Static)
     
     methods
         function obj = dcf_matrix_collapsible()
