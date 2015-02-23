@@ -11,9 +11,9 @@ classdef(Enumeration) dcf_transition_type < int32
         Interarrival(5)
         Postbackoff(6)
         
-        IFrame(20)
-        BFrame(21)
-        PFrame(22)
+        TxIFrame(20)
+        TxBFrame(21)
+        TxPFrame(22)
         
         % All values here and below are considered collapsible states
         Collapsible(64)

@@ -22,7 +22,12 @@ classdef dcf_simulator_oo < handle
         
         function add_dcf_matrix(this, dcfmatrix)
             nNodes = size(this.nodes, 2);
-            this.nodes{nNodes+1} = dcf_sim_node(dcfmatrix, this.pSuccessSingleTransmit, this.pSuccessMultiTransmit);
+            this.nodes{nNodes+1} = dcf_sim_node(dcfmatrix, [], this.pSuccessSingleTransmit, this.pSuccessMultiTransmit);
+        end
+        
+        function add_multimedia_matrix(this, dcfmatrix, multimediamodel)
+            nNodes = size(this.nodes, 2);
+            this.nodes{nNodes+1} = dcf_sim_node(dcfmatrix, multimediamodel, this.pSuccessSingleTransmit, this.pSuccessMultiTransmit);
         end
         
         % Initialize the object and ready it for calls to StepSimulate
@@ -66,44 +71,44 @@ classdef dcf_simulator_oo < handle
                end
             end
             
-            % Log metrics for all nodes
+            % Node may have some work to do after the finalized state has
+            % been reached (logging, or transmission type steps)
             for i=1:nNodes
                 node = this.nodes{i};
-                node.Log();
+                node.PostStep();
+            end
+        end
+        
+        % Count up state types from all node
+        function count = CountStates(this, sFn)
+            nNodes = size(this.nodes, 2);
+            count = 0;
+            
+            fn = str2func(sFn);
+            for i=1:nNodes
+                node = this.nodes{i};
+                count = count + fn(node);
             end
         end
         
         % Count up success transitions
-        function successes = CountSuccesses(this)
-            nNodes = size(this.nodes, 2);
-            successes = 0;
-
-            for i=1:nNodes
-                node = this.nodes{i};
-                successes = successes + node.CountSuccesses();
-            end
+        function count = CountSuccesses(this)
+            count = this.CountStates('CountSuccesses');
         end
         
         % Count up failure transitions
-        function failures = CountFailures(this)
-            nNodes = size(this.nodes, 2);
-            failures = 0;
-            
-            for i=1:nNodes
-                node = this.nodes{i};
-                failures = failures + node.CountFailures();
-            end
+        function count = CountFailures(this)
+            count = this.CountStates('CountFailures');
         end
         
         % Count up wait (backoff) transitions
-        function waits = CountWaits(this)
-            nNodes = size(this.nodes, 2);
-            waits = 0;
-            
-            for i=1:nNodes
-                node = this.nodes{i};
-                waits = waits + node.CountWaits();
-            end
+        function count = CountWaits(this)
+            count = this.CountStates('CountWaits');
+        end
+        
+        % Count up how many times we ended up in invalid states
+        function count = CountInvalid(this)
+            count = this.CountStates('CountInvalidStates');
         end
     end %methods
 end

@@ -96,17 +96,17 @@ classdef markov_video_frames < handle
             bFrame = this.BFrameState();
             pFrame = this.PFrameState();
             
-            chain.SetP( iFrame, iFrame, this.pII, dcf_transition_type.IFrame );
-            chain.SetP( iFrame, bFrame, this.pIB, dcf_transition_type.BFrame );
-            chain.SetP( iFrame, pFrame, this.pIP, dcf_transition_type.PFrame );
+            chain.SetP( iFrame, iFrame, this.pII, dcf_transition_type.TxIFrame );
+            chain.SetP( iFrame, bFrame, this.pIB, dcf_transition_type.TxBFrame );
+            chain.SetP( iFrame, pFrame, this.pIP, dcf_transition_type.TxPFrame );
             
-            chain.SetP( bFrame, iFrame, this.pBI, dcf_transition_type.IFrame );
-            chain.SetP( bFrame, bFrame, this.pBB, dcf_transition_type.BFrame );
-            chain.SetP( bFrame, pFrame, this.pBP, dcf_transition_type.PFrame );
+            chain.SetP( bFrame, iFrame, this.pBI, dcf_transition_type.TxIFrame );
+            chain.SetP( bFrame, bFrame, this.pBB, dcf_transition_type.TxBFrame );
+            chain.SetP( bFrame, pFrame, this.pBP, dcf_transition_type.TxPFrame );
             
-            chain.SetP( pFrame, iFrame, this.pPI, dcf_transition_type.IFrame );
-            chain.SetP( pFrame, bFrame, this.pPB, dcf_transition_type.BFrame );
-            chain.SetP( pFrame, pFrame, this.pPP, dcf_transition_type.PFrame );
+            chain.SetP( pFrame, iFrame, this.pPI, dcf_transition_type.TxIFrame );
+            chain.SetP( pFrame, bFrame, this.pPB, dcf_transition_type.TxBFrame );
+            chain.SetP( pFrame, pFrame, this.pPP, dcf_transition_type.TxPFrame );
         end
     end % methods
     

@@ -23,6 +23,7 @@ end
 
 sim.Setup();
 sim.Steps(10000);
+assert( sim.CountInvalid() == 0 );
 
 successes = sim.CountSuccesses();
 failures = sim.CountFailures();

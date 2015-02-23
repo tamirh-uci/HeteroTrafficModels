@@ -4,22 +4,14 @@ classdef dcf_sim_node < handle
     % generate traffic of a single type
     
     properties
-        dcf@dcf_matrix_collapsible;
+        % Main DCF chain which determines when a transmit occurs
+        mainChain@markov_chain_node;
         
-        % List of all possible state indices
-        sampleIndices;
-
-        % State index of previous time slot
-        prevState;
-        
-        % State index for current time slot
-        currentState;
-        
-        % Matrix indexed by [src,dst] of possible state->state transitions
-        txTypes;
-        
-        % Number of times we count each [src,dst] transition happen
-        transitionCount;
+        % Secondary Markov Chain which determines what kind of transmit
+        % Advances to this chain only occur on transmission
+        secondaryChain@markov_chain_node;
+        markovSecondary;
+        piSecondary;
         
         % Successful transmission: when no other node is transmitting at the same time
         pSuccessSingleTransmit;
@@ -30,76 +22,111 @@ classdef dcf_sim_node < handle
         pSuccessMultiTransmit;
         piMultiTransmit;
         markovMultiTransmit;
+
+        
+        % Array of states which we consider to be successful transmissions
+        txSuccessTypes@dcf_transition_type;
+        
+        % Array of states which we consider to be failed transmissions
+        txFailTypes@dcf_transition_type;
+        
+        % Array of states which we consider to be waiting periods
+        txWaitTypes@dcf_transition_type;
+        
+        % Array of states which we should never see
+        txInvalidTypes@dcf_transition_type;
     end
     
     methods
-        function obj = dcf_sim_node(dcfIn, pSuccessSingleTransmitIn, pSuccessMultiTransmitIn)
+        function obj = dcf_sim_node(dcfIn, secondaryChainIn, pSuccessSingleTransmitIn, pSuccessMultiTransmitIn)
             obj = obj@handle();
-            obj.dcf = dcfIn;
+            obj.mainChain = markov_chain_node(dcfIn);
+            
             obj.pSuccessSingleTransmit = pSuccessSingleTransmitIn;
             obj.pSuccessMultiTransmit = pSuccessMultiTransmitIn;
+            
+            if (~isempty(secondaryChainIn))
+                obj.secondaryChain = markov_chain_node(secondaryChainIn);
+            end
+            
+            obj.txSuccessTypes = [dcf_transition_type.TxSuccess, dcf_transition_type.TxIFrame, dcf_transition_type.TxBFrame, dcf_transition_type.TxPFrame];
+            obj.txFailTypes = [dcf_transition_type.TxFailure];
+            obj.txWaitTypes = [dcf_transition_type.Backoff, dcf_transition_type.Interarrival, dcf_transition_type.Postbackoff, dcf_transition_type.PacketSize];
+            obj.txInvalidTypes = [dcf_transition_type.Null, dcf_transition_type.Collapsible];
         end
         
         function Setup(this)
-            this.markovSingleTransmit = this.dcf.CreateMarkovChain(this.pSuccessSingleTransmit);
-            [this.piSingleTransmit, this.txTypes] = this.markovSingleTransmit.TransitionTable();
+            this.markovSingleTransmit = this.mainChain.chain.CreateMarkovChain(this.pSuccessSingleTransmit);
+            [this.piSingleTransmit, this.mainChain.txTypes] = this.markovSingleTransmit.TransitionTable();
             
-            this.markovMultiTransmit = this.dcf.CreateMarkovChain(this.pSuccessMultiTransmit);
+            this.markovMultiTransmit = this.mainChain.chain.CreateMarkovChain(this.pSuccessMultiTransmit);
             [this.piMultiTransmit, ~] = this.markovMultiTransmit.TransitionTable();
             
             assert(size(this.piSingleTransmit, 2) == size(this.piMultiTransmit, 2));
+            this.mainChain.Setup(this.markovSingleTransmit, this.piSingleTransmit);
             
-            nValidStates = size(this.piSingleTransmit, 2);
-            this.sampleIndices  = 1:nValidStates;
-            this.transitionCount = zeros(nValidStates, nValidStates);
-            
-            % Choose randomly based on weighted average of steady state
-            startState = this.markovSingleTransmit.WeightedRandomState(0.0001, 1000);
-            this.prevState = startState;
-            this.currentState = startState;
-        end
-        
-        function Step(this)
-            this.prevState = this.currentState;
-            
-            % find the probability to go to all other states from this one
-            pCur = this.piSingleTransmit(this.currentState, :);
-            
-            % choose one of the states randomly based on weights
-            this.currentState = randsample(this.sampleIndices, 1, true, pCur);
+            if (~isempty(this.secondaryChain))
+                this.markovSecondary = this.secondaryChain.chain.CreateMarkovChain();
+                [this.piSecondary, this.secondaryChain.txTypes] = this.markovSecondary.TransitionTable();
+                
+                this.secondaryChain.Setup(this.markovSecondary, this.piSecondary);
+            end
         end
         
         function bTransmitting = IsTransmitting(this)
-            bTransmitting = (this.currentState == dcf_state_type.Transmit);
+            bTransmitting = ismember(this.mainChain.currentState, this.txFailTypes);
+        end
+        
+        function Step(this)
+            % find the next state, assumin we'll succeed
+            this.mainChain.Step(this.piSingleTransmit, false);
         end
         
         function ForceFailure(this)
             assert(this.IsTransmitting());
             
-            % find the probabilit to go to all other states given that we
-            % know we have failed a transmission
-            pCur = this.piMultiTransmit( this.prevState, :);
+            % find next state knowing we previously thought we successfully
+            % transmitted, but now we want to force a failed state
+            this.mainChain.Step(this.piMultiTransmit, true);
+        end
+        
+        % After we know what state we've moved to, figure out if we have
+        % anything else to do. If we're transmitting, we may need to
+        % determine what exactly it is we're transmitting
+        function PostStep(this)
+            % Keep track of every state transition
+            this.mainChain.Log();
             
-            % recalculate what our current state would be if we had
-            % correctly transitioned into a fail state
-            this.currentState = randsample(this.sampleIndices, 1, true, pCur);
+            if (~isempty(this.secondaryChain))
+                % Keep track of secondary chain only when it needs to
+                % change
+                if (this.IsTransmitting())
+                    this.secondaryChain.Step(this.piSecondary, false);
+                    this.secondaryChain.Log();
+                end
+            end
         end
         
-        function Log(this)
-            this.transitionCount(this.prevState, this.currentState) = 1 + this.transitionCount(this.prevState,this.currentState);
+        % An entire packet successfully transmitted
+        function count = CountSuccesses(this)
+            count = this.mainChain.CountTransitions(this.txSuccessTypes);
         end
         
-        function successes = CountSuccesses(this)
-            successes = sum( this.transitionCount(this.txTypes == dcf_transition_type.TxSuccess) );
+        % Something happened in a packet transmission and it will need
+        % retransmission now
+        function count = CountFailures(this)
+            count = this.mainChain.CountTransitions(this.txFailTypes);
         end
         
-        function failures = CountFailures(this)
-            failures = sum( this.transitionCount(this.txTypes == dcf_transition_type.TxFailure) );
+        % Node is either waiting to transmit, or waiting for new data to
+        % arrive so it can transmit eventually
+        function count = CountWaits(this)
+            count = this.mainChain.CountTransitions(this.txWaitTypes);
         end
         
-        function waits = CountWaits(this)
-            waits = sum( this.transitionCount(this.txTypes == dcf_transition_type.Backoff) );
+        % This should always be zero
+        function count = CountInvalidStates(this)
+            count = this.mainChain.CountTransitions(this.txInvalidTypes);
         end
-    end
-    
-end
+    end % methods    
+end % classdef dcf_sim_node
