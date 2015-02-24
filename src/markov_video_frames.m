@@ -36,11 +36,6 @@ classdef markov_video_frames < handle
         end
         
         function CalculateConstants(this)
-            this.pII = 0.5;
-            this.pBB = 0.6;
-            this.pPI = 0.1;
-            this.pPB = 0.2;
-            
             % Dump into a matrix to calculate easier
             pi = [this.pII, this.pIB, this.pIP; this.pBI, this.pBB, this.pBP; this.pPI, this.pPB, this.pPP];
             epsilon = 0.0001;
