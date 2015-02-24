@@ -21,6 +21,16 @@ for i=1:1
     sim.add_dcf_matrix(dcf_matrix);
 end
 
+% Add a multimedia node
+media_matrix = markov_video_frames();
+media_matrix.gopAnchorFrameDistance = 3;
+media_matrix.gopFullFrameDistance = 12;
+
+for i=1:1
+    sim.add_multimedia_matrix(dcf_matrix, media_matrix);
+end
+
+
 sim.Setup();
 sim.Steps(10000);
 assert( sim.CountInvalid() == 0 );
