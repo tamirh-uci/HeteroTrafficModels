@@ -79,6 +79,19 @@ classdef dcf_simulator_oo < handle
             end
         end
         
+        % Print out some useful information about this run
+        function PrintResults(this)
+            successes = this.CountSuccesses();
+            failures = this.CountFailures();
+            waits = this.CountWaits();
+            
+            successPercent = successes/(successes+failures);
+            successTransmitTimePercent = successes/(successes+failures+waits);
+            
+            fprintf('success = %.2f%%\t', 100*successPercent);
+            fprintf('transmit = %.2f%%\n', 100*successTransmitTimePercent);
+        end
+        
         % Count up state types from all node
         function count = CountStates(this, sFn)
             nNodes = size(this.nodes, 2);

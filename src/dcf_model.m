@@ -34,12 +34,7 @@ end
 sim.Setup();
 sim.Steps(10000);
 assert( sim.CountInvalid() == 0 );
-
-successes = sim.CountSuccesses();
-failures = sim.CountFailures();
-waits = sim.CountWaits();
-successPercent = successes/(successes+failures);
-transmitPercent = successes/(successes+failures+waits);
+sim.PrintResults();
 
 [groundProbability] = dcf_ground_state(pSuccessSingleTransmit, Wmin, m);
 
@@ -52,12 +47,10 @@ n = 2; % number of nodes -- make this a parameter
 sigma = 5; % TODO
 
 % 1. Throughput
-[tau] = dcf_tau(pSuccessSingleTransmit, Wmin, m)
-P_tr = (1 - (1 - tau)^n)
-P_s = (n * tau * (1 - tau)^(n - 1)) / (1 - (1 - tau)^n)
+[tau] = dcf_tau(pSuccessSingleTransmit, Wmin, m);
+P_tr = (1 - (1 - tau)^n);
+P_s = (n * tau * (1 - tau)^(n - 1)) / (1 - (1 - tau)^n);
 [S] = dcf_throughput( P_s, P_tr, E_p, sigma, T_s, T_c );
 
-S;
-
-% 2. Packet loss probability
-fprintf('Success %%: %f, Transmit %%: %f\n\n', 100*successPercent, 100*transmitPercent);
+fprintf('tau=%f\tP_tr=%f\tP_s=%f\n', tau, P_tr, P_s);
+fprintf('\n');
