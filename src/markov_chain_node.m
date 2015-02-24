@@ -19,6 +19,9 @@ classdef markov_chain_node < handle
         
         % Number of times we count each [src,dst] transition happen
         transitionCount;
+        
+        % History of all previous states
+        history;
     end
     
     methods
@@ -55,6 +58,8 @@ classdef markov_chain_node < handle
         end
         
         function Log(this)
+            this.history( 1 + size(this.history, 2) ) = this.currentState;
+            
             prevTC = this.transitionCount(this.prevState, this.currentState);
             this.transitionCount(this.prevState, this.currentState) = 1 + prevTC;
         end
