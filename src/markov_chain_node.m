@@ -44,7 +44,30 @@ classdef markov_chain_node < handle
             this.currentState = startState;
         end
         
+        % Advance the markov chain until we hit a given state
+        % endStates : Array of states to stop on, any other will result in
+        % continued steps
+        function StepUntil(this, pi, endTypes)
+            maxSteps = 100000;
+            
+            step = 1;
+            done = false;
+            while (~done && step < maxSteps)
+                Step(this, pi, false);
+                
+                step = step + 1;
+                done = ismember( this.txTypes(this.prevState, this.currentState), endTypes );
+            end
+        end
+        
+        % Advance one single state in the markov chain
+        % pi : the transition table to use
+        % bPrevAsCurrent=true : travel from previous state
+        % bPrevAsCurrent=false: travel from current state (normal)
         function Step(this, pi, bPrevAsCurrent)
+            assert(size(pi,1)==size(this.txTypes,1));
+            assert(size(pi,2)==size(this.txTypes,2));
+            
             % find the probability to go to all other states from this one
             if (bPrevAsCurrent)
                 pCur = pi(this.prevState, :);

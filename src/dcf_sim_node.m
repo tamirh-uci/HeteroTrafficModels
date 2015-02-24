@@ -12,6 +12,7 @@ classdef dcf_sim_node < handle
         secondaryChain@markov_chain_node;
         markovSecondary;
         piSecondary;
+        secondaryEndStates;
         
         % Successful transmission: when no other node is transmitting at the same time
         pSuccessSingleTransmit;
@@ -47,6 +48,7 @@ classdef dcf_sim_node < handle
             
             if (~isempty(secondaryChainIn))
                 obj.secondaryChain = markov_chain_node(secondaryChainIn);
+                obj.secondaryEndStates = [dcf_transition_type.TxIFrame, dcf_transition_type.TxBFrame, dcf_transition_type.TxPFrame];
             end
             
             obj.txSuccessTypes = [dcf_transition_type.TxSuccess, dcf_transition_type.TxIFrame, dcf_transition_type.TxBFrame, dcf_transition_type.TxPFrame];
@@ -94,17 +96,17 @@ classdef dcf_sim_node < handle
         % anything else to do. If we're transmitting, we may need to
         % determine what exactly it is we're transmitting
         function PostStep(this)
-            % Keep track of every state transition
-            this.mainChain.Log();
-            
             if (~isempty(this.secondaryChain))
                 % Keep track of secondary chain only when it needs to
                 % change
                 if (this.IsTransmitting())
-                    this.secondaryChain.Step(this.piSecondary, false);
+                    this.secondaryChain.StepUntil(this.piSecondary, this.secondaryEndStates);
                     this.secondaryChain.Log();
                 end
             end
+            
+            % Keep track of every state transition
+            this.mainChain.Log();
         end
         
         % An entire packet successfully transmitted
