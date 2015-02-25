@@ -7,7 +7,7 @@ function [ markovMatrix ] = dcf_matrix_factory( pSuccess, pArrive, pEnter, m, wM
     markovMatrix.wMin = wMin;
     markovMatrix.nPkt = nPkt;
     markovMatrix.nInterarrival = nInterarrival;
-    markovMatrix.CreateMarkovChain(pSuccess);
+    %markovMatrix.CreateMarkovChain(pSuccess);
      
 end
 
