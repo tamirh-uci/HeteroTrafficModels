@@ -9,10 +9,10 @@ classdef markov_chain_node < handle
         sampleIndices;
 
         % State index of previous time slot
-        prevState;
+        prevStateIndex;
         
         % State index for current time slot
-        currentState;
+        currentStateIndex;
         
         % Matrix indexed by [src,dst] of possible state->state transitions
         txTypes;
@@ -21,13 +21,17 @@ classdef markov_chain_node < handle
         transitionCount;
         
         % History of all previous states
-        history;
+        indexHistory;
     end
     
     methods
         function obj = markov_chain_node(chainIn)
             obj = obj@handle;
             obj.chain = chainIn;
+        end
+        
+        function tx = CurrentTransition(this)
+            tx = this.txTypes(this.prevStateIndex, this.currentStateIndex);
         end
         
         function Setup(this, markovModel, pi)
@@ -39,9 +43,9 @@ classdef markov_chain_node < handle
             this.sampleIndices  = 1:nValidStates;
             this.transitionCount = zeros(nValidStates, nValidStates);
             
-            startState = markovModel.WeightedRandomState(epsilon, steadyStateMaxRepeat);
-            this.prevState = startState;
-            this.currentState = startState;
+            startStateIndex = markovModel.WeightedRandomState(epsilon, steadyStateMaxRepeat);
+            this.prevStateIndex = startStateIndex;
+            this.currentStateIndex = startStateIndex;
         end
         
         % Advance the markov chain until we hit a given state
@@ -56,7 +60,7 @@ classdef markov_chain_node < handle
                 Step(this, pi, false);
                 
                 step = step + 1;
-                done = ismember( this.txTypes(this.prevState, this.currentState), endTypes );
+                done = ismember( this.CurrentTransition(), endTypes );
             end
         end
         
@@ -70,25 +74,35 @@ classdef markov_chain_node < handle
             
             % find the probability to go to all other states from this one
             if (bPrevAsCurrent)
-                pCur = pi(this.prevState, :);
+                pCur = pi(this.prevStateIndex, :);
             else
-                this.prevState = this.currentState;
-                pCur = pi(this.currentState, :);
+                this.prevStateIndex = this.currentStateIndex;
+                pCur = pi(this.currentStateIndex, :);
             end
             
             % choose one of the states randomly based on weights
-            this.currentState = randsample(this.sampleIndices, 1, true, pCur);
+            this.currentStateIndex = randsample(this.sampleIndices, 1, true, pCur);
         end
         
         function Log(this)
-            this.history( 1 + size(this.history, 2) ) = this.currentState;
+            this.indexHistory( 1 + size(this.indexHistory, 2) ) = this.currentStateIndex;
             
-            prevTC = this.transitionCount(this.prevState, this.currentState);
-            this.transitionCount(this.prevState, this.currentState) = 1 + prevTC;
+            prevTC = this.transitionCount(this.prevStateIndex, this.currentStateIndex);
+            this.transitionCount(this.prevStateIndex, this.currentStateIndex) = 1 + prevTC;
         end
 
         function count = CountTransitions(this, compareTypes)
-            count = sum( this.transitionCount(ismember(this.txTypes, compareTypes)) );
+            count = 0;
+            nStates = size(this.txTypes,2);
+            
+            % For every transition type, check if it's one of compareTypes
+            for src = 1:nStates
+                for dst = 1:nStates
+                    if ( ismember(this.txTypes(src,dst), compareTypes) )
+                        count = count + this.transitionCount(src, dst);
+                    end
+                end
+            end
         end
     end
 end

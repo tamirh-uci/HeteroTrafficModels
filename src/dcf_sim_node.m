@@ -76,7 +76,7 @@ classdef dcf_sim_node < handle
         end
         
         function bTransmitting = IsTransmitting(this)
-            bTransmitting = ismember(this.mainChain.currentState, this.txFailTypes);
+            bTransmitting = ismember( this.mainChain.CurrentTransition(), this.txSuccessTypes );
         end
         
         function Step(this)
