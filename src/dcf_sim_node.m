@@ -7,6 +7,9 @@ classdef dcf_sim_node < handle
         % Main DCF chain which determines when a transmit occurs
         mainChain@markov_chain_node;
         
+        % Human readable identifier for this node, only used in print/debug
+        name@char;
+        
         % Secondary Markov Chain which determines what kind of transmit
         % Advances to this chain only occur on transmission
         secondaryChain@markov_chain_node;
@@ -39,8 +42,9 @@ classdef dcf_sim_node < handle
     end
     
     methods
-        function obj = dcf_sim_node(dcfIn, secondaryChainIn, pSuccessSingleTransmitIn, pSuccessMultiTransmitIn)
+        function obj = dcf_sim_node(nameIn, dcfIn, secondaryChainIn, pSuccessSingleTransmitIn, pSuccessMultiTransmitIn)
             obj = obj@handle();
+            obj.name = nameIn;
             obj.mainChain = markov_chain_node(dcfIn);
             
             obj.pSuccessSingleTransmit = pSuccessSingleTransmitIn;

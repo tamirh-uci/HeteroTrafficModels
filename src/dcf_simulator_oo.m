@@ -20,14 +20,14 @@ classdef dcf_simulator_oo < handle
             obj.pSuccessMultiTransmit = pSuccessMultiTransmitIn;
         end
         
-        function add_dcf_matrix(this, dcfmatrix)
+        function add_dcf_matrix(this, name, dcfmatrix)
             nNodes = size(this.nodes, 2);
-            this.nodes{nNodes+1} = dcf_sim_node(dcfmatrix, [], this.pSuccessSingleTransmit, this.pSuccessMultiTransmit);
+            this.nodes{nNodes+1} = dcf_sim_node(name, dcfmatrix, [], this.pSuccessSingleTransmit, this.pSuccessMultiTransmit);
         end
         
-        function add_multimedia_matrix(this, dcfmatrix, multimediamodel)
+        function add_multimedia_matrix(this, name, dcfmatrix, multimediamodel)
             nNodes = size(this.nodes, 2);
-            this.nodes{nNodes+1} = dcf_sim_node(dcfmatrix, multimediamodel, this.pSuccessSingleTransmit, this.pSuccessMultiTransmit);
+            this.nodes{nNodes+1} = dcf_sim_node(name, dcfmatrix, multimediamodel, this.pSuccessSingleTransmit, this.pSuccessMultiTransmit);
         end
         
         % Initialize the object and ready it for calls to StepSimulate
@@ -81,15 +81,25 @@ classdef dcf_simulator_oo < handle
         
         % Print out some useful information about this run
         function PrintResults(this)
-            successes = this.CountSuccesses();
-            failures = this.CountFailures();
-            waits = this.CountWaits();
+            fprintf('===Node Results===\n');
+            nNodes = size(this.nodes, 2);
+            for i=1:nNodes
+                node = this.nodes{i};
+                fprintf(' +%s+\n', node.name);
+                this.PrintStats(node.CountSuccesses(), node.CountFailures(), node.CountWaits());
+                fprintf('\n');
+            end
             
+            fprintf('\n===Overall===\n');
+            this.PrintStats(this.CountSuccesses(), this.CountFailures(), this.CountWaits());
+        end
+        
+        function PrintStats(this, successes, failures, waits)
             successPercent = successes/(successes+failures);
             successTransmitTimePercent = successes/(successes+failures+waits);
             
-            fprintf('success = %.2f%%\t', 100*successPercent);
-            fprintf('transmit = %.2f%%\n', 100*successTransmitTimePercent);
+            fprintf('success = %.3f%%\t', 100*successPercent);
+            fprintf('transmit = %.3f%%\n', 100*successTransmitTimePercent);
         end
         
         % Count up state types from all node

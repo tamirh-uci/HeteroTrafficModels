@@ -16,8 +16,8 @@ simulator = dcf_simulator_oo(pSuccess, 0);
 % create the nodes we want to participate in the sim
 n1 = dcf_matrix_factory(pArrive, pEnter, m, Wmin, 1, 0);
 n2 = dcf_matrix_factory(pArrive, pEnter, m, Wmin, 1, 0);
-simulator.add_dcf_matrix(n1);
-simulator.add_dcf_matrix(n2);
+simulator.add_dcf_matrix('n1', n1);
+simulator.add_dcf_matrix('n2', n2);
 
 simulator.Setup();
 
