@@ -1,4 +1,4 @@
-function [ markovMatrix ] = dcf_matrix_factory( pSuccess, pArrive, pEnter, m, wMin, nPkt, nInterarrival )
+function [ markovMatrix ] = dcf_matrix_factory( pArrive, pEnter, m, wMin, nPkt, nInterarrival )
 
     markovMatrix = dcf_matrix_collapsible();
     markovMatrix.pRawArrive = pArrive;

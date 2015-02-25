@@ -72,7 +72,7 @@ classdef markov_chain < handle
             assert(this.S.isKey(srcKey));
             assert(this.S.isKey(dstKey));
             
-            dst = this.S(dstKey);
+            %dst = this.S(dstKey);
             srcState = this.S(srcKey);
             srcState.P(dstKey) = p;
             srcState.TX(dstKey) = int32(txLabel);
