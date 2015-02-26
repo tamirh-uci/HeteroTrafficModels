@@ -107,7 +107,7 @@ classdef markov_chain_node < handle
             nStates = size(this.indexHistory,2);
             stateHistory = zeros(1,nStates);
             for i=1:nStates
-                stateHistory(i) = this.indexHistory(i);
+                stateHistory(i) = this.stateTypes( this.indexHistory(i) );
             end
         end
 
