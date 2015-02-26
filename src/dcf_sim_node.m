@@ -55,9 +55,9 @@ classdef dcf_sim_node < handle
                 obj.secondaryEndStates = [dcf_transition_type.TxIFrame, dcf_transition_type.TxBFrame, dcf_transition_type.TxPFrame];
             end
             
-            obj.txSuccessTypes = [dcf_transition_type.TxSuccess, dcf_transition_type.TxIFrame, dcf_transition_type.TxBFrame, dcf_transition_type.TxPFrame];
+            obj.txSuccessTypes = [dcf_transition_type.TxSuccess, dcf_transition_type.PacketSize, dcf_transition_type.TxIFrame, dcf_transition_type.TxBFrame, dcf_transition_type.TxPFrame];
             obj.txFailTypes = [dcf_transition_type.TxFailure];
-            obj.txWaitTypes = [dcf_transition_type.Backoff, dcf_transition_type.Interarrival, dcf_transition_type.Postbackoff, dcf_transition_type.PacketSize];
+            obj.txWaitTypes = [dcf_transition_type.Backoff, dcf_transition_type.Interarrival, dcf_transition_type.Postbackoff];
             obj.txInvalidTypes = [dcf_transition_type.Null, dcf_transition_type.Collapsible];
         end
         
