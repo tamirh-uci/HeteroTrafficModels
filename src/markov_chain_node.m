@@ -17,6 +17,9 @@ classdef markov_chain_node < handle
         % Matrix indexed by [src,dst] of possible state->state transitions
         txTypes;
         
+        % Array of src indicies to state type
+        stateTypes;
+        
         % Number of times we count each [src,dst] transition happen
         transitionCount;
         
@@ -89,6 +92,23 @@ classdef markov_chain_node < handle
             
             prevTC = this.transitionCount(this.prevStateIndex, this.currentStateIndex);
             this.transitionCount(this.prevStateIndex, this.currentStateIndex) = 1 + prevTC;
+        end
+        
+        function transitionHistory = TransitionHistory(this)
+            nTransitions = size(this.indexHistory,2) - 1;
+            transitionHistory = zeros(1,nTransitions);
+            
+            for i=1:nTransitions
+                transitionHistory(i) = this.txTypes( this.indexHistory(i), this.indexHistory(i+1) );
+            end
+        end
+        
+        function stateHistory = StateHistory(this)
+            nStates = size(this.indexHistory,2);
+            stateHistory = zeros(1,nStates);
+            for i=1:nStates
+                stateHistory(i) = this.indexHistory(i);
+            end
         end
 
         function count = CountTransitions(this, compareTypes)

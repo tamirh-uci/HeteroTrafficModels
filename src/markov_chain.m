@@ -239,12 +239,14 @@ classdef markov_chain < handle
         % Convert the states into a transition table
         % pi: transition probabilities
         % tx: transition labels
-        function [pi, tx] = TransitionTable(this)
+        % states: state types
+        function [pi, tx, states] = TransitionTable(this)
             srcStates = this.S.values();
             assert( size(srcStates,2)==this.nTotalStates );
             
             pi = zeros(this.nValidStates, this.nValidStates);
             tx = zeros(this.nValidStates, this.nValidStates);
+            states = zeros(1, this.nValidStates);
             
             % For all source states
             for i=1:this.nTotalStates
@@ -260,6 +262,8 @@ classdef markov_chain < handle
                 
                 srcIndex = src.IF;
                 assert(srcIndex > 0);
+                
+                states(srcIndex) = src.Type;
                 
                 % For all destination keys from this source
                 for j=1:nDst
@@ -288,7 +292,7 @@ classdef markov_chain < handle
         
         % Generate the steady state matrix and reduce down to vector
         function ss = SteadyState(this, threshold, maxIter)
-            m = this.TransitionTable();
+            [m,~,~] = this.TransitionTable();
             
             diff = threshold;
             iter = 1;
@@ -360,7 +364,7 @@ classdef markov_chain < handle
             % Verify the transition tables also
             % If conversion went without a hitch, this should yield the
             % same results as the above checks
-            [pi, tx] = this.TransitionTable();
+            [pi, tx,~] = this.TransitionTable();
             
             assert(size(pi,1)==this.nValidStates);
             assert(size(pi,2)==this.nValidStates);

@@ -93,6 +93,8 @@ classdef dcf_simulator_oo < handle
                 fprintf(' +%s+\n', node.name);
                 this.PrintStats(node.CountSuccesses(), node.CountFailures());
                 fprintf('\n');
+                transitionHistory = node.mainChain.TransitionHistory()
+                stateHistory = node.mainChain.StateHistory()
             end
             
             fprintf('\n===Overall===\n');
