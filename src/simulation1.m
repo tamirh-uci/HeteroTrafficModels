@@ -18,6 +18,8 @@ end
 
 % Run the different series of simulations
 for i = 1:numberOfNodes
+    fprintf('\n---- Simulating %d nodes ----\n', i);
+    
     simulator = dcf_simulator_oo(pSuccess, 0);
     for j = 1:i
         node = dcf_matrix_factory(pArrive, pEnter, m, Wmin, 1, 0);
@@ -25,7 +27,7 @@ for i = 1:numberOfNodes
         simulator.add_dcf_matrix(nodeName, node);
     end
     simulator.Setup();
-    simulator.Steps(timeSteps);
+    simulator.Steps(timeSteps, true);
     simulator.PrintResults(false);
     
     % open the output results file
