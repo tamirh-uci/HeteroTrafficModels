@@ -10,6 +10,9 @@ classdef dcf_simulator_oo < handle
         
         % simulation nodes
         nodes;
+        
+        % Count number of steps taken
+        nSteps;
     end %properties (SetAccess = protected)
     
     methods
@@ -33,6 +36,7 @@ classdef dcf_simulator_oo < handle
         % Initialize the object and ready it for calls to StepSimulate
         function Setup(this)
             nNodes = size(this.nodes, 2);
+            this.nSteps = 0;
             
             % Setup node data
             for i=1:nNodes
@@ -50,6 +54,7 @@ classdef dcf_simulator_oo < handle
         % Simulate single timer transition for all nodes
         function Step(this)
             nNodes = size(this.nodes, 2);
+            this.nSteps = this.nSteps + 1;
             
             % Step each node forward in time
             nTransmitting = 0;
@@ -86,17 +91,17 @@ classdef dcf_simulator_oo < handle
             for i=1:nNodes
                 node = this.nodes{i};
                 fprintf(' +%s+\n', node.name);
-                this.PrintStats(node.CountSuccesses(), node.CountFailures(), node.CountWaits());
+                this.PrintStats(node.CountSuccesses(), node.CountFailures());
                 fprintf('\n');
             end
             
             fprintf('\n===Overall===\n');
-            this.PrintStats(this.CountSuccesses(), this.CountFailures(), this.CountWaits());
+            this.PrintStats(this.CountSuccesses(), this.CountFailures());
         end
         
-        function PrintStats(this, successes, failures, waits)
+        function PrintStats(this, successes, failures)
             successPercent = successes/(successes+failures);
-            successTransmitTimePercent = successes/(successes+failures+waits);
+            successTransmitTimePercent = successes/this.nSteps;
             
             fprintf('success = %.3f%%\t', 100*successPercent);
             fprintf('transmit = %.3f%%\n', 100*successTransmitTimePercent);
