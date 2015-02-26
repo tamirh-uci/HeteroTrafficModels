@@ -26,7 +26,7 @@ for i = 1:numberOfNodes
     end
     simulator.Setup();
     simulator.Steps(timeSteps);
-    simulator.PrintResults();
+    simulator.PrintResults(false);
     
     % open the output results file
     fName = sprintf('sim_data_%d', i);
