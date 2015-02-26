@@ -92,17 +92,10 @@ classdef markov_chain_node < handle
         end
 
         function count = CountTransitions(this, compareTypes)
-            count = 0;
-            nStates = size(this.txTypes,2);
-            
             % For every transition type, check if it's one of compareTypes
-            for src = 1:nStates
-                for dst = 1:nStates
-                    if ( ismember(this.txTypes(src,dst), compareTypes) )
-                        count = count + this.transitionCount(src, dst);
-                    end
-                end
-            end
+            matching = ismember(this.txTypes, compareTypes);
+            counts = matching .* this.transitionCount;
+            count = sum( sum( counts ) );
         end
     end
 end
