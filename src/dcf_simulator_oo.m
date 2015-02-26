@@ -102,6 +102,11 @@ classdef dcf_simulator_oo < handle
             fprintf('transmit = %.3f%%\n', 100*successTransmitTimePercent);
         end
         
+        % Retrieve the node at the specified location
+        function node = GetNode(this, index)
+           node = this.nodes{index};
+        end
+        
         % Count up state types from all node
         function count = CountStates(this, sFn)
             nNodes = size(this.nodes, 2);
