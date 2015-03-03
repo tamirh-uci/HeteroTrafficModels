@@ -1,4 +1,4 @@
-function [ pi, dims ] = dcf_matrix( p, m, Wmin )
+function [ pi, dims, cost ] = dcf_matrix( p, m, Wmin )
 % dcf_matrix Generate the transition probability matrix 
 
 % Compute values for W
@@ -11,6 +11,7 @@ end
 n = (m + 1) * W(1, m + 1);
 dims = [m + 1, W(1, m + 1)]; % store the dimensions of each state
 pi = zeros(n, n);
+cost = zeros(n, 1);
 
 % Initialize the probabilities from transmission stages to the backoff
 % stages
@@ -37,6 +38,7 @@ for i = 1:(m + 1)
        jj = flatten(dims, [1,k]);
        pi(ii,jj) = (1 - p) / W(1,1); 
 %       pi(i,1,1,k) = (1 - p) / W(1,1); 
+        cost(
    end
    
    % Initialize the probabilities from backoff stages to the transmission

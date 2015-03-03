@@ -1,34 +1,18 @@
 % Simulation parameters
-timeSteps = 10000; 
-numberOfNodes = 1;
+timeSteps = 100; 
+numNormals = 2;
+numMultiMedia = 0;
 pSuccess = 1.0; 
 pArrive = 1.0;
 pEnter = 0;
 
-% PHY layer parameters -- using FHSS (frequency hopping spread spectrum)
-Wmin = 8;
-Wmax = 32;
-
-% Precompute variables for the DCF model
-m = log2(Wmax / Wmin);
-W = zeros(1,m+1);
-for i = 1:(m+1)
-    W(1,i) = (2^(i-1)) * Wmin;
-end
-
-% Run the different series of simulations
 for i = 1:numberOfNodes
-    simulator = dcf_simulator_oo(pSuccess, 0);
-    for j = 1:i
-        node = dcf_matrix_factory(pArrive, pEnter, m, Wmin, 1, 0);
-        nodeName = sprintf('node%d', j);
-        simulator.add_dcf_matrix(nodeName, node);
-    end
-    simulator.Setup();
+    simulator = create_simulation(numNormals, numMedias, pSuccess, pArrive, pEnter);
+
     simulator.Steps(timeSteps);
-    simulator.PrintResults(false);
-    
-    % open the output results file
+    simulator.PrintResults(true);
+
+     % open the output results file
     fName = sprintf('sim_data_%d', i);
     fid = fopen(fName, 'w');
     if (fid == -1)
@@ -47,3 +31,4 @@ for i = 1:numberOfNodes
     % flush and cleanup
     fclose(fid);
 end
+
