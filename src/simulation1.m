@@ -1,13 +1,17 @@
 % Simulation parameters
 timeSteps = 10000; 
-numNormals = 5;
-numMedias = 0;
+numNormals = 10;
+numMedias = 10;
 numberOfNodes = numNormals + numMedias;
 pSuccess = 1.0; 
 pArrive = 1.0;
 pEnter = 0;
 Wmin = 2;
 Wmax = 16;
+
+throughputValues = zeros(1, numberOfNodes);
+successValues = zeros(1, numberOfNodes);
+failureValues = zeros(1, numberOfNodes);
 
 for i = 1:numberOfNodes
     numN = 0;
@@ -41,30 +45,27 @@ for i = 1:numberOfNodes
     % flush and cleanup
     fclose(fid);
     
-    figureId = 0;
- Generate a plot for each one
- figureId = 1;
- for messageIndex = 1:numMessages
-     for childIndex = 1:numChildren
-         for p1Index = 1:numP1probs
-             temp = zeros(numP2probs, numNodes);
-             for p2Index = 1:numP2probs
-                for n = 1:numNodes
-                   temp(p2Index, n) = mean(times(messageIndex, childIndex, p1Index, p2Index, n,:));  the second element is the average time
-                end
-             end
-             figure(figureId);
-             figureId = figureId + 1; 
-             plot(temp);
-             set(gca,'XTickLabel',{'0.1', '0.2', '0.3', '0.4', '0.5', '0.6', '0.7','0.8', '0.9', '1.0'});
-             title([sprintf('Metrics for %d %d Nodes', numN, numN);
-             xlabel('Authentication Probability');
-             ylabel('Average Re-Key Time (epochs)');
-             
-             fileName = sprintf('fig-%d.fig', figureId);
-             saveas(gcf,['.', filesep, fileName], 'fig');  % gca?
-         end
-     end
- end
+    % Accumulate values
+    throughputValues(1, i) = simulator.GetTransmit();
+    successValues(1, i) = simulator.GetSuccess();
+    failureValues(1, i) = simulator.GetFailures();
 end
+
+figureId = 1;
+figure(figureId)
+figureId = figureId + 1; 
+
+x = zeros(1, numberOfNodes);
+for i = 1:numberOfNodes
+    x(1, i) = i;
+end
+plot(x, throughputValues, x, successValues, x, failureValues);
+
+title([sprintf('Metrics for %d %d Nodes', numN, numM)]);
+xlabel('Number of Nodes');
+ylabel('Metric Value');
+
+fileName = sprintf('fig-%d.fig', figureId);
+saveas(gcf,['.', filesep, fileName], 'fig');  % gca?
+
 
