@@ -1,6 +1,6 @@
 % Simulation parameters
-timeSteps = 10000; 
-numNormals = 10;
+timeSteps = 1000; 
+numNormals = 0;
 numMedias = 10;
 numberOfNodes = numNormals + numMedias;
 pSuccess = 1.0; 
@@ -16,11 +16,11 @@ failureValues = zeros(1, numberOfNodes);
 for i = 1:numberOfNodes
     numN = 0;
     numM = 0;
-    if (i < numNormals) 
+    if (i <= numNormals) 
         numN = i;
     else 
         numN = numNormals;
-        numMedias = i - numNormals;
+        numM= i - numNormals;
     end
     [simulator] = create_simulation(numN, numM, pSuccess, pArrive, pEnter, Wmin, Wmax);
 
@@ -36,10 +36,10 @@ for i = 1:numberOfNodes
     
     % write the simulation parameters and results for each node to the file
     fprintf(fid, '%d,%d,%f,%f,%f,%d,%d\n', timeSteps, i, pSuccess, pArrive, pEnter, Wmin, Wmax);
-    for j = 1:i
-        node = simulator.GetNode(j);
-        fprintf(fid, '%d,%d,%d\n', node.CountSuccesses(), node.CountFailures(), node.CountWaits());
-    end
+%     for j = 1:i
+%         node = simulator.GetNode(j);
+%         fprintf(fid, '%d,%d,%d\n', node.CountSuccesses(), node.CountFailures(), node.CountWaits());
+%     end
     fprintf(fid, '%d,%d,%d\n', simulator.CountSuccesses(), simulator.CountFailures(), simulator.CountWaits());
     
     % flush and cleanup
