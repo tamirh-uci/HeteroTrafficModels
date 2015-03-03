@@ -8,6 +8,7 @@ pArrive = 1.0;
 pEnter = 0;
 
 for i = 1:numberOfNodes
+<<<<<<< HEAD
     numN = 0
     numM = 0
     if (i < numNormals) 
@@ -21,7 +22,6 @@ for i = 1:numberOfNodes
     simulator.Steps(timeSteps);
     simulator.PrintResults(true);
 
-     % open the output results file
     fName = sprintf('sim_data_%d', i);
     fid = fopen(fName, 'w');
     if (fid == -1)

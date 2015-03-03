@@ -45,9 +45,23 @@ classdef dcf_simulator_oo < handle
         end
         
         % Simulate multipler timer transitions for all nodes
-        function Steps(this, nSteps)
-            for i=1:nSteps
-                this.Step();
+        function Steps(this, nSteps, bVerbose)
+            if (bVerbose)
+                progressDiv = 1.0 / 25;
+                progressStep = progressDiv;
+                for i=1:nSteps
+                    this.Step();
+                    
+                    progress = i/nSteps;
+                    if (progress > progressStep)
+                        progressStep = progressStep + progressDiv;
+                        fprintf('Progress: %.1f%%\n', 100*progress);
+                    end
+                end
+            else
+                for i=1:nSteps
+                    this.Step();
+                end
             end
         end
 
