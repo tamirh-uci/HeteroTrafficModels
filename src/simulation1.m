@@ -6,6 +6,8 @@ numberOfNodes = numNormals + numMedias;
 pSuccess = 1.0; 
 pArrive = 1.0;
 pEnter = 0;
+Wmin = 2;
+Wmax = 16;
 
 for i = 1:numberOfNodes
     numN = 0
@@ -16,7 +18,7 @@ for i = 1:numberOfNodes
         numN = numNormals
         numMedias = i - numNormals
     end
-    simulator = create_simulation(numN, numM, pSuccess, pArrive, pEnter);
+    simulator = create_simulation(numN, numM, pSuccess, pArrive, pEnter, Wmin, Wmax);
 
     simulator.Steps(timeSteps);
     simulator.PrintResults(true);

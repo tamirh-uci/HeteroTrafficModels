@@ -1,9 +1,4 @@
-function [ simulator ] = create_simulation( numNormals, numMedias, pSuccess, pArrive, pEnter )
-
-
-% PHY layer parameters -- using FHSS (frequency hopping spread spectrum)
-Wmin = 8;
-Wmax = 32;
+function [ simulator ] = create_simulation( numNormals, numMedias, pSuccess, pArrive, pEnter, Wmin, Wmax )
 
 % Precompute variables for the DCF model
 m = log2(Wmax / Wmin);
