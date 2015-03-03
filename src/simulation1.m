@@ -1,7 +1,7 @@
 % Simulation parameters
 timeSteps = 1000; 
-numNormals = 0;
-numMedias = 10;
+numNormals = 5;
+numMedias = 5;
 numberOfNodes = numNormals + numMedias;
 pSuccess = 1.0; 
 pArrive = 1.0;

@@ -27,16 +27,16 @@ media_matrix = markov_video_frames();
 media_matrix.gopAnchorFrameDistance = 3;
 media_matrix.gopFullFrameDistance = 12;
 
-for i=1:1
+for i=1:2
     name = sprintf('Multimedia node %d', i);
     sim.add_multimedia_matrix(name, dcf_matrix, media_matrix);
 end
 
 
 sim.Setup();
-sim.Steps(10000);
+sim.Steps(100, false);
 assert( sim.CountInvalid() == 0 );
-sim.PrintResults();
+sim.PrintResults(false);
 
 [groundProbability] = dcf_ground_state(pSuccessSingleTransmit, Wmin, m);
 

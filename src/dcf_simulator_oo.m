@@ -124,6 +124,18 @@ classdef dcf_simulator_oo < handle
             fprintf('success = %.3f%%\t', 100*successPercent);
             fprintf('transmit = %.3f%%\n', 100*successTransmitTimePercent);
         end
+
+        function success = GetSuccess(this)
+            success = this.CountSuccesses()/(this.CountSuccesses()+this.CountFailures());
+        end
+
+        function transmit = GetTransmit(this)
+            transmit = this.CountSuccesses()/this.nSteps;
+        end
+
+        function failure = GetFailures(this)
+            failure = this.CountFailures()/(this.CountSuccesses()+this.CountFailures());
+        end
         
         % Retrieve the node at the specified location
         function node = GetNode(this, index)
