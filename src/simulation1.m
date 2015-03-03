@@ -1,13 +1,22 @@
 % Simulation parameters
 timeSteps = 100; 
 numNormals = 2;
-numMultiMedia = 0;
+numMedias = 0;
+numberOfNodes = numNormals + numMedias;
 pSuccess = 1.0; 
 pArrive = 1.0;
 pEnter = 0;
 
 for i = 1:numberOfNodes
-    simulator = create_simulation(numNormals, numMedias, pSuccess, pArrive, pEnter);
+    numN = 0
+    numM = 0
+    if (i < numNormals) 
+        numN = i
+    else 
+        numN = numNormals
+        numMedias = i - numNormals
+    end
+    simulator = create_simulation(numN, numM, pSuccess, pArrive, pEnter);
 
     simulator.Steps(timeSteps);
     simulator.PrintResults(true);
