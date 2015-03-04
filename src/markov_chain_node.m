@@ -103,16 +103,50 @@ classdef markov_chain_node < handle
             this.currentStateIndex = randsample(this.sampleIndices, 1, true, pCur);
         end
         
-        function PostSimulation(this)
+        function PostSimulation(this, bDoPacketchainBacktrack)
             this.CalculateStateHistory();
             this.CalculateTransitionHistory();
             
+            if (bDoPacketchainBacktrack)
+                this.PostSimulationPacketchainBacktrack();
+            end
+        end
+        
+        function PostSimulationPacketchainBacktrack(this)
             % Find packetsize chains
-            bInPacketChain = find(this.stateTypeHistory, dcf_state_type.PacketSize);
+            packetChainStates = find(this.stateTypeHistory == dcf_state_type.PacketSize);
+            nPacketchainStates = size(packetChainStates, 2);
             
-            historySize = size(this.indexHistory, 2);
-            for i = 1:historySize
-
+            % We will get contiguous chains where the difference is 1
+            deltaPacketchains = diff(packetChainStates) - 1;
+            deltaPacketchains(nPacketchainStates) = 0;
+            
+            beginChain = 1;
+            chainSuccess = true;
+            for i = 1:nPacketchainStates
+                index = packetChainStates(i);
+                
+                % any failure in the chain marks the entire chain as fail
+                if (this.transitionHistory(index) == dcf_transition_type.TxFailure)
+                    chainSuccess = false;
+                end
+                
+                % progress until we hit the end of the current chain
+                if (deltaPacketchains(i))
+                    % we need to mark the entire chain as a failure
+                    if (~chainSuccess)
+                        for j = beginChain:endChain
+                            index = packetChainStates(j);
+                            this.transitionHistory(index) = dcf_transition_type.TxFailure;
+                        end
+                    end
+                    
+                    % setup for next chain
+                    beginChain = i+1;
+                    chainSuccess = true;
+                else
+                    % continue moving along the packetchain
+                end
             end
         end
         
@@ -123,11 +157,15 @@ classdef markov_chain_node < handle
         
         function CalculateTransitionHistory(this)
             nTransitions = size(this.indexHistory,2) - 1;
-            this.transitionHistory = zeros(1, nTransitions);
+            this.transitionHistory = zeros(1, nTransitions+1);
             
             for i=1:nTransitions
                 this.transitionHistory(i) = this.txTypes( this.indexHistory(i), this.indexHistory(i+1) );
             end
+            
+            % put a dummy transition at the end just so it's easier to
+            % index into with the same size as the other logs
+            this.transitionHistory(nTransitions+1) = dcf_transition_type.Null;
         end
         
         function CalculateStateHistory(this)

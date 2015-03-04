@@ -8,6 +8,10 @@ classdef dcf_simulator_oo < handle
         % Probability of success when >1 node transmits
         pSuccessMultiTransmit = 0.0;
         
+        % Do we look for failures in packetchains and then backtrack to
+        % mark all previous states in that chain a failure?
+        bDoPacketchainBacktrack = true;
+        
         % simulation nodes
         nodes;
         
@@ -73,7 +77,7 @@ classdef dcf_simulator_oo < handle
             nNodes = size(this.nodes, 2);
             for i=1:nNodes
                 node = this.nodes{i};
-                node.PostSimulationProcessing();
+                node.PostSimulationProcessing(this.bDoPacketchainBacktrack);
             end
         end
 
