@@ -14,14 +14,14 @@ successValues = zeros(1, numberOfNodes);
 failureValues = zeros(1, numberOfNodes);
 
 for i = 1:numberOfNodes
-    numN = 0;
-    numM = 0;
     if (i <= numNormals) 
         numN = i;
+        numM = 0;
     else 
         numN = numNormals;
         numM= i - numNormals;
     end
+    
     [simulator] = create_simulation(numN, numM, pSuccess, pArrive, pEnter, Wmin, Wmax);
 
     simulator.Steps(timeSteps, false);
@@ -61,7 +61,7 @@ for i = 1:numberOfNodes
 end
 plot(x, throughputValues, x, successValues, x, failureValues);
 
-title([sprintf('Metrics for %d %d Nodes', numN, numM)]);
+title(sprintf('Metrics for %d %d Nodes', numN, numM));
 xlabel('Number of Nodes');
 ylabel('Metric Value');
 

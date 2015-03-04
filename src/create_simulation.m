@@ -13,8 +13,8 @@ dcf_matrix.m = m;
 dcf_matrix.wMin = Wmin;
 dcf_matrix.nPkt = 1;
 dcf_matrix.nInterarrival = 0;
-dcf_matrix.pEnterInterarrival = 0.0;
-dcf_matrix.pRawArrive = 1.0;
+dcf_matrix.pEnterInterarrival = pEnter;
+dcf_matrix.pRawArrive = pArrive;
 
 simulator = dcf_simulator_oo(pSuccess, 0.0);
 
