@@ -24,7 +24,17 @@ classdef markov_chain_node < handle
         transitionCount;
         
         % History of all previous states
+        % (their index values from the transition table)
+        % Appended at every step
         indexHistory;
+        
+        % History of all previous state types
+        % Created after all steps taken
+        stateTypeHistory;
+        
+        % History of all state transitions from i->i+1
+        % Created after all steps taken
+        transitionHistory;
     end
     
     methods
@@ -49,6 +59,11 @@ classdef markov_chain_node < handle
             startStateIndex = markovModel.WeightedRandomState(epsilon, steadyStateMaxRepeat);
             this.prevStateIndex = startStateIndex;
             this.currentStateIndex = startStateIndex;
+        end
+        
+        function SetupSteps(this, nSteps)
+            assert( size(this.indexHistory,2)==0 );
+            this.indexHistory = zeros(1, nSteps);
         end
         
         % Advance the markov chain until we hit a given state
@@ -87,27 +102,39 @@ classdef markov_chain_node < handle
             this.currentStateIndex = randsample(this.sampleIndices, 1, true, pCur);
         end
         
-        function Log(this)
-            this.indexHistory( 1 + size(this.indexHistory, 2) ) = this.currentStateIndex;
+        function PostSimulation(this)
+            this.CalculateStateHistory();
+            this.CalculateTransitionHistory();
             
-            prevTC = this.transitionCount(this.prevStateIndex, this.currentStateIndex);
-            this.transitionCount(this.prevStateIndex, this.currentStateIndex) = 1 + prevTC;
-        end
-        
-        function transitionHistory = TransitionHistory(this)
-            nTransitions = size(this.indexHistory,2) - 1;
-            transitionHistory = zeros(1,nTransitions);
+            historySize = size(this.indexHistory, 2);
+            prev = this.indexHistory(1);
             
-            for i=1:nTransitions
-                transitionHistory(i) = this.txTypes( this.indexHistory(i), this.indexHistory(i+1) );
+            for i=2:historySize
+                curr = this.indexHistory(i);
+                this.transitionCount(prev, curr) = 1 + this.transitionCount(prev, curr);
+                prev = curr;
             end
         end
         
-        function stateHistory = StateHistory(this)
+        
+        function Log(this)
+            this.indexHistory( 1 + size(this.indexHistory, 2) ) = this.currentStateIndex;
+        end
+        
+        function CalculateTransitionHistory(this)
+            nTransitions = size(this.indexHistory,2) - 1;
+            this.transitionHistory = zeros(1, nTransitions);
+            
+            for i=1:nTransitions
+                this.transitionHistory(i) = this.txTypes( this.indexHistory(i), this.indexHistory(i+1) );
+            end
+        end
+        
+        function CalculateStateHistory(this)
             nStates = size(this.indexHistory,2);
-            stateHistory = zeros(1,nStates);
+            this.stateTypeHistory = zeros(1,nStates);
             for i=1:nStates
-                stateHistory(i) = this.stateTypes( this.indexHistory(i) );
+                this.stateTypeHistory(i) = this.stateTypes( this.indexHistory(i) );
             end
         end
 

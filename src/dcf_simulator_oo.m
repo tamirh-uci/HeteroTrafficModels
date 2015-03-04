@@ -47,8 +47,10 @@ classdef dcf_simulator_oo < handle
         % Simulate multipler timer transitions for all nodes
         function Steps(this, nSteps, bVerbose)
             if (bVerbose)
+                % Percentage indicating progress
                 progressDiv = 1.0 / 25;
                 progressStep = progressDiv;
+                
                 for i=1:nSteps
                     this.Step();
                     
@@ -62,6 +64,16 @@ classdef dcf_simulator_oo < handle
                 for i=1:nSteps
                     this.Step();
                 end
+            end
+            
+            this.PostSimulationProcessing();
+        end
+        
+        function PostSimulationProcessing(this)
+            nNodes = size(this.nodes, 2);
+            for i=1:nNodes
+                node = this.nodes{i};
+                node.PostSimulationProcessing();
             end
         end
 
@@ -108,8 +120,8 @@ classdef dcf_simulator_oo < handle
                 this.PrintStats(node.CountSuccesses(), node.CountFailures());
                 fprintf('\n');
                 if (verbose)
-                    transitionHistory = dcf_transition_type( node.mainChain.TransitionHistory() )
-                    stateHistory = dcf_state_type( node.mainChain.StateHistory() )
+                    node.mainChain.transitionHistory;
+                    node.mainChain.stateHistory;
                 end
             end
             

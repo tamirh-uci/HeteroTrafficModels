@@ -113,6 +113,13 @@ classdef dcf_sim_node < handle
             this.mainChain.Log();
         end
         
+        % We need to look for packetsize chains which failed
+        % Then we need to propegate those failures backwards for the whole
+        % chain
+        function PostSimulationProcessing(this)
+            this.mainChain.PostSimulation();
+        end
+        
         % An entire packet successfully transmitted
         function count = CountSuccesses(this)
             count = this.mainChain.CountTransitions(this.txSuccessTypes);
