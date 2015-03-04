@@ -15,25 +15,27 @@ classdef markov_chain_node < handle
         currentStateIndex;
         
         % Matrix indexed by [src,dst] of possible state->state transitions
+        % index with int32(index), and result is dcf_transition_type
         txTypes;
         
         % Array of src indicies to state type
+        % index with int32(index), and result is dcf_state_type
         stateTypes;
-        
-        % Number of times we count each [src,dst] transition happen
-        transitionCount;
         
         % History of all previous states
         % (their index values from the transition table)
         % Appended at every step
+        % type: int32 (index)
         indexHistory;
         
         % History of all previous state types
         % Created after all steps taken
+        % type: dcf_state_type
         stateTypeHistory;
         
         % History of all state transitions from i->i+1
         % Created after all steps taken
+        % type: dcf_transition_type
         transitionHistory;
     end
     
@@ -54,7 +56,6 @@ classdef markov_chain_node < handle
             nValidStates = size(pi, 2);
             
             this.sampleIndices  = 1:nValidStates;
-            this.transitionCount = zeros(nValidStates, nValidStates);
             
             startStateIndex = markovModel.WeightedRandomState(epsilon, steadyStateMaxRepeat);
             this.prevStateIndex = startStateIndex;
@@ -106,13 +107,12 @@ classdef markov_chain_node < handle
             this.CalculateStateHistory();
             this.CalculateTransitionHistory();
             
-            historySize = size(this.indexHistory, 2);
-            prev = this.indexHistory(1);
+            % Find packetsize chains
+            bInPacketChain = find(this.stateTypeHistory, dcf_state_type.PacketSize);
             
-            for i=2:historySize
-                curr = this.indexHistory(i);
-                this.transitionCount(prev, curr) = 1 + this.transitionCount(prev, curr);
-                prev = curr;
+            historySize = size(this.indexHistory, 2);
+            for i = 1:historySize
+
             end
         end
         
@@ -124,10 +124,10 @@ classdef markov_chain_node < handle
         function CalculateTransitionHistory(this)
             nTransitions = size(this.indexHistory,2) - 1;
             this.transitionHistory = zeros(1, nTransitions);
-            srcs = this.indexHistory(1:nTransitions);
-            dsts = this.indexHistory(2:(nTransitions+1));
             
-            this.transitionHistory = this.txTypes( srcs, dsts );
+            for i=1:nTransitions
+                this.transitionHistory(i) = this.txTypes( this.indexHistory(i), this.indexHistory(i+1) );
+            end
         end
         
         function CalculateStateHistory(this)
@@ -136,11 +136,22 @@ classdef markov_chain_node < handle
             this.stateTypeHistory = this.stateTypes( this.indexHistory );
         end
 
+        function count = CountStateTypes(this, compareTypes)
+            % For every state type, check if it's one of compareTypes
+            count = 0;
+            for i=1:size(compareTypes, 2)
+                found = find( this.stateTypeHistory==compareTypes(i) );
+                count = count + size(found,2);
+            end
+        end
+        
         function count = CountTransitions(this, compareTypes)
             % For every transition type, check if it's one of compareTypes
-            matching = ismember(this.txTypes, compareTypes);
-            counts = matching .* this.transitionCount;
-            count = sum( sum( counts ) );
+            count = 0;
+            for i=1:size(compareTypes, 2)
+                found = find( this.transitionHistory==compareTypes(i) );
+                count = count + size(found,2);
+            end
         end
     end
 end
