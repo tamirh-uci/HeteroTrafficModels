@@ -124,18 +124,16 @@ classdef markov_chain_node < handle
         function CalculateTransitionHistory(this)
             nTransitions = size(this.indexHistory,2) - 1;
             this.transitionHistory = zeros(1, nTransitions);
+            srcs = this.indexHistory(1:nTransitions);
+            dsts = this.indexHistory(2:(nTransitions+1));
             
-            for i=1:nTransitions
-                this.transitionHistory(i) = this.txTypes( this.indexHistory(i), this.indexHistory(i+1) );
-            end
+            this.transitionHistory = this.txTypes( srcs, dsts );
         end
         
         function CalculateStateHistory(this)
             nStates = size(this.indexHistory,2);
             this.stateTypeHistory = zeros(1,nStates);
-            for i=1:nStates
-                this.stateTypeHistory(i) = this.stateTypes( this.indexHistory(i) );
-            end
+            this.stateTypeHistory = this.stateTypes( this.indexHistory );
         end
 
         function count = CountTransitions(this, compareTypes)
