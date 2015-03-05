@@ -10,7 +10,7 @@ classdef dcf_simulator_oo < handle
         
         % Do we look for failures in packetchains and then backtrack to
         % mark all previous states in that chain a failure?
-        bDoPacketchainBacktrack = true;
+        bDoPacketchainBacktrack = false;
         
         % simulation nodes
         nodes;
@@ -45,6 +45,13 @@ classdef dcf_simulator_oo < handle
             % Setup node data
             for i=1:nNodes
                 this.nodes{i}.Setup();
+            end
+            
+            % The initial states have been chosen, now we need to treat
+            % that as a step for logging/etc
+            for i=1:nNodes
+                node = this.nodes{i};
+                node.PostStep();
             end
         end
         
@@ -122,10 +129,11 @@ classdef dcf_simulator_oo < handle
                 node = this.nodes{i};
                 fprintf(' +%s+\n', node.name);
                 this.PrintStats(node.CountSuccesses(), node.CountFailures());
+                
                 fprintf('\n');
                 if (verbose)
-                    node.mainChain.transitionHistory
-                    node.mainChain.stateTypeHistory
+                    transitionHistory = dcf_transition_type( node.mainChain.transitionHistory )
+                    stateTypeHistory = dcf_state_type( node.mainChain.stateTypeHistory )
                 end
             end
             
