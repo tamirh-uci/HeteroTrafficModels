@@ -117,6 +117,10 @@ classdef markov_chain_node < handle
             packetChainStates = find(this.stateTypeHistory == dcf_state_type.PacketSize);
             nPacketchainStates = size(packetChainStates, 2);
             
+            if (nPacketchainStates == 0)
+                return;
+            end
+            
             % We will get contiguous chains where the difference is 1
             deltaPacketchains = diff(packetChainStates) - 1;
             deltaPacketchains(nPacketchainStates) = 0;
