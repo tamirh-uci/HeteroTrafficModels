@@ -29,7 +29,7 @@ for i = 1:numberOfNodes
     simulator.Steps(timeSteps, false);
     simulator.PrintResults(false);
 
-    fName = sprintf('sim_data_%d', i);
+    fName = sprintf('%d_normal%d_media%d.sim', i, numN, numM);
     fid = fopen(fName, 'w');
     if (fid == -1)
         disp('Error: could not open the file for output.');

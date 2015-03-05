@@ -3,4 +3,15 @@ References/Thumbs.db
 report/Thumbs.db
 sketches/Thumbs.db
 *.db
-src/sim_data_*
+*.sim
+src/sim_data_1
+src/sim_data_2
+src/sim_data_3
+src/sim_data_4
+src/sim_data_5
+src/sim_data_6
+src/sim_data_7
+src/sim_data_8
+src/sim_data_9
+src/sim_data_10
+*.fig
