@@ -124,8 +124,8 @@ classdef dcf_simulator_oo < handle
                 this.PrintStats(node.CountSuccesses(), node.CountFailures());
                 fprintf('\n');
                 if (verbose)
-                    node.mainChain.transitionHistory;
-                    node.mainChain.stateHistory;
+                    node.mainChain.transitionHistory
+                    node.mainChain.stateTypeHistory
                 end
             end
             

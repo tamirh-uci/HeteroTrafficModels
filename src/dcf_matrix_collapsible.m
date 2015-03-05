@@ -182,7 +182,7 @@ classdef dcf_matrix_collapsible < handle
             this.SetPacketsizeCalculateProbabilities(dcf);
             
             % Initialize the probabilities from all transmission stages
-            for packetsize = 1:this.nPkt
+            for packetsize = this.packetStart:this.nPkt
                 % Handle backoff countdowns -- each one with probability 1-q
                 % (a new packet does not arrive)
                 if (this.pRawArrive < 1.0)
