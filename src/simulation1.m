@@ -24,18 +24,18 @@ for i = 1:numberOfNodes
         numM= i - numNormals;
     end
     
-    [simulator] = create_simulation(numN, numM, pSuccess, pArrive, pEnter, Wmin, Wmax, nMaxPackets, nInterarrival);
-
-    simulator.Steps(timeSteps, false);
-    simulator.PrintResults(false);
-
     fName = sprintf('%d_normal%d_media%d.sim', i, numN, numM);
+    fprintf('\n------------\nrunning test: %s\n', fName);
     fid = fopen(fName, 'w');
     if (fid == -1)
         disp('Error: could not open the file for output.');
         exit;
     end
     
+    simulator = create_simulation(numN, numM, pSuccess, pArrive, pEnter, Wmin, Wmax, nMaxPackets, nInterarrival);
+    simulator.Steps(timeSteps, false);
+    simulator.PrintResults(false);
+
     % write the simulation parameters and results for each node to the file
     fprintf(fid, '%d,%d,%f,%f,%f,%d,%d\n', timeSteps, i, pSuccess, pArrive, pEnter, Wmin, Wmax);
 %     for j = 1:i
