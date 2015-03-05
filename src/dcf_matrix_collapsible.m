@@ -88,7 +88,7 @@ classdef dcf_matrix_collapsible < handle
             obj = obj@handle;
         end
         
-        function dcf = CreateMarkovChain(this, pSuccess)
+        function dcf = CreateMarkovChain(this, pSuccess, verbose)
             this.pRawSuccess = pSuccess;
             this.CalculateConstants();
             
@@ -98,6 +98,10 @@ classdef dcf_matrix_collapsible < handle
             % Create all of the states and set probabilities of transitions
             this.GenerateStates(dcf);
             this.SetProbabilities(dcf);
+            
+            if (verbose)
+                dcf.PrintMapping();
+            end
             
             % Remove temporary states
             dcf.Collapse();

@@ -17,12 +17,16 @@ classdef markov_video_frames < handle
             obj = obj@handle;
         end
         
-        function chain = CreateMarkovChain(this)
+        function chain = CreateMarkovChain(this, verbose)
             chain = markov_chain();
             
             this.CalculateConstants();
             this.GenerateStates(chain);
             this.SetProbabilities(chain);
+            
+            if (verbose)
+                chain.PrintMapping();
+            end
             
             chain.Collapse();
             assert( chain.Verify() );

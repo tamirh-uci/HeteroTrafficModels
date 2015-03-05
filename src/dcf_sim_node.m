@@ -62,17 +62,23 @@ classdef dcf_sim_node < handle
         end
         
         function Setup(this)
-            this.markovSingleTransmit = this.mainChain.chain.CreateMarkovChain(this.pSuccessSingleTransmit);
-            [this.piSingleTransmit, this.mainChain.txTypes, this.mainChain.stateTypes] = this.markovSingleTransmit.TransitionTable();
+            name = this.name
             
-            this.markovMultiTransmit = this.mainChain.chain.CreateMarkovChain(this.pSuccessMultiTransmit);
+            this.markovSingleTransmit = this.mainChain.chain.CreateMarkovChain(this.pSuccessSingleTransmit, true);
+            [this.piSingleTransmit, this.mainChain.txTypes, this.mainChain.stateTypes] = this.markovSingleTransmit.TransitionTable();
+            successTable = this.piSingleTransmit
+            txtypes = this.mainChain.txTypes
+            statetypes = this.mainChain.stateTypes
+            
+            this.markovMultiTransmit = this.mainChain.chain.CreateMarkovChain(this.pSuccessMultiTransmit, false);
             [this.piMultiTransmit, ~, ~] = this.markovMultiTransmit.TransitionTable();
+            failureTable = this.piMultiTransmit
             
             assert(size(this.piSingleTransmit, 2) == size(this.piMultiTransmit, 2));
             this.mainChain.Setup(this.markovSingleTransmit, this.piSingleTransmit);
             
             if (~isempty(this.secondaryChain))
-                this.markovSecondary = this.secondaryChain.chain.CreateMarkovChain();
+                this.markovSecondary = this.secondaryChain.chain.CreateMarkovChain(false);
                 [this.piSecondary, this.secondaryChain.txTypes, this.secondaryChain.stateTypes] = this.markovSecondary.TransitionTable();
                 
                 this.secondaryChain.Setup(this.markovSecondary, this.piSecondary);
