@@ -22,11 +22,6 @@ for i = 1:numNormals
     nodeName = sprintf('node%d', i);
     simulator.add_dcf_matrix(nodeName, dcf_matrix);
 end
-
-% modify dcf matrix for media settings
-% TODO: Set these up
-dcf_matrix.bFixedPacketchain = true;
-
 for i = 1:numMedias
 	media_matrix = markov_video_frames();
 	media_matrix.gopAnchorFrameDistance = 3;

@@ -125,7 +125,7 @@ classdef dcf_matrix_collapsible < handle
             end
             
             assert( this.nPkt > 0 );
-            for packetsize = this.packetStart:this.nPkt
+            for packetsize = 1:this.nPkt
                 % where we make our 'initial' attempt to send calculations
                 dcf.NewState( dcf_state( this.InitialTransmitAttemptState(packetsize), dcf_state_type.CollapsibleInitialTransmit ) );
                 
@@ -230,18 +230,17 @@ classdef dcf_matrix_collapsible < handle
         
         function SetPacketsizeCalculateProbabilities(this, dcf)
             % Equal chance to go to any packetsize depth
+            p = 1.0 / this.nPkt;
             src = this.PacketsizeCalculateAttemptState();
-            range = 1 + this.nPkt - this.packetStart;
-            p = 1.0 / range;
             
-            for packetsize = this.packetStart:this.nPkt
+            for packetsize = 1:this.nPkt
                 dst = this.InitialTransmitAttemptState(packetsize);
                 dcf.SetP( src, dst, p, dcf_transition_type.Collapsible );
             end
             
             % redistribute our first attempt at a send
             src = this.InitialTransmitAttemptState(packetsize);
-            for packetsize = this.packetStart:this.nPkt
+            for packetsize = 1:this.nPkt
                 % Equal probability to go to each of the stage 1 backoff states
                 pDistNorm = this.pRawArrive / this.W(1,1);
                 pDistPostbackoff = (1.0 - this.pRawArrive) / this.W(1,1);
@@ -406,12 +405,6 @@ classdef dcf_matrix_collapsible < handle
             if (this.nPkt < 1)
                 this.nPkt = 1;
             end
-            
-            if (this.bFixedPacketchain)
-                this.packetStart = this.nPkt;
-            else
-                this.packetStart = 1;
-            end
 
             % Compute values for W -- how many backoff states there are
             % each stage
@@ -427,32 +420,28 @@ classdef dcf_matrix_collapsible < handle
     properties (SetAccess = public)
         % probability any given packet transmission will succeed, given the
         % channel is free
-        pRawFail = 0.0;
+        pRawFail;
 
         % number of stages
-        m = 4;
+        m;
 
         % minimum number of backoff states
-        wMin = 2;
+        wMin;
 
         % maximum size of packets
         % transmissions will be [1:nPkt] length
-        nPkt = 1;
+        nPkt;
 
         % number of states in the interarrival chain, we will jump to one
         % randomly with probability pEnterInterarrival
-        nInterarrival = 0;
+        nInterarrival;
         
         % probability to enter the interarrival chain, so probability there is
         % not a packet immediately ready to send
-        pEnterInterarrival = 0.0;
+        pEnterInterarrival;
         
         % probability a packet shows up when it's supposed to
-        pRawArrive = 1.0;
-        
-        % do we always have the maximum packetchain length?
-        % if false, we will randomly have a packetchain length of [0,nPkt]
-        bFixedPacketchain = false;
+        pRawArrive;
     end %properties (SetAccess = public)
 
     properties (SetAccess = protected)
@@ -467,8 +456,5 @@ classdef dcf_matrix_collapsible < handle
         
         % maximum number of columns in any of the rows
         nColsMax;
-        
-        % The lower end of possibile packetsize
-        packetStart;
     end %properties (SetAccess = protected)
 end % classdef
