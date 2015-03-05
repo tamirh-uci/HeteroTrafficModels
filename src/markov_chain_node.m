@@ -57,7 +57,8 @@ classdef markov_chain_node < handle
             
             this.sampleIndices  = 1:nValidStates;
             
-            startStateIndex = markovModel.WeightedRandomState(epsilon, steadyStateMaxRepeat);
+            %startStateIndex = markovModel.WeightedRandomState(epsilon, steadyStateMaxRepeat);
+            startStateIndex = 1;
             this.prevStateIndex = startStateIndex;
             this.currentStateIndex = startStateIndex;
         end
@@ -153,7 +154,6 @@ classdef markov_chain_node < handle
                 end
             end
         end
-        
         
         function Log(this)
             this.indexHistory( 1 + size(this.indexHistory, 2) ) = this.currentStateIndex;

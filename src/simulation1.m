@@ -1,21 +1,25 @@
 % Simulation parameters
-timeSteps = 1000; 
-numNormals = 5;
-numMedias = 5;
+timeSteps = 1; 
+numNormals = 2;
+numMedias = 0;
 numberOfNodes = numNormals + numMedias;
 pSuccess = 1.0; 
 pArrive = 1.0;
 pEnter = 0;
-nMaxPackets = 1;
+nMaxPackets = 2;
 nInterarrival = 0;
 Wmin = 2;
-Wmax = 16;
+Wmax = 4;
 
 throughputValues = zeros(1, numberOfNodes);
 successValues = zeros(1, numberOfNodes);
 failureValues = zeros(1, numberOfNodes);
 
 for i = 1:numberOfNodes
+    if (i==1)
+        continue;
+    end
+    
     if (i <= numNormals) 
         numN = i;
         numM = 0;
@@ -34,7 +38,7 @@ for i = 1:numberOfNodes
     
     simulator = create_simulation(numN, numM, pSuccess, pArrive, pEnter, Wmin, Wmax, nMaxPackets, nInterarrival);
     simulator.Steps(timeSteps, false);
-    simulator.PrintResults(false);
+    simulator.PrintResults(true);
 
     % write the simulation parameters and results for each node to the file
     fprintf(fid, '%d,%d,%f,%f,%f,%d,%d\n', timeSteps, i, pSuccess, pArrive, pEnter, Wmin, Wmax);
