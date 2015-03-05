@@ -3,3 +3,4 @@ References/Thumbs.db
 report/Thumbs.db
 sketches/Thumbs.db
 *.db
+src/sim_data_*
