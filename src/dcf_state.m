@@ -11,7 +11,6 @@ classdef dcf_state < handle
         Key@char = '[Null]';
         
         % The calculated index for the flattened version of the state table
-        % TODO: Figure out why we can't restrict this to int32 w/o error?
         IF@int32 = int32(-1);
         
         % HashTable of nonzero transition probabilities to other states
@@ -45,7 +44,6 @@ classdef dcf_state < handle
             if (ischar(key))
                 obj.Key = key;
             else
-                % TODO: Figure out why we can't call MakeKey from here
                 obj.Key = mat2str(key);
             end
         end
