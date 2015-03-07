@@ -1,4 +1,4 @@
-function [ simulator ] = create_simulation( numNormals, numMedias, pSuccess, pArrive, pEnter, Wmin, Wmax, nMaxPackets, nInterarrival )
+function [ simulator ] = create_simulation( bVerbose, numNormals, numMedias, pSuccess, pArrive, pEnter, Wmin, Wmax, nMaxPackets, nInterarrival )
 
 % Precompute variables for the DCF model
 m = log2(Wmax / Wmin);
@@ -35,6 +35,6 @@ for i = 1:numMedias
     simulator.add_multimedia_matrix(nodeName, dcf_matrix, media_matrix);
 end
 
-simulator.Setup();
+simulator.Setup(bVerbose);
 
 end
