@@ -38,13 +38,13 @@ classdef dcf_simulator_oo < handle
         end
         
         % Initialize the object and ready it for calls to StepSimulate
-        function Setup(this)
+        function Setup(this, bVerbose)
             nNodes = size(this.nodes, 2);
             this.nSteps = 0;
             
             % Setup node data
             for i=1:nNodes
-                this.nodes{i}.Setup();
+                this.nodes{i}.Setup(bVerbose);
             end
             
             % The initial states have been chosen, now we need to treat
@@ -77,14 +77,14 @@ classdef dcf_simulator_oo < handle
                 end
             end
             
-            this.PostSimulationProcessing();
+            this.PostSimulationProcessing(bVerbose);
         end
         
-        function PostSimulationProcessing(this)
+        function PostSimulationProcessing(this, bVerbose)
             nNodes = size(this.nodes, 2);
             for i=1:nNodes
                 node = this.nodes{i};
-                node.PostSimulationProcessing(this.bDoPacketchainBacktrack);
+                node.PostSimulationProcessing(this.bDoPacketchainBacktrack, bVerbose);
             end
         end
 
@@ -122,7 +122,7 @@ classdef dcf_simulator_oo < handle
         end
         
         % Print out some useful information about this run
-        function PrintResults(this, verbose)
+        function PrintResults(this, bVerbose)
             fprintf('===Node Results===\n');
             nNodes = size(this.nodes, 2);
             for i=1:nNodes
@@ -131,7 +131,7 @@ classdef dcf_simulator_oo < handle
                 this.PrintStats(node.CountSuccesses(), node.CountFailures());
                 
                 fprintf('\n');
-                if (verbose)
+                if (bVerbose)
                     transitionHistory = dcf_transition_type( node.mainChain.transitionHistory )
                     stateTypeHistory = dcf_state_type( node.mainChain.stateTypeHistory )
                 end

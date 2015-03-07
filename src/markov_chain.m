@@ -224,8 +224,9 @@ classdef markov_chain < handle
                 
                 dstKeys = src.P.keys();
                 nDst = size(dstKeys, 2);
+                srcKey = ( eval(src.Key) );
                 
-                fprintf('\nFrom: %s\n', src.Key);
+                fprintf('\nFrom: %s (%s)\n', src.Key, char( dcf_state_type( srcKey(1) ) ) );
                 % For all destination keys from this source
                 for j=1:nDst
                     dstKey = dstKeys{j};

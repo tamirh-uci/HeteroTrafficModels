@@ -61,18 +61,18 @@ classdef dcf_sim_node < handle
             obj.txInvalidTypes = [dcf_transition_type.Null, dcf_transition_type.Collapsible];
         end
         
-        function Setup(this)
-            name = this.name
-            
-            this.markovSingleTransmit = this.mainChain.chain.CreateMarkovChain(this.pSuccessSingleTransmit, true);
+        function Setup(this, bVerbose)
+            %name = this.name
+
+            this.markovSingleTransmit = this.mainChain.chain.CreateMarkovChain(this.pSuccessSingleTransmit, false, bVerbose);
             [this.piSingleTransmit, this.mainChain.txTypes, this.mainChain.stateTypes] = this.markovSingleTransmit.TransitionTable();
-            successTable = this.piSingleTransmit
-            txtypes = this.mainChain.txTypes
-            statetypes = this.mainChain.stateTypes
+            %successTable = this.piSingleTransmit
+            %txtypes = this.mainChain.txTypes
+            %statetypes = this.mainChain.stateTypes
             
-            this.markovMultiTransmit = this.mainChain.chain.CreateMarkovChain(this.pSuccessMultiTransmit, false);
+            this.markovMultiTransmit = this.mainChain.chain.CreateMarkovChain(this.pSuccessMultiTransmit, true, bVerbose);
             [this.piMultiTransmit, ~, ~] = this.markovMultiTransmit.TransitionTable();
-            failureTable = this.piMultiTransmit
+            %failureTable = this.piMultiTransmit
             
             assert(size(this.piSingleTransmit, 2) == size(this.piMultiTransmit, 2));
             this.mainChain.Setup(this.markovSingleTransmit, this.piSingleTransmit);
@@ -122,8 +122,8 @@ classdef dcf_sim_node < handle
         % We need to look for packetsize chains which failed
         % Then we need to propegate those failures backwards for the whole
         % chain
-        function PostSimulationProcessing(this, bDoPacketchainBacktrack)
-            this.mainChain.PostSimulation(bDoPacketchainBacktrack);
+        function PostSimulationProcessing(this, bDoPacketchainBacktrack, bVerbose)
+            this.mainChain.PostSimulation(bDoPacketchainBacktrack, bVerbose);
         end
         
         % An entire packet successfully transmitted

@@ -24,5 +24,6 @@ classdef dcf_state_type < int32
         CollapsibleInterarrival(70) 
         CollapsibleInitialTransmit(71)
         CollapsibleBackoffExpired(72)
+        CollapsibleDistribute(73)
     end
 end

@@ -57,8 +57,7 @@ classdef markov_chain_node < handle
             
             this.sampleIndices  = 1:nValidStates;
             
-            %startStateIndex = markovModel.WeightedRandomState(epsilon, steadyStateMaxRepeat);
-            startStateIndex = 1;
+            startStateIndex = markovModel.WeightedRandomState(epsilon, steadyStateMaxRepeat);
             this.prevStateIndex = startStateIndex;
             this.currentStateIndex = startStateIndex;
         end
@@ -104,19 +103,23 @@ classdef markov_chain_node < handle
             this.currentStateIndex = randsample(this.sampleIndices, 1, true, pCur);
         end
         
-        function PostSimulation(this, bDoPacketchainBacktrack)
+        function PostSimulation(this, bDoPacketchainBacktrack, bVerbose)
             this.CalculateStateHistory();
             this.CalculateTransitionHistory();
             
             if (bDoPacketchainBacktrack)
-                this.PostSimulationPacketchainBacktrack();
+                this.PostSimulationPacketchainBacktrack(bVerbose);
             end
         end
         
-        function PostSimulationPacketchainBacktrack(this)
+        function PostSimulationPacketchainBacktrack(this, bVerbose)
             % Find packetsize chains
             packetChainStates = find(this.stateTypeHistory == dcf_state_type.PacketSize);
             nPacketchainStates = size(packetChainStates, 2);
+            
+            if (bVerbose)
+                fprintf('%d packetchains found, backtracking...\n', nPacketchainState);
+            end
             
             if (nPacketchainStates == 0)
                 return;
