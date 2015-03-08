@@ -1,0 +1,34 @@
+simulation1
+simulation1_size
+simulation1_arrival
+% simulation1_unsat
+
+simulation2
+simulation2_size
+simulation2_arrival
+% simulation2_unsat
+
+simulation3
+simulation3_size
+simulation3_arrival
+% simulation3_unsat
+
+simulation4
+simulation4_size
+simulation4_arrival
+% simulation4_unsat
+
+simulation5
+simulation5_size
+simulation5_arrival
+% simulation5_unsat
+
+simulation6
+simulation6_size
+simulation6_arrival
+% simulation6_unsat
+
+simulation7
+simulation7_size
+simulation7_arrival
+% simulation7_unsat
