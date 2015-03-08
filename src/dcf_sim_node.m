@@ -86,7 +86,7 @@ classdef dcf_sim_node < handle
         end
         
         function bTransmitting = IsTransmitting(this)
-            bTransmitting = ismember( this.mainChain.CurrentTransition(), this.txSuccessTypes );
+            bTransmitting = sum(this.mainChain.CurrentTransition() == this.txSuccessTypes) > 0;
         end
         
         function Step(this)

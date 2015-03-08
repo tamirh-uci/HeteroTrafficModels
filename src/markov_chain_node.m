@@ -79,7 +79,7 @@ classdef markov_chain_node < handle
                 Step(this, pi, false);
                 
                 step = step + 1;
-                done = ismember( this.CurrentTransition(), endTypes );
+                done = sum(this.CurrentTransition() == endTypes) > 0;
             end
         end
         
