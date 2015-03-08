@@ -1,6 +1,7 @@
 timeSteps = 10000; 
 Wmin = 2;
 Wmax = 16;
+pSuccess = 1.0;
 
 % Precompute variables for the DCF model
 m = log2(Wmax / Wmin);
@@ -88,6 +89,7 @@ for i1 = 1:numArrive1
             for i4 = 1:numInterarrival1
                 
                 % Payload variation
+                if numPayload > 1
                 for b = 1:numBps
                     figure(figureId)
                     figureId = figureId + 1; 
@@ -107,12 +109,15 @@ for i1 = 1:numArrive1
                     title(sprintf('Payload Size Variance'));
                     xlabel('Payload Size (bits)');
                     ylabel('Throughput');
+                    legend('random throughput', 'multimedia throughput', 'average throughput');
 
-                    fileName = sprintf('fig-simulation_random_web-payload-%d_%d_%d_%d_%d.fig', i1, i2, i3, i4, b);
+                    fileName = sprintf('fig-simulation_random_web-payload-%d_%d_%d_%d_%d.fig', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), bps(b));
                     saveas(gcf,['.', filesep, fileName], 'fig');  % gca?
+                end
                 end
                 
                 % bps variation
+                if numBps > 1
                 for p = 1:numPayload
                     figure(figureId)
                     figureId = figureId + 1; 
@@ -132,10 +137,11 @@ for i1 = 1:numArrive1
                     title(sprintf('BPS Variance'));
                     xlabel('BPS (bits / second)');
                     ylabel('Throughput');
+                    legend('random throughput', 'multimedia throughput', 'average throughput');
 
-                    fileName = sprintf('fig-simulation_random_web-bps-%d_%d_%d_%d_%d.fig', i1, i2, i3, i4, p);
+                    fileName = sprintf('fig-simulation_random_web-bps-%d_%d_%d_%d_%d.fig', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), payload(p));
                     saveas(gcf,['.', filesep, fileName], 'fig');  % gca?
-                
+                end
                 end
             end
         end
