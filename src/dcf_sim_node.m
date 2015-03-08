@@ -143,6 +143,18 @@ classdef dcf_sim_node < handle
             count = this.mainChain.CountTransitions(this.txWaitTypes);
         end
         
+        function success = GetSuccess(this)
+            success = this.CountSuccesses()/(this.CountSuccesses()+this.CountFailures());
+        end
+
+        function transmit = GetTransmit(this, nSteps)
+            transmit = this.CountSuccesses()/nSteps;
+        end
+
+        function failure = GetFailures(this)
+            failure = this.CountFailures()/(this.CountSuccesses()+this.CountFailures());
+        end
+        
         % This should always be zero
         function count = CountInvalidStates(this)
             count = this.mainChain.CountTransitions(this.txInvalidTypes);
