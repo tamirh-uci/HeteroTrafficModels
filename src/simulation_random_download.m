@@ -115,7 +115,7 @@ for i1 = 1:numArrive1
                             xlabel('Interarrival Length');
                             ylabel('Throughput');
 
-                            fileName = sprintf('fig-%d.fig', figureId);
+                            fileName = sprintf('simulation_random_web-interarival-%d_%d_%d_%d_%d_%d_%d.fig', i1, i2, i3, i4, j1, j2, j3);
                             saveas(gcf,['.', filesep, fileName], 'fig');  % gca?
                         end
                     end
@@ -144,7 +144,7 @@ for i1 = 1:numArrive1
                             xlabel('pArrival');
                             ylabel('Throughput');
 
-                            fileName = sprintf('fig-%d.fig', figureId);
+                            fileName = sprintf('simulation_random_web-parrival-%d_%d_%d_%d_%d_%d_%d.fig', i1, i2, i3, i4, j2, j3, j4);
                             saveas(gcf,['.', filesep, fileName], 'fig');  % gca?
                         end
                     end
@@ -173,7 +173,7 @@ for i1 = 1:numArrive1
                             xlabel('pEnter');
                             ylabel('Throughput');
 
-                            fileName = sprintf('fig-%d.fig', figureId);
+                            fileName = sprintf('simulation_random_web-penter-%d_%d_%d_%d_%d_%d_%d.fig', i1, i2, i3, i4, j3, j4, j1);
                             saveas(gcf,['.', filesep, fileName], 'fig');  % gca?
                         end
                     end
@@ -202,7 +202,7 @@ for i1 = 1:numArrive1
                             xlabel('Max Packet Size');
                             ylabel('Throughput');
 
-                            fileName = sprintf('fig-%d.fig', figureId);
+                            fileName = sprintf('simulation_random_web-maxpackets-%d_%d_%d_%d_%d_%d_%d.fig', i1, i2, i3, i4, j4, j1, j2);
                             saveas(gcf,['.', filesep, fileName], 'fig');  % gca?
                         end
                     end

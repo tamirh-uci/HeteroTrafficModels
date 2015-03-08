@@ -108,7 +108,7 @@ for i1 = 1:numArrive1
                     xlabel('Payload Size (bits)');
                     ylabel('Throughput');
 
-                    fileName = sprintf('fig-%d.fig', figureId);
+                    fileName = sprintf('fig-simulation_random_web-payload-%d_%d_%d_%d_%d.fig', i1, i2, i3, i4, b);
                     saveas(gcf,['.', filesep, fileName], 'fig');  % gca?
                 end
                 
@@ -133,7 +133,7 @@ for i1 = 1:numArrive1
                     xlabel('BPS (bits / second)');
                     ylabel('Throughput');
 
-                    fileName = sprintf('fig-%d.fig', figureId);
+                    fileName = sprintf('fig-simulation_random_web-bps-%d_%d_%d_%d_%d.fig', i1, i2, i3, i4, p);
                     saveas(gcf,['.', filesep, fileName], 'fig');  % gca?
                 
                 end
