@@ -1,4 +1,4 @@
-classdef phys_80211_type < int32
+classdef phys80211_type < int32
     % Type of physical standard for radio transmissions
     % Determines SIFS/DIFS/Transmission Rate
     enumeration
