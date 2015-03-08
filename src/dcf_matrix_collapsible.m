@@ -113,10 +113,10 @@ classdef dcf_matrix_collapsible < handle
             if ( indices(1,3) == 1 )
                 % backoff timer = 1 is now mapped to starting the
                 % packetsize chain
-                key = this.PacketsizeChainBeginState([ indices(1,1), indices(1,2) ]);
+                key = dcf_matrix_collapsible.PacketsizeChainBeginState([ indices(1,1), indices(1,2) ]);
             else
                 % all other are just backoff states, index fixed
-                key = this.BackoffState([ indices(1,1), indices(1,2), indices(1,3)-1 ]);
+                key = dcf_matrix_collapsible.BackoffState([ indices(1,1), indices(1,2), indices(1,3)-1 ]);
             end
         end
     end % methods (Static)
