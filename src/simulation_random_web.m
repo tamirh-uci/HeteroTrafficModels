@@ -1,6 +1,9 @@
 timeSteps = 10000; 
 Wmin = 2;
 Wmax = 16;
+pSuccess = 1.0;
+
+% Precompute variables for the DCF model
 [m, W] = dcf_matrix_collapsible.CalculateDimensions(Wmin, Wmax);
 
 [pArrive1, pEnter1, nPackets1, nInterarrival1] = create_random_parameters();
@@ -87,6 +90,7 @@ for i1 = 1:numArrive1
             for i4 = 1:numInterarrival1
                 
                 % Inverarrival variation
+                if numInterarrival2 > 1
                 for j1 = 1:numArrive2
                     for j2 = 1:numEnter2
                         for j3 = numPackets2 
@@ -108,14 +112,17 @@ for i1 = 1:numArrive1
                             title(sprintf('Interarrival Variance'));
                             xlabel('Interarrival Length');
                             ylabel('Throughput');
+                            legend('random throughput', 'web node throughput', 'average throughput');
 
-                            fileName = sprintf('fig-%d.fig', figureId);
+                            fileName = sprintf('simulation_random_web-interarival-%d_%d_%d_%d_%d_%d_%d.fig', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), pArrive2(j1), pEnter2(j2), nPackets2(j3));
                             saveas(gcf,['.', filesep, fileName], 'fig');  % gca?
                         end
                     end
                 end
+                end
                 
                 % Arrival variation
+                if numArrive2 > 1
                 for j2 = 1:numEnter2
                     for j3 = numPackets2 
                         for j4 = numInterarrival2
@@ -137,14 +144,17 @@ for i1 = 1:numArrive1
                             title(sprintf('pArrival Variance'));
                             xlabel('pArrival');
                             ylabel('Throughput');
+                            legend('random throughput', 'web node throughput', 'average throughput');
 
-                            fileName = sprintf('fig-%d.fig', figureId);
+                            fileName = sprintf('simulation_random_web-parrival-%d_%d_%d_%d_%d_%d_%d.fig', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), pEnter2(j2), nPackets2(j3), nInterarrival2(j4));
                             saveas(gcf,['.', filesep, fileName], 'fig');  % gca?
                         end
                     end
                 end
+                end
                 
                 % Enter variation
+                if numEnter2 > 1
                 for j3 = numPackets2 
                     for j4 = numInterarrival2
                         for j1 = 1:numArrive2
@@ -166,14 +176,17 @@ for i1 = 1:numArrive1
                             title(sprintf('pEnter Variance'));
                             xlabel('pEnter');
                             ylabel('Throughput');
+                            legend('random throughput', 'web node throughput', 'average throughput');
 
-                            fileName = sprintf('fig-%d.fig', figureId);
+                            fileName = sprintf('simulation_random_web-penter-%d_%d_%d_%d_%d_%d_%d.fig', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), pArrive2(j1), nPackets2(j3), nInterarrival2(j4));
                             saveas(gcf,['.', filesep, fileName], 'fig');  % gca?
                         end
                     end
                 end
+                end
                 
                 % Max size variation
+                if numPackets2 > 1
                 for j4 = numInterarrival2
                     for j1 = 1:numArrive2
                         for j2 = 1:numEnter2
@@ -195,11 +208,13 @@ for i1 = 1:numArrive1
                             title(sprintf('Max Packet Size Variance'));
                             xlabel('Max Packet Size');
                             ylabel('Throughput');
+                            legend('random throughput', 'web node throughput', 'average throughput');
 
-                            fileName = sprintf('fig-%d.fig', figureId);
+                            fileName = sprintf('simulation_random_web-maxpackets-%d_%d_%d_%d_%d_%d_%d.fig', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), pArrive2(j1), pEnter2(j2), nInterarrival2(j4));
                             saveas(gcf,['.', filesep, fileName], 'fig');  % gca?
                         end
                     end
+                end
                 end
             end
         end
