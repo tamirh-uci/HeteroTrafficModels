@@ -259,13 +259,20 @@ classdef dcf_matrix_collapsible < handle
             dcf.SetP( src, dst, 1.0 - this.pEnterInterarrival, dcf_transition_type.Collapsible );
             
             % If we do have interarrival
-            % Equal probabilities to go to any state in the interarrival chain
             if (this.pEnterInterarrival > 0)
                 assert( this.nInterarrival > 0 );
-                pInterarrivalState = this.pEnterInterarrival / this.nInterarrival;
-                for k = 1:this.nInterarrival
-                    dst = this.InterarrivalState(k);
-                    dcf.SetP( src, dst, pInterarrivalState, dcf_transition_type.Collapsible );
+                
+                if (this.bFixedInterarrivalChain)
+                    % We are always going to the end of the chain
+                    dst = this.InterarrivalState(this.nInterarrival);
+                    dcf.SetP( src, dst, 1.0, dcf_transition_type.Collapsible );
+                else
+                    % Equal probabilities to go to any state in the interarrival chain
+                    pInterarrivalState = this.pEnterInterarrival / this.nInterarrival;
+                    for k = 1:this.nInterarrival
+                        dst = this.InterarrivalState(k);
+                        dcf.SetP( src, dst, pInterarrivalState, dcf_transition_type.Collapsible );
+                    end                    
                 end
             end
 
@@ -460,7 +467,7 @@ classdef dcf_matrix_collapsible < handle
             for k = 2:this.nInterarrival
                 src = this.InterarrivalState(k);
                 dst = this.InterarrivalState(k-1);
-                dcf.SetP( src, dst, 1.0, dcf_transition_type.PacketSize );
+                dcf.SetP( src, dst, 1.0, dcf_transition_type.Interarrival );
             end
 
             % At the last state in the chain, we will figure out the size
@@ -470,6 +477,19 @@ classdef dcf_matrix_collapsible < handle
             dcf.SetP( src, dst, 1.0, dcf_transition_type.Collapsible );
         end % function GenerateInterarrivalStates
         
+        % Calculate how long we need to wait between transmissions in order
+        % to send the payload with a given bps at a given datarate
+        function CalculateInterarrival(this, type, desiredBps, payloadSizeBits)
+            % what rate would be be sending if we have 0 interarrival
+            maxDatarate = phys80211.EffectiveMaxDatarate(type, payloadSizeBits, 1.0, this.wMin);
+            
+            % at what speed do we want to send to get our desired bps?
+            percentTransmit = desiredBps / maxDatarate;
+            
+            % NOTE: This is just assuming transmit time == 1x backoff time
+            % how many interarrival states should we make?
+            this.nInterarrival = ceil( 1/percentTransmit );
+        end
         
         function CalculateConstants(this)
             % Basic assumptions
@@ -541,6 +561,11 @@ classdef dcf_matrix_collapsible < handle
         % do we always have the maximum packetchain length?
         % if false, we will randomly have a packetchain length of [0,nPkt]
         bFixedPacketchain = false;
+        
+        % do we always have the maximum interarrival length?
+        % if false, we will randomly have a interarrival length of
+        % [0,nInterarrival]
+        bFixedInterarrivalChain = false;
         
         % are we in the state where everything should fail?
         bFailureState = false;

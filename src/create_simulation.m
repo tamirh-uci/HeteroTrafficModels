@@ -24,13 +24,25 @@ for i = 1:numNormals
 end
 
 % modify dcf matrix for media settings
-% TODO: Set these up
+bps = 4 * 1000000; % 4MBits/second
+payloadSize = 1500*8;
+    
+% We always have fixed packetsize of 1 payload
 dcf_matrix.bFixedPacketchain = true;
+dcf_matrix.nPkt = 1;
+
+% We want to estimate the desired video BPS
+dcf_matrix.pEnterInterarrival = 1.0;
+dcf_matrix.bFixedInterarrivalChain = true;
+dcf_matrix.CalculateInterarrival(phys80211_type.B, bps, payloadSize);
 
 for i = 1:numMedias
 	media_matrix = markov_video_frames();
 	media_matrix.gopAnchorFrameDistance = 3;
 	media_matrix.gopFullFrameDistance = 12;
+    media_matrix.bps = 4 * 1000000; % 4MBits/second
+    media_matrix.payloadSize = payloadSize;
+    
     nodeName = sprintf('media-node%d', i);
     simulator.add_multimedia_matrix(nodeName, dcf_matrix, media_matrix);
 end

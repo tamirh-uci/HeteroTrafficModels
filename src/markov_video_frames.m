@@ -60,9 +60,9 @@ classdef markov_video_frames < handle
             this.pBps = this.bps * this.pPBit;
             this.bBps = this.bps * this.pBBit;
             
-            this.iPktAvgCount = ceil( (this.iBps / this.iFps) / this.packetSize );
-            this.pPktAvgCount = ceil( (this.pBps / this.pFps) / this.packetSize );
-            this.bPktAvgCount = ceil( (this.bBps / this.bFps) / this.packetSize );
+            this.iPktAvgCount = ceil( (this.iBps / this.iFps) / this.payloadSize );
+            this.pPktAvgCount = ceil( (this.pBps / this.pFps) / this.payloadSize );
+            this.bPktAvgCount = ceil( (this.bBps / this.bFps) / this.payloadSize );
             
             this.iPktMinCount = 1;
             this.pPktMinCount = 1;
@@ -234,7 +234,7 @@ classdef markov_video_frames < handle
         fps = 30;
         
         % the 802.11 datagram size we're working with in bits
-        packetSize = 1500*8;
+        payloadSize = 1500*8;
     end
     
     % Calculated GOP characteristics
