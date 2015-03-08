@@ -40,7 +40,7 @@ for i = 1:numMedias
 	media_matrix = markov_video_frames();
 	media_matrix.gopAnchorFrameDistance = 3;
 	media_matrix.gopFullFrameDistance = 12;
-    media_matrix.bps = 4 * 1000000; % 4MBits/second
+    media_matrix.bps = bps; % 4MBits/second
     media_matrix.payloadSize = payloadSize;
     
     nodeName = sprintf('media-node%d', i);
