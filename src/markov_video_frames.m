@@ -26,7 +26,7 @@ classdef markov_video_frames < handle
             chain = markov_chain();
             
             this.CalculateConstants();
-            this.GenerateStates(chain);
+            this.GenerateStates(chain, verbose);
             this.SetProbabilities(chain);
             
             if (verbose)
@@ -77,7 +77,7 @@ classdef markov_video_frames < handle
             this.bPktRange = this.bPktMaxCount - this.bPktMinCount;
         end
         
-        function GenerateStates(this, chain)
+        function GenerateStates(this, chain, verbose)
             gopIndex = 1;
             
             % Single i frame will lead the GOP
@@ -85,7 +85,9 @@ classdef markov_video_frames < handle
                 key = markov_video_frames.FrameState([gopIndex, i]);
                 chain.NewState( dcf_state( key, dcf_state_type.IFrame ) );
             end
-            fprintf('I = %d (%d-%d)\n', gopIndex, this.iPktMinCount, this.iPktMaxCount);
+            if (verbose)
+                fprintf('I = %d (%d-%d)\n', gopIndex, this.iPktMinCount, this.iPktMaxCount);
+            end
             gopIndex = gopIndex + 1;
             
             % Repeat pattern of BBP
@@ -96,7 +98,9 @@ classdef markov_video_frames < handle
                         key = markov_video_frames.FrameState([gopIndex, i]);
                         chain.NewState( dcf_state( key, dcf_state_type.BFrame ) );
                     end
-                    fprintf('B = %d (%d-%d)\n', gopIndex, this.bPktMinCount, this.bPktMaxCount);
+                    if (verbose)
+                        fprintf('B = %d (%d-%d)\n', gopIndex, this.bPktMinCount, this.bPktMaxCount);
+                    end
                     gopIndex = gopIndex + 1;
                 end
                 
@@ -106,7 +110,9 @@ classdef markov_video_frames < handle
                         key = markov_video_frames.FrameState([gopIndex, i]);
                         chain.NewState( dcf_state( key, dcf_state_type.PFrame ) );
                     end
-                    fprintf('P = %d (%d-%d)\n', gopIndex, this.pPktMinCount, this.pPktMaxCount);
+                    if (verbose)
+                        fprintf('P = %d (%d-%d)\n', gopIndex, this.pPktMinCount, this.pPktMaxCount);
+                    end
                     gopIndex = gopIndex + 1;
                 end
             end
@@ -177,7 +183,7 @@ classdef markov_video_frames < handle
     methods (Static)
         function Distribute(chain, src, txType, nextGopIndex, min, med, max, avgWeight, smallWeight, largeWeight)
             % chance to go directly to the avg weight packet
-            fprintf('Trying to make [%d, %d]\n', nextGopIndex, med);
+            %fprintf('Trying to make [%d, %d]\n', nextGopIndex, med);
             dst = markov_video_frames.FrameState([nextGopIndex, med]);
             chain.SetP( src, dst, avgWeight, txType );
             
