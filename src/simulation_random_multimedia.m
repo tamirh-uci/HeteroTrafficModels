@@ -1,13 +1,7 @@
 timeSteps = 10000; 
 Wmin = 2;
 Wmax = 16;
-
-% Precompute variables for the DCF model
-m = log2(Wmax / Wmin);
-W = zeros(1,m+1);
-for i = 1:(m+1)
-    W(1,i) = (2^(i-1)) * Wmin;
-end
+[m, W] = dcf_matrix_collapsible.CalculateDimensions(Wmin, Wmax);
 
 [pArrive1, pEnter1, nPackets1, nInterarrival1] = create_random_parameters();
 [bps, payload] = create_multimedia_parameters();

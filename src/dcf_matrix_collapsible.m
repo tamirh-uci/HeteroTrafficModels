@@ -6,6 +6,15 @@ classdef dcf_matrix_collapsible < handle
             key = [int32(type) indices];
         end
         
+        function [m, W] = CalculateDimensions(wMin, wMax)
+            m = log2(wMax / wMin);
+            rows = m+1;
+            W = zeros(1, rows);
+            for i = 1:rows
+                W(1,i) = (2^(i-1)) * wMin;
+            end
+        end
+        
         % there is only 1 success state, no need for indices
         % you enter the success state once you have successfully
         % transmitted a packet and need to know if you have another one
