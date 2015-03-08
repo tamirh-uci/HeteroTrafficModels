@@ -1,8 +1,8 @@
 verboseSetup = false;
-verboseExecute = false;
+verboseExecute = true;
 verbosePrint = false;
 
-timeSteps = 1000000; 
+timeSteps = 100000;
 wMin = 2;
 wMax = 16;
 
@@ -10,7 +10,7 @@ wMax = 16;
 
 % Test all types of nodes individually to see how they perform
 %pSuccessOptions = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0];
-pSuccessOptions = [0.5];
+pSuccessOptions = [0.5, 1.0];
 
 % FILE DOWNLOAD
 files_pArrive = 1.0;
@@ -19,7 +19,9 @@ files_nMaxPackets = 10;
 files_nInterarrival = 10;
 
 % WEB TRAFFIC
-webtx_pArrive = 0.5;
+%TODO: Fix postbackoff
+%webtx_pArrive = 0.5;
+webtx_pArrive = 1.0;
 webtx_pEnter = 0.5;
 webtx_nMaxPackets = 5;
 webtx_nInterarrival = 5;
@@ -51,10 +53,16 @@ for pSuccess = pSuccessOptions
     rando_fName = sprintf('simulation_single_node_%s-s%f-a%f-e%f-m%f-i%f.sim', 'rando', pSuccess, rando_pArrive, rando_pEnter, rando_nMaxPackets, rando_nInterarrival);
     video_fName = sprintf('simulation_single_node_%s-s%f-b%f-p%f.sim', 'video', pSuccess, video_bps, video_bps);
     
-    fprintf('Setting up simulations...\n');
+    fprintf('Setting up: %s\n', files_fName);
     files_simulator.Setup(verboseSetup);
+    
+    fprintf('Setting up: %s\n', webtx_fName);
     webtx_simulator.Setup(verboseSetup);
+    
+    fprintf('Setting up: %s\n', rando_fName);
     rando_simulator.Setup(verboseSetup);
+    
+    fprintf('Setting up: %s\n', video_fName);
     video_simulator.Setup(verboseSetup);
     
     fprintf('\n+Running %s simulation\n', files_fName);
@@ -95,26 +103,26 @@ for pSuccess = pSuccessOptions
     files_success = files_node.CountSuccesses();
     files_failure = files_node.CountFailures();
     files_waiting = files_node.CountWaits();
-    fprintf(files_fid, '%s,%s,%s,%s,%s,%s\n', 'timeSteps', 'Wmin', 'Wmax', 'success', 'failure', 'wait');
-    fprintf(files_fid, '%d,%d,%d,%d,%d,%d\n\n', timeSteps, Wmin, Wmax, files_success, files_failure, files_waiting);
+    fprintf(files_fid, '%s,%s,%s,%s,%s,%s\n', 'timeSteps', 'wMin', 'wMax', 'success', 'failure', 'wait');
+    fprintf(files_fid, '%d,%d,%d,%d,%d,%d\n\n', timeSteps, wMin, wMax, files_success, files_failure, files_waiting);
     
     webtx_success = webtx_node.CountSuccesses();
     webtx_failure = webtx_node.CountFailures();
     webtx_waiting = webtx_node.CountWaits();
-    fprintf(webtx_fid, '%s,%s,%s,%s,%s,%s\n', 'timeSteps', 'Wmin', 'Wmax', 'success', 'failure', 'wait');
-    fprintf(webtx_fid, '%d,%d,%d,%d,%d,%d\n\n', timeSteps, Wmin, Wmax, webtx_success, webtx_failure, webtx_waiting);
+    fprintf(webtx_fid, '%s,%s,%s,%s,%s,%s\n', 'timeSteps', 'wMin', 'wMax', 'success', 'failure', 'wait');
+    fprintf(webtx_fid, '%d,%d,%d,%d,%d,%d\n\n', timeSteps, wMin, wMax, webtx_success, webtx_failure, webtx_waiting);
     
     rando_success = rando_node.CountSuccesses();
     rando_failure = rando_node.CountFailures();
     rando_waiting = rando_node.CountWaits();
-    fprintf(rando_fid, '%s,%s,%s,%s,%s,%s\n', 'timeSteps', 'Wmin', 'Wmax', 'success', 'failure', 'wait');
-    fprintf(rando_fid, '%d,%d,%d,%d,%d,%d\n\n', timeSteps, Wmin, Wmax, rando_success, rando_failure, rando_waiting);
+    fprintf(rando_fid, '%s,%s,%s,%s,%s,%s\n', 'timeSteps', 'wMin', 'wMax', 'success', 'failure', 'wait');
+    fprintf(rando_fid, '%d,%d,%d,%d,%d,%d\n\n', timeSteps, wMin, wMax, rando_success, rando_failure, rando_waiting);
     
     video_success = video_node.CountSuccesses();
     video_failure = video_node.CountFailures();
     video_waiting = video_node.CountWaits();
-    fprintf(video_fid, '%s,%s,%s,%s,%s,%s\n', 'timeSteps', 'Wmin', 'Wmax', 'success', 'failure', 'wait');
-    fprintf(video_fid, '%d,%d,%d,%d,%d,%d\n\n', timeSteps, Wmin, Wmax, video_success, video_failure, video_waiting);
+    fprintf(video_fid, '%s,%s,%s,%s,%s,%s\n', 'timeSteps', 'wMin', 'wMax', 'success', 'failure', 'wait');
+    fprintf(video_fid, '%d,%d,%d,%d,%d,%d\n\n', timeSteps, wMin, wMax, video_success, video_failure, video_waiting);
     
     
     % Dump the history logs
@@ -127,23 +135,7 @@ for pSuccess = pSuccessOptions
     webtx_markov = webtx_node.mainChain;
     rando_markov = rando_node.mainChain;
     video_markov = video_node.mainChain;
-    
-            % History of all previous states
-        % (their index values from the transition table)
-        % Appended at every step
-        % type: int32 (index)
-        indexHistory;
-        
-        % History of all previous state types
-        % Created after all steps taken
-        % type: dcf_state_type
-        stateTypeHistory;
-        
-        % History of all state transitions from i->i+1
-        % Created after all steps taken
-        % type: dcf_transition_type
-        transitionHistory;
-    
+
     for i=1:timeSteps
         fprintf(files_fid, '%f,%f,%f',    files_markov.indexHistory(i), files_markov.stateTypeHistory(i), files_markov.transitionHistory(i));
         fprintf(webtx_fid, '%f,%f,%f',    webtx_markov.indexHistory(i), webtx_markov.stateTypeHistory(i), webtx_markov.transitionHistory(i));
