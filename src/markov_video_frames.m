@@ -60,9 +60,9 @@ classdef markov_video_frames < handle
             this.pBps = this.bps * this.pPBit;
             this.bBps = this.bps * this.pBBit;
             
-            this.iPktAvgCount = (this.iBps / this.iFps) / this.packetSize;
-            this.pPktAvgCount = (this.pBps / this.pFps) / this.packetSize;
-            this.bPktAvgCount = (this.bBps / this.bFps) / this.packetSize;
+            this.iPktAvgCount = ceil( (this.iBps / this.iFps) / this.packetSize );
+            this.pPktAvgCount = ceil( (this.pBps / this.pFps) / this.packetSize );
+            this.bPktAvgCount = ceil( (this.bBps / this.bFps) / this.packetSize );
             
             this.iPktMinCount = 1;
             this.pPktMinCount = 1;
@@ -85,6 +85,7 @@ classdef markov_video_frames < handle
                 key = markov_video_frames.FrameState([gopIndex, i]);
                 chain.NewState( dcf_state( key, dcf_state_type.IFrame ) );
             end
+            fprintf('I = %d (%d-%d)\n', gopIndex, this.iPktMinCount, this.iPktMaxCount);
             gopIndex = gopIndex + 1;
             
             % Repeat pattern of BBP
@@ -95,6 +96,7 @@ classdef markov_video_frames < handle
                         key = markov_video_frames.FrameState([gopIndex, i]);
                         chain.NewState( dcf_state( key, dcf_state_type.BFrame ) );
                     end
+                    fprintf('B = %d (%d-%d)\n', gopIndex, this.bPktMinCount, this.bPktMaxCount);
                     gopIndex = gopIndex + 1;
                 end
                 
@@ -104,6 +106,7 @@ classdef markov_video_frames < handle
                         key = markov_video_frames.FrameState([gopIndex, i]);
                         chain.NewState( dcf_state( key, dcf_state_type.PFrame ) );
                     end
+                    fprintf('P = %d (%d-%d)\n', gopIndex, this.pPktMinCount, this.pPktMaxCount);
                     gopIndex = gopIndex + 1;
                 end
             end
@@ -120,35 +123,49 @@ classdef markov_video_frames < handle
                     nextGopIndex = 1+gopIndex;
                 end
                 
-                % Distribute "evenly" to the next frame
-                % Source is the end of the timer, so we go to the next
                 src = markov_video_frames.FrameState([gopIndex, 1]);
                 srcType = chain.Type(src);
                 switch(srcType)
                     case dcf_state_type.IFrame
+                        srcMin = this.iPktMinCount;
+                        srcMax = this.iPktMaxCount;
+                        txType = dcf_transition_type.TxIFrame;
+                    case dcf_state_type.PFrame
+                        srcMin = this.pPktMinCount;
+                        srcMax = this.pPktMaxCount;
+                        txType = dcf_transition_type.TxPFrame;
+                    case dcf_state_type.BFrame
+                        srcMin = this.bPktMinCount;
+                        srcMax = this.bPktMaxCount;
+                        txType = dcf_transition_type.TxBFrame;
+                end
+                
+                % Distribute "evenly" to the next frame
+                % Source is the end of the timer, so we go to the next
+                dst = markov_video_frames.FrameState([nextGopIndex, 1]);
+                dstType = chain.Type(dst);
+                switch(dstType)
+                    case dcf_state_type.IFrame
                         min = this.iPktMinCount;
                         med = this.iPktAvgCount;
                         max = this.iPktMaxCount;
-                        txType = dcf_transition_type.TxIFrame;
-                        markov_video_frames.Distribute(chain, src, nextGopIndex, txType, min, med, max, this.iAvgWeight, this.iSmallWeight, this.iLargeWeight);
+                        markov_video_frames.Distribute(chain, src, txType, nextGopIndex, min, med, max, this.iAvgWeight, this.iSmallWeight, this.iLargeWeight);
                         
                     case dcf_state_type.PFrame
                         min = this.pPktMinCount;
                         med = this.pPktAvgCount;
                         max = this.pPktMaxCount;
-                        txType = dcf_transition_type.TxPFrame;
-                        markov_video_frames.Distribute(chain, src, nextGopIndex, txType, min, med, max, this.pAvgWeight, this.pSmallWeight, this.pLargeWeight);
+                        markov_video_frames.Distribute(chain, src, txType, nextGopIndex, min, med, max, this.pAvgWeight, this.pSmallWeight, this.pLargeWeight);
                         
                     case dcf_state_type.BFrame
                         min = this.bPktMinCount;
                         med = this.bPktAvgCount;
                         max = this.bPktMaxCount;
-                        txType = dcf_transition_type.TxBFrame;
-                        markov_video_frames.Distribute(chain, src, nextGopIndex, txType, min, med, max, this.bAvgWeight, this.bSmallWeight, this.bLargeWeight);
+                        markov_video_frames.Distribute(chain, src, txType, nextGopIndex, min, med, max, this.bAvgWeight, this.bSmallWeight, this.bLargeWeight);
                 end
                 
                 % Generate the packet timer chain
-                for i = (min+1):max
+                for i = (srcMin+1):srcMax
                     src = markov_video_frames.FrameState([gopIndex, i]);
                     dst = markov_video_frames.FrameState([gopIndex, i-1]);
                     chain.SetP( src, dst, 1.0, txType );
@@ -158,8 +175,9 @@ classdef markov_video_frames < handle
     end % methods
     
     methods (Static)
-        function Distribute(chain, src, nextGopIndex, txType, min, med, max, avgWeight, smallWeight, largeWeight)
+        function Distribute(chain, src, txType, nextGopIndex, min, med, max, avgWeight, smallWeight, largeWeight)
             % chance to go directly to the avg weight packet
+            fprintf('Trying to make [%d, %d]\n', nextGopIndex, med);
             dst = markov_video_frames.FrameState([nextGopIndex, med]);
             chain.SetP( src, dst, avgWeight, txType );
             
