@@ -7,29 +7,47 @@ classdef phys80211 < handle
             bits = time * 1000000 / datarate;
         end
         
-        % How many bits are sent each time a slot is transmitting
-        function bits = BitsPerSlot(type)
-            bits = Bits( phys80211.SlotTime(type) * phys80211.RawDatarate(type) );
-        end
-        
         % What is the maximum datarate of a DCF given no other nodes
         % type = the type physical type of 802.11 transmission
-        % wMin = number of columns/states in the first stage of DCF
+        % payload = bits per data payload in a frame
         % speed = [0,1] %capacity of max
+        % wMin = number of columns/states in the first stage of DCF
         % rate = (bits/second)
-        function rate = MaxSingleNodeDatarate(type, wMin, speed)
-            transmitTime = phys80211.SlotTime(type);
-            backoffTime = (wMin-1)*phys80211.SIFS(type);
+        function rate = EffectiveMaxDatarate(type, payload, speed, wMin)
+            transmitTime = phys80211.TransactionTime(type, payload, speed);
+            backoffTime = (wMin-1)*phys80211.BackoffTime(type);
             percentTransmitting = transmitTime / (transmitTime + backoffTime);
             
             rate = phys80211.RawDatarate(type, speed) * percentTransmitting;
         end
         
+        % How long does it take for a full transmission send
+        % payload = bits per data payload in a frame = 8*framesize
+        % speed = [0,1] %capacity of max
+        function time = TransactionTime(type, payload, speed)
+            % How long does the payload take in microseconds
+            bps = phys80211.RawDatarate(type, speed);
+            bpus = bps / 1000000;
+            time = payload / bpus;
+            
+            % Add in all of the other overhead
+            time = time + phys80211.DIFS(type);
+            time = time + phys80211.OverheadTime(type);
+            time = time + phys80211.SIFS(type);
+            time = time + phys80211.ACK(type);
+        end
+        
+        % How long does a single backoff state take
+        function time = BackoffTime(type)
+            time = phys80211.DIFS(type);
+        end
+        
         % how fast individual transmissions send
         % given the system is working at %capacity of max
         % speed = [0,1] %capacity of max
+        % datarate = bits/second
         function datarate = RawDatarate(type, speed)
-            [min, max] = RawMinMaxDatarate(type);
+            [min, max] = phys80211.RawMinMaxDatarate(type);
             datarate = speed * (max-min) + min;
         end
         
@@ -61,6 +79,50 @@ classdef phys80211 < handle
                 case phys80211_type.AC % 1-500 Mbit
                     min = 1000000;
                     max = 500000000;
+            end
+        end
+        
+        % Time added by sending header bits overhead with each payload
+        function time = OverheadTime(type)
+           switch(type)
+                case phys80211_type.FHSS
+                    time = 200;
+                case phys80211_type.DHSS
+                    time = 200;
+                case phys80211_type.B
+                    time = 192;
+                case phys80211_type.A
+                    time = 20;
+                case phys80211_type.G
+                    time = 20;
+                case phys80211_type.N24
+                    time = 20;
+                case phys80211_type.N50
+                    time = 20;
+                case phys80211_type.AC
+                    time = 20;
+            end 
+        end
+        
+        % time it takes for physical ACK
+        function ack = ACK(type)
+            switch(type)
+                case phys80211_type.FHSS
+                    ack = 200;
+                case phys80211_type.DHSS
+                    ack = 200;
+                case phys80211_type.B
+                    ack = 203;
+                case phys80211_type.A
+                    ack = 24;
+                case phys80211_type.G
+                    ack = 24;
+                case phys80211_type.N24
+                    ack = 24;
+                case phys80211_type.N50
+                    ack = 24;
+                case phys80211_type.AC
+                    ack = 24;
             end
         end
         
