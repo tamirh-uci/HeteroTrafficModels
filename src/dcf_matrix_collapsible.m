@@ -211,7 +211,7 @@ classdef dcf_matrix_collapsible < handle
                 
                 % Postbackoff is a single stage, mirroring the first stage (i = 1), 
                 % and is indexed by timer value
-                if (this.pRawArrive < 1.0)
+                if (this.pRawArrive < 1.0 && ~this.bFailureState)
                     for i = 1:this.W(1,1)
                        key = this.PostbackoffState([packetsize, i]);
                        dcf.NewState( dcf_state(key, dcf_state_type.Postbackoff) );
@@ -236,7 +236,7 @@ classdef dcf_matrix_collapsible < handle
             for packetsize = this.packetStart:this.nPkt
                 % Handle backoff countdowns -- each one with probability 1-q
                 % (a new packet does not arrive)
-                if (this.pRawArrive < 1.0)
+                if (this.pRawArrive < 1.0 && ~this.bFailureState)
                     this.SetPostBackoffProbabilities(dcf, packetsize);
                 end
                 
@@ -315,7 +315,7 @@ classdef dcf_matrix_collapsible < handle
                 
                 % If we don't have an arrival, we need to distribute over
                 % the postbackoff states
-                if (pDistPostbackoff > 0)
+                if (pDistPostbackoff > 0 && ~this.bFailureState)
                     for k = 1:this.W(1,1)
                         dst = this.PostbackoffState([packetsize, k]);
                         dcf.SetP( src, dst, pDistPostbackoff, dcf_transition_type.Postbackoff );
