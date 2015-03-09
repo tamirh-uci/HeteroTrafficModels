@@ -119,7 +119,7 @@ classdef markov_chain_node < handle
 
             nTransitionHistory = size(this.transitionHistory, 2);
             nPacketchainStates = size(packetChainStates, 2);
-            bVerbose = true;
+            
             if (bVerbose)
                 fprintf('%d packetchains found, backtracking...\n', nPacketchainStates);
             end
@@ -133,13 +133,7 @@ classdef markov_chain_node < handle
             % where the difference between indicies is > 1
             packetChainStates(nPacketchainStates+1) = -1;
             deltaPacketchains = diff(packetChainStates) - 1;
-            
             beginChainIndex = packetChainStates(1);
-            
-            this.stateTypeHistory
-            packetChainStates
-            transmitStates
-            deltaPacketchains
             
             chainSuccess = true;
             for i = 1:nPacketchainStates
