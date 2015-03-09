@@ -2,8 +2,8 @@ function [ pArrive, pEnter, nMaxPackets, nInterarrival ] = create_file_download_
 
 pArrive = [1.0];
 pEnter = [1.0];
-nMaxPackets = [5, 10, 25, 50];
-nInterarrival = [5, 10, 25, 50];
+nMaxPackets = [5, 10, 25];
+nInterarrival = [5, 10, 25];
 
 end
 
