@@ -305,8 +305,15 @@ classdef dcf_matrix_collapsible < handle
             % redistribute our first attempt at a send
             src = this.InitialTransmitAttemptState(packetsize);
             for packetsize = this.packetStart:this.nPkt
-                pDistNorm = this.pRawArrive;
-                pDistPostbackoff = (1.0 - this.pRawArrive) / this.W(1,1);
+                % In the failure state, we ignore postbackoff since we're
+                % going to fail anyway
+                if (this.bFailureState)
+                    pDistNorm = 1;
+                    pDistPostbackoff = 0;
+                else
+                    pDistNorm = this.pRawArrive;
+                    pDistPostbackoff = (1.0 - this.pRawArrive) / this.W(1,1);
+                end
                 
                 % If we have an arrival, we need to distribute over
                 % backoff/transmit state of the 1st stage
@@ -315,7 +322,7 @@ classdef dcf_matrix_collapsible < handle
                 
                 % If we don't have an arrival, we need to distribute over
                 % the postbackoff states
-                if (pDistPostbackoff > 0 && ~this.bFailureState)
+                if (pDistPostbackoff > 0)
                     for k = 1:this.W(1,1)
                         dst = this.PostbackoffState([packetsize, k]);
                         dcf.SetP( src, dst, pDistPostbackoff, dcf_transition_type.Postbackoff );
