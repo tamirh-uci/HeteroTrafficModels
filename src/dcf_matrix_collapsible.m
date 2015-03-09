@@ -448,15 +448,11 @@ classdef dcf_matrix_collapsible < handle
                 pGoToFailure = 0;
             end
 
-            % At end of backoff chain, we go into packetsize calculation
+            % At end of backoff chain, we go into packetsize chain
             % We hop in at the end of the chain so it can countdown
             src = this.BackoffState([stage, packetsize, 1]);
             dst = this.PacketsizeChainBeginState([stage, packetsize]);
-            dcf.SetP( src, dst, pContinueDownChain, dcf_transition_type.Backoff );
-            
-            % Or see if we go straight into failure state
-            dst = this.DistributionState([stage+1, packetsize]);
-            dcf.SetP( src, dst, pGoToFailure, dcf_transition_type.TxFailure );
+            dcf.SetP( src, dst, 1.0, dcf_transition_type.Backoff );
             
             % Travel down the packetsize chain
             for k = 2:packetsize
