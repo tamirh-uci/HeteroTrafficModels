@@ -47,10 +47,10 @@ for pSuccess = pSuccessOptions
     add_random_node(        rando_simulator, m, wMin, 3, rando_pArrive, rando_pEnter, rando_nMaxPackets, rando_nInterarrival);
     add_multimedia_node(    video_simulator, m, wMin, 4, video_bps, video_payloadSize);
     
-    files_fName = sprintf('simulation_single_node_%s-s%.2f-a%.2f-e%.2f-m%.2f-i%.2f.sim', 'files', pSuccess, files_pArrive, files_pEnter, files_nMaxPackets, files_nInterarrival);
-    webtx_fName = sprintf('simulation_single_node_%s-s%.2f-a%.2f-e%.2f-m%.2f-i%.2f.sim', 'webtx', pSuccess, webtx_pArrive, webtx_pEnter, webtx_nMaxPackets, webtx_nInterarrival);
-    rando_fName = sprintf('simulation_single_node_%s-s%.2f-a%.2f-e%.2f-m%.2f-i%.2f.sim', 'rando', pSuccess, rando_pArrive, rando_pEnter, rando_nMaxPackets, rando_nInterarrival);
-    video_fName = sprintf('simulation_single_node_%s-s%.2f-b%.2f-p%.2f.sim', 'video', pSuccess, video_bps, video_bps);
+    files_fName = sprintf('./results/simulation_single_node_%s-s%.2f-a%.2f-e%.2f-m%.2f-i%.2f.log', 'files', pSuccess, files_pArrive, files_pEnter, files_nMaxPackets, files_nInterarrival);
+    webtx_fName = sprintf('./results/simulation_single_node_%s-s%.2f-a%.2f-e%.2f-m%.2f-i%.2f.log', 'webtx', pSuccess, webtx_pArrive, webtx_pEnter, webtx_nMaxPackets, webtx_nInterarrival);
+    rando_fName = sprintf('./results/simulation_single_node_%s-s%.2f-a%.2f-e%.2f-m%.2f-i%.2f.log', 'rando', pSuccess, rando_pArrive, rando_pEnter, rando_nMaxPackets, rando_nInterarrival);
+    video_fName = sprintf('./results/simulation_single_node_%s-s%.2f-b%.2f-p%.2f.log', 'video', pSuccess, video_bps, video_bps);
     
     fprintf('Setting up: %s\n', files_fName);
     files_simulator.Setup(verboseSetup);
@@ -136,10 +136,10 @@ for pSuccess = pSuccessOptions
     video_markov = video_node.mainChain;
 
     for i=1:timeSteps
-        fprintf(files_fid, '%f,%f,%f\n',    files_markov.indexHistory(i), files_markov.stateTypeHistory(i), files_markov.transitionHistory(i));
-        fprintf(webtx_fid, '%f,%f,%f\n',    webtx_markov.indexHistory(i), webtx_markov.stateTypeHistory(i), webtx_markov.transitionHistory(i));
-        fprintf(rando_fid, '%f,%f,%f\n',    rando_markov.indexHistory(i), rando_markov.stateTypeHistory(i), rando_markov.transitionHistory(i));
-        fprintf(video_fid, '%f,%f,%f\n',    video_markov.indexHistory(i), video_markov.stateTypeHistory(i), video_markov.transitionHistory(i));
+        fprintf(files_fid, '%d,%d,%d\n',    files_markov.indexHistory(i), files_markov.stateTypeHistory(i), files_markov.transitionHistory(i));
+        fprintf(webtx_fid, '%d,%d,%d\n',    webtx_markov.indexHistory(i), webtx_markov.stateTypeHistory(i), webtx_markov.transitionHistory(i));
+        fprintf(rando_fid, '%d,%d,%d\n',    rando_markov.indexHistory(i), rando_markov.stateTypeHistory(i), rando_markov.transitionHistory(i));
+        fprintf(video_fid, '%d,%d,%d\n',    video_markov.indexHistory(i), video_markov.stateTypeHistory(i), video_markov.transitionHistory(i));
     end
     
     fprintf('Done!\n');
