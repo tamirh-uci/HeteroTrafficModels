@@ -69,12 +69,11 @@ classdef dcf_sim_node < handle
             %successTable = this.piSingleTransmit
             %txtypes = this.mainChain.txTypes
             %statetypes = this.mainChain.stateTypes
-            
+            fprintf('\n-----------\n');
             this.markovMultiTransmit = this.mainChain.chain.CreateMarkovChain(this.pSuccessMultiTransmit, true, bVerbose);
             [this.piMultiTransmit, ~, ~] = this.markovMultiTransmit.TransitionTable();
             %failureTable = this.piMultiTransmit
             
-            assert(size(this.piSingleTransmit, 2) == size(this.piMultiTransmit, 2));
             this.mainChain.Setup(this.markovSingleTransmit, this.piSingleTransmit);
             
             if (~isempty(this.secondaryChain))

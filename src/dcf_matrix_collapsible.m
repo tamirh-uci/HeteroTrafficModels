@@ -6,6 +6,15 @@ classdef dcf_matrix_collapsible < handle
             key = [int32(type) indices];
         end
         
+        function [m, W] = CalculateDimensions(wMin, wMax)
+            m = log2(wMax / wMin);
+            rows = m+1;
+            W = zeros(1, rows);
+            for i = 1:rows
+                W(1,i) = (2^(i-1)) * wMin;
+            end
+        end
+        
         % there is only 1 success state, no need for indices
         % you enter the success state once you have successfully
         % transmitted a packet and need to know if you have another one
@@ -104,10 +113,10 @@ classdef dcf_matrix_collapsible < handle
             if ( indices(1,3) == 1 )
                 % backoff timer = 1 is now mapped to starting the
                 % packetsize chain
-                key = this.PacketsizeChainBeginState([ indices(1,1), indices(1,2) ]);
+                key = dcf_matrix_collapsible.PacketsizeChainBeginState([ indices(1,1), indices(1,2) ]);
             else
                 % all other are just backoff states, index fixed
-                key = this.BackoffState([ indices(1,1), indices(1,2), indices(1,3)-1 ]);
+                key = dcf_matrix_collapsible.BackoffState([ indices(1,1), indices(1,2), indices(1,3)-1 ]);
             end
         end
     end % methods (Static)
@@ -202,7 +211,7 @@ classdef dcf_matrix_collapsible < handle
                 
                 % Postbackoff is a single stage, mirroring the first stage (i = 1), 
                 % and is indexed by timer value
-                if (this.pRawArrive < 1.0)
+                if (this.pRawArrive < 1.0 && ~this.bFailureState)
                     for i = 1:this.W(1,1)
                        key = this.PostbackoffState([packetsize, i]);
                        dcf.NewState( dcf_state(key, dcf_state_type.Postbackoff) );
@@ -227,7 +236,7 @@ classdef dcf_matrix_collapsible < handle
             for packetsize = this.packetStart:this.nPkt
                 % Handle backoff countdowns -- each one with probability 1-q
                 % (a new packet does not arrive)
-                if (this.pRawArrive < 1.0)
+                if (this.pRawArrive < 1.0 && ~this.bFailureState)
                     this.SetPostBackoffProbabilities(dcf, packetsize);
                 end
                 
@@ -306,7 +315,7 @@ classdef dcf_matrix_collapsible < handle
                 
                 % If we don't have an arrival, we need to distribute over
                 % the postbackoff states
-                if (pDistPostbackoff > 0)
+                if (pDistPostbackoff > 0 && ~this.bFailureState)
                     for k = 1:this.W(1,1)
                         dst = this.PostbackoffState([packetsize, k]);
                         dcf.SetP( src, dst, pDistPostbackoff, dcf_transition_type.Postbackoff );

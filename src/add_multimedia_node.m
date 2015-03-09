@@ -1,4 +1,4 @@
-function [ dcf_matrix, media_matrix ] = add_multimedia_node( simulator, m, Wmin, nodeNumber, bps, payload )
+function [ dcf_matrix, media_matrix ] = add_multimedia_node( simulator, m, Wmin, nodeNumber, bps, payloadSize )
 
 dcf_matrix = dcf_matrix_collapsible();
 dcf_matrix.m = m;
