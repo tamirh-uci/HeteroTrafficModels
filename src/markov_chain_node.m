@@ -113,10 +113,11 @@ classdef markov_chain_node < handle
         end
         
         function PostSimulationPacketchainBacktrack(this, bVerbose)
-            % Find packetsize chains
+            % Find packetsize chains by looking for packetsize states
             packetChainStates = find(this.stateTypeHistory == dcf_state_type.PacketSize);
             transmitStates = find(this.stateTypeHistory == dcf_state_type.Transmit);
 
+            nTransitionHistory = size(this.transitionHistory, 2);
             nPacketchainStates = size(packetChainStates, 2);
             bVerbose = true;
             if (bVerbose)
@@ -127,11 +128,19 @@ classdef markov_chain_node < handle
                 return;
             end
             
-            % We will get contiguous chains where the difference is 1
+            % We will get end of contiguous chains
+            % Do this by looking at where we have packetsize states and
+            % where the difference between indicies is > 1
+            packetChainStates(nPacketchainStates+1) = -1;
             deltaPacketchains = diff(packetChainStates) - 1;
-            deltaPacketchains(nPacketchainStates) = 0;
             
             beginChainIndex = packetChainStates(1);
+            
+            this.stateTypeHistory
+            packetChainStates
+            transmitStates
+            deltaPacketchains
+            
             chainSuccess = true;
             for i = 1:nPacketchainStates
                 index = packetChainStates(i);
@@ -145,7 +154,7 @@ classdef markov_chain_node < handle
                     endChainIndex = index;
                     
                     % Check if the next state (should be transmit) failed
-                    if (index+1 <= size(this.transitionHistory,2))
+                    if (index+1 <= nTransitionHistory)
                         if (find(transmitStates == index+1))
                             if (this.transitionHistory(index+1) == dcf_transition_type.TxFailure)
                                 chainSuccess = false;
@@ -161,12 +170,7 @@ classdef markov_chain_node < handle
                     end
                     
                     % setup for next chain
-                    if (i+1 <= size(packetChainStates,2))
-                        beginChainIndex = packetChainStates(i+1);
-                    else
-                        beginChainIndex = -1;
-                    end
-                    
+                    beginChainIndex = packetChainStates(i+1);
                     chainSuccess = true;
                 else
                     % continue moving along the packetchain
