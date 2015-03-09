@@ -2,7 +2,7 @@ verboseSetup = false;
 verboseExecute = false;
 verbosePrint = false;
 
-timeSteps = 20000;
+timeSteps = 50000;
 wMin = 2;
 wMax = 16;
 
@@ -48,9 +48,16 @@ for pSuccess = pSuccessOptions
     add_multimedia_node(    video_simulator, m, wMin, 4, video_bps, video_payloadSize);
     
     files_fName = sprintf('./results/simulation_single_node_%s-s%.2f-a%.2f-e%.2f-m%.2f-i%.2f.log', 'files', pSuccess, files_pArrive, files_pEnter, files_nMaxPackets, files_nInterarrival);
+    files_fNcsv = sprintf('./results/simulation_single_node_%s-s%.2f-a%.2f-e%.2f-m%.2f-i%.2f.csv', 'files', pSuccess, files_pArrive, files_pEnter, files_nMaxPackets, files_nInterarrival);
+    
     webtx_fName = sprintf('./results/simulation_single_node_%s-s%.2f-a%.2f-e%.2f-m%.2f-i%.2f.log', 'webtx', pSuccess, webtx_pArrive, webtx_pEnter, webtx_nMaxPackets, webtx_nInterarrival);
+    webtx_fNcsv = sprintf('./results/simulation_single_node_%s-s%.2f-a%.2f-e%.2f-m%.2f-i%.2f.csv', 'webtx', pSuccess, webtx_pArrive, webtx_pEnter, webtx_nMaxPackets, webtx_nInterarrival);
+    
     rando_fName = sprintf('./results/simulation_single_node_%s-s%.2f-a%.2f-e%.2f-m%.2f-i%.2f.log', 'rando', pSuccess, rando_pArrive, rando_pEnter, rando_nMaxPackets, rando_nInterarrival);
+    rando_fNcsv = sprintf('./results/simulation_single_node_%s-s%.2f-a%.2f-e%.2f-m%.2f-i%.2f.csv', 'rando', pSuccess, rando_pArrive, rando_pEnter, rando_nMaxPackets, rando_nInterarrival);
+    
     video_fName = sprintf('./results/simulation_single_node_%s-s%.2f-b%.2f-p%.2f.log', 'video', pSuccess, video_bps, video_payloadSize);
+    video_fNcsv = sprintf('./results/simulation_single_node_%s-s%.2f-b%.2f-p%.2f.csv', 'video', pSuccess, video_bps, video_payloadSize);
     
     fprintf('Setting up: %s\n', files_fName);
     files_simulator.Setup(verboseSetup);
@@ -89,6 +96,15 @@ for pSuccess = pSuccessOptions
     rando_fid = fopen(rando_fName, 'w');
     video_fid = fopen(video_fName, 'w');
     if (files_fid == -1 || webtx_fid == -1 || rando_fid == -1 || video_fid == -1)
+        disp('Error: could not open some file for output.');
+        return;
+    end
+    
+    files_csv = fopen(files_fNcsv, 'w');
+    webtx_csv = fopen(webtx_fNcsv, 'w');
+    rando_csv = fopen(rando_fNcsv, 'w');
+    video_csv = fopen(video_fNcsv, 'w');
+    if (files_csv == -1 || webtx_csv == -1 || rando_csv == -1 || video_csv == -1)
         disp('Error: could not open some file for output.');
         return;
     end
@@ -137,14 +153,25 @@ for pSuccess = pSuccessOptions
 
     for i=1:timeSteps
         fprintf(files_fid, '%d,%d,%d\n',    files_markov.indexHistory(i), files_markov.stateTypeHistory(i), files_markov.transitionHistory(i));
+        fprintf(files_csv, '%d,%d,%d\n',    files_markov.indexHistory(i), files_markov.stateTypeHistory(i), files_markov.transitionHistory(i));
+        
         fprintf(webtx_fid, '%d,%d,%d\n',    webtx_markov.indexHistory(i), webtx_markov.stateTypeHistory(i), webtx_markov.transitionHistory(i));
+        fprintf(webtx_csv, '%d,%d,%d\n',    webtx_markov.indexHistory(i), webtx_markov.stateTypeHistory(i), webtx_markov.transitionHistory(i));
+        
         fprintf(rando_fid, '%d,%d,%d\n',    rando_markov.indexHistory(i), rando_markov.stateTypeHistory(i), rando_markov.transitionHistory(i));
+        fprintf(rando_csv, '%d,%d,%d\n',    rando_markov.indexHistory(i), rando_markov.stateTypeHistory(i), rando_markov.transitionHistory(i));
+        
         fprintf(video_fid, '%d,%d,%d\n',    video_markov.indexHistory(i), video_markov.stateTypeHistory(i), video_markov.transitionHistory(i));
+        fprintf(video_csv, '%d,%d,%d\n',    video_markov.indexHistory(i), video_markov.stateTypeHistory(i), video_markov.transitionHistory(i));
     end
     
     fprintf('Done!\n');
     fclose(files_fid);
+    fclose(files_csv);
     fclose(webtx_fid);
+    fclose(webtx_csv);
     fclose(rando_fid);
+    fclose(rando_csv);
     fclose(video_fid);
+    fclose(video_csv);
 end % for pSuccess
