@@ -10,7 +10,7 @@ classdef dcf_simulator_oo < handle
         
         % Do we look for failures in packetchains and then backtrack to
         % mark all previous states in that chain a failure?
-        bDoPacketchainBacktrack = false;
+        bDoPacketchainBacktrack = true;
         
         % simulation nodes
         nodes;

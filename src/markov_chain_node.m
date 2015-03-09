@@ -115,10 +115,12 @@ classdef markov_chain_node < handle
         function PostSimulationPacketchainBacktrack(this, bVerbose)
             % Find packetsize chains
             packetChainStates = find(this.stateTypeHistory == dcf_state_type.PacketSize);
+            transmitStates = find(this.stateTypeHistory == dcf_state_type.Transmit);
+
             nPacketchainStates = size(packetChainStates, 2);
-            
+            bVerbose = true;
             if (bVerbose)
-                fprintf('%d packetchains found, backtracking...\n', nPacketchainState);
+                fprintf('%d packetchains found, backtracking...\n', nPacketchainStates);
             end
             
             if (nPacketchainStates == 0)
@@ -129,7 +131,7 @@ classdef markov_chain_node < handle
             deltaPacketchains = diff(packetChainStates) - 1;
             deltaPacketchains(nPacketchainStates) = 0;
             
-            beginChain = 1;
+            beginChainIndex = packetChainStates(1);
             chainSuccess = true;
             for i = 1:nPacketchainStates
                 index = packetChainStates(i);
@@ -138,19 +140,33 @@ classdef markov_chain_node < handle
                 if (this.transitionHistory(index) == dcf_transition_type.TxFailure)
                     chainSuccess = false;
                 end
-                
                 % progress until we hit the end of the current chain
                 if (deltaPacketchains(i))
+                    endChainIndex = index;
+                    
+                    % Check if the next state (should be transmit) failed
+                    if (index+1 <= size(this.transitionHistory,2))
+                        if (find(transmitStates == index+1))
+                            if (this.transitionHistory(index+1) == dcf_transition_type.TxFailure)
+                                chainSuccess = false;
+                            end
+                        end
+                    end
+                    
                     % we need to mark the entire chain as a failure
                     if (~chainSuccess)
-                        for j = beginChain:endChain
-                            index = packetChainStates(j);
-                            this.transitionHistory(index) = dcf_transition_type.TxFailure;
+                        for j = beginChainIndex:endChainIndex
+                            this.transitionHistory(j) = dcf_transition_type.TxFailure;
                         end
                     end
                     
                     % setup for next chain
-                    beginChain = i+1;
+                    if (i+1 <= size(packetChainStates,2))
+                        beginChainIndex = packetChainStates(i+1);
+                    else
+                        beginChainIndex = -1;
+                    end
+                    
                     chainSuccess = true;
                 else
                     % continue moving along the packetchain
