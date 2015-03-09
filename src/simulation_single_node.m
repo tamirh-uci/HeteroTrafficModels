@@ -1,5 +1,5 @@
 verboseSetup = false;
-verboseExecute = true;
+verboseExecute = false;
 verbosePrint = false;
 
 timeSteps = 100000;
@@ -9,8 +9,8 @@ wMax = 16;
 [m, W] = dcf_matrix_collapsible.CalculateDimensions(wMin, wMax);
 
 % Test all types of nodes individually to see how they perform
-%pSuccessOptions = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0];
-pSuccessOptions = [0.5, 1.0];
+pSuccessOptions = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0];
+%pSuccessOptions = [0.5, 1.0];
 
 % FILE DOWNLOAD
 files_pArrive = 1.0;
@@ -86,9 +86,9 @@ for pSuccess = pSuccessOptions
     fprintf('Writing results to file...\n');
     
     files_fid = fopen(files_fName, 'w');
-    webtx_fid = fopen(files_fName, 'w');
-    rando_fid = fopen(files_fName, 'w');
-    video_fid = fopen(files_fName, 'w');
+    webtx_fid = fopen(webtx_fName, 'w');
+    rando_fid = fopen(rando_fName, 'w');
+    video_fid = fopen(video_fName, 'w');
     if (files_fid == -1 || webtx_fid == -1 || rando_fid == -1 || video_fid == -1)
         disp('Error: could not open some file for output.');
         exit;
