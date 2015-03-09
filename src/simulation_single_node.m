@@ -2,7 +2,7 @@ verboseSetup = false;
 verboseExecute = false;
 verbosePrint = false;
 
-timeSteps = 50000;
+timeSteps = 20000;
 wMin = 2;
 wMax = 16;
 
@@ -50,7 +50,7 @@ for pSuccess = pSuccessOptions
     files_fName = sprintf('./results/simulation_single_node_%s-s%.2f-a%.2f-e%.2f-m%.2f-i%.2f.log', 'files', pSuccess, files_pArrive, files_pEnter, files_nMaxPackets, files_nInterarrival);
     webtx_fName = sprintf('./results/simulation_single_node_%s-s%.2f-a%.2f-e%.2f-m%.2f-i%.2f.log', 'webtx', pSuccess, webtx_pArrive, webtx_pEnter, webtx_nMaxPackets, webtx_nInterarrival);
     rando_fName = sprintf('./results/simulation_single_node_%s-s%.2f-a%.2f-e%.2f-m%.2f-i%.2f.log', 'rando', pSuccess, rando_pArrive, rando_pEnter, rando_nMaxPackets, rando_nInterarrival);
-    video_fName = sprintf('./results/simulation_single_node_%s-s%.2f-b%.2f-p%.2f.log', 'video', pSuccess, video_bps, video_bps);
+    video_fName = sprintf('./results/simulation_single_node_%s-s%.2f-b%.2f-p%.2f.log', 'video', pSuccess, video_bps, video_payloadSize);
     
     fprintf('Setting up: %s\n', files_fName);
     files_simulator.Setup(verboseSetup);
@@ -90,7 +90,7 @@ for pSuccess = pSuccessOptions
     video_fid = fopen(video_fName, 'w');
     if (files_fid == -1 || webtx_fid == -1 || rando_fid == -1 || video_fid == -1)
         disp('Error: could not open some file for output.');
-        exit;
+        return;
     end
     
     files_node = files_simulator.GetNode(1);
