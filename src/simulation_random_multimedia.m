@@ -46,7 +46,7 @@ for i1 = 1:numArrive1
                         randomNode = add_random_node(simulator, m, Wmin, 1, pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4));
                         webNode = add_multimedia_node(simulator, m, Wmin, 2, bps(b), payload(p));
 
-                        fName = sprintf('simulation_random_web-%d_%d_%d_%d_%d_%d.sim', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), bps(b), payload(p));
+                        fName = sprintf('simulation_random_multimedia-%d_%d_%d_%d_%d_%d.sim', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), bps(b), payload(p));
                         fprintf('\n------------\nrunning test: %s\n', fName);
                         fid = fopen(fName, 'w');
                         if (fid == -1)
@@ -111,7 +111,7 @@ for i1 = 1:numArrive1
                     ylabel('Throughput');
                     legend('random throughput', 'multimedia throughput', 'average throughput');
 
-                    fileName = sprintf('fig-simulation_random_web-payload-%d_%d_%d_%d_%d.fig', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), bps(b));
+                    fileName = sprintf('fig-simulation_random_multimedia-payload-%d_%d_%d_%d_%d.fig', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), bps(b));
                     saveas(gcf,['.', filesep, fileName], 'fig');  % gca?
                 end
                 end
@@ -139,7 +139,7 @@ for i1 = 1:numArrive1
                     ylabel('Throughput');
                     legend('random throughput', 'multimedia throughput', 'average throughput');
 
-                    fileName = sprintf('fig-simulation_random_web-bps-%d_%d_%d_%d_%d.fig', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), payload(p));
+                    fileName = sprintf('fig-simulation_random_multimedia-bps-%d_%d_%d_%d_%d.fig', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), payload(p));
                     saveas(gcf,['.', filesep, fileName], 'fig');  % gca?
                 end
                 end

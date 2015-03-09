@@ -118,7 +118,7 @@ for i1 = 1:numArrive1
                             ylabel('Throughput');
                             legend('random throughput', 'web node throughput', 'average throughput');
 
-                            fileName = sprintf('simulation_random_web-interarival-%d_%d_%d_%d_%d_%d_%d.fig', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), pArrive2(j1), pEnter2(j2), nPackets2(j3));
+                            fileName = sprintf('fig-simulation_random_web-interarival-%d_%d_%d_%d_%d_%d_%d.fig', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), pArrive2(j1), pEnter2(j2), nPackets2(j3));
                             saveas(gcf,['.', filesep, fileName], 'fig');  % gca?
                         end
                     end
@@ -150,7 +150,7 @@ for i1 = 1:numArrive1
                             ylabel('Throughput');
                             legend('random throughput', 'web node throughput', 'average throughput');
 
-                            fileName = sprintf('simulation_random_web-parrival-%d_%d_%d_%d_%d_%d_%d.fig', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), pEnter2(j2), nPackets2(j3), nInterarrival2(j4));
+                            fileName = sprintf('fig-simulation_random_web-parrival-%d_%d_%d_%d_%d_%d_%d.fig', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), pEnter2(j2), nPackets2(j3), nInterarrival2(j4));
                             saveas(gcf,['.', filesep, fileName], 'fig');  % gca?
                         end
                     end
@@ -182,7 +182,7 @@ for i1 = 1:numArrive1
                             ylabel('Throughput');
                             legend('random throughput', 'web node throughput', 'average throughput');
 
-                            fileName = sprintf('simulation_random_web-penter-%d_%d_%d_%d_%d_%d_%d.fig', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), pArrive2(j1), nPackets2(j3), nInterarrival2(j4));
+                            fileName = sprintf('fig-simulation_random_web-penter-%d_%d_%d_%d_%d_%d_%d.fig', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), pArrive2(j1), nPackets2(j3), nInterarrival2(j4));
                             saveas(gcf,['.', filesep, fileName], 'fig');  % gca?
                         end
                     end
@@ -214,7 +214,7 @@ for i1 = 1:numArrive1
                             ylabel('Throughput');
                             legend('random throughput', 'web node throughput', 'average throughput');
 
-                            fileName = sprintf('simulation_random_web-maxpackets-%d_%d_%d_%d_%d_%d_%d.fig', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), pArrive2(j1), pEnter2(j2), nInterarrival2(j4));
+                            fileName = sprintf('fig-simulation_random_web-maxpackets-%d_%d_%d_%d_%d_%d_%d.fig', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), pArrive2(j1), pEnter2(j2), nInterarrival2(j4));
                             saveas(gcf,['.', filesep, fileName], 'fig');  % gca?
                         end
                     end
