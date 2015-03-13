@@ -64,8 +64,8 @@ for i1 = 1:numArrive1
                         failure1(i1, i2, i3, i4, b, p) = simulator.GetNode(1).GetFailures();
 
                         throughput2(i1, i2, i3, i4, b, p) = simulator.GetNode(2).GetTransmit(timeSteps);
-                        success2(i1, i2, i3, i4, b, p) = simulator.GetNode(1).GetSuccess();
-                        failure2(i1, i2, i3, i4, b, p) = simulator.GetNode(1).GetFailures();
+                        success2(i1, i2, i3, i4, b, p) = simulator.GetNode(2).GetSuccess();
+                        failure2(i1, i2, i3, i4, b, p) = simulator.GetNode(2).GetFailures();
 
                         allthroughput(i1, i2, i3, i4, b, p) = simulator.GetTransmit();
                         allsuccess(i1, i2, i3, i4, b, p) = simulator.GetSuccess();

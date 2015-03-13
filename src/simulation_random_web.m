@@ -53,9 +53,9 @@ for i1 = 1:numArrive1
                                     exit;
                                 end
                                 
-                                simulator.Setup(true);
-                                simulator.Steps(timeSteps, true);
-                                simulator.PrintResults(true);
+                                simulator.Setup(false);
+                                simulator.Steps(timeSteps, false);
+                                simulator.PrintResults(false);
 
                                 fprintf(fid, '%d,%d,%d\n', timeSteps, Wmin, Wmax);
                                 fprintf(fid, '%d,%d,%d\n', simulator.GetNode(1).CountSuccesses(), simulator.GetNode(1).CountFailures(), simulator.GetNode(1).CountWaits());
@@ -67,8 +67,8 @@ for i1 = 1:numArrive1
                                 failure1(i1, i2, i3, i4, j1, j2, j3, j4) = simulator.GetNode(1).GetFailures();
                                 
                                 throughput2(i1, i2, i3, i4, j1, j2, j3, j4) = simulator.GetNode(2).GetTransmit(timeSteps);
-                                success2(i1, i2, i3, i4, j1, j2, j3, j4) = simulator.GetNode(1).GetSuccess();
-                                failure2(i1, i2, i3, i4, j1, j2, j3, j4) = simulator.GetNode(1).GetFailures();
+                                success2(i1, i2, i3, i4, j1, j2, j3, j4) = simulator.GetNode(2).GetSuccess();
+                                failure2(i1, i2, i3, i4, j1, j2, j3, j4) = simulator.GetNode(2).GetFailures();
                                 
                                 allthroughput(i1, i2, i3, i4, j1, j2, j3, j4) = simulator.GetTransmit();
                                 allsuccess(i1, i2, i3, i4, j1, j2, j3, j4) = simulator.GetSuccess();
@@ -176,7 +176,7 @@ for i1 = 1:numArrive1
                             title(sprintf('pEnter Variance'));
                             xlabel('pEnter');
                             ylabel('Throughput');
-                            legend('random throughput', 'web node throughput', 'average throughput');
+                            legend('random throughput', 'web node throughput', 'cumulative throughput');
 
                             fileName = sprintf('fig-simulation_random_web-penter-%d_%d_%d_%d_%d_%d_%d.fig', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), pArrive2(j1), nPackets2(j3), nInterarrival2(j4));
                             saveas(gcf,['.', filesep, fileName], 'fig');  % gca?

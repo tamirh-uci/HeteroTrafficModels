@@ -125,16 +125,29 @@ classdef dcf_simulator_oo < handle
         function PrintResults(this, bVerbose)
             fprintf('===Node Results===\n');
             nNodes = size(this.nodes, 2);
+            s = 0;
+            f = 0;
             for i=1:nNodes
                 node = this.nodes{i};
                 fprintf(' +%s+\n', node.name);
                 this.PrintStats(node.CountSuccesses(), node.CountFailures());
+
+                s = s + node.CountSuccesses();
+                f = f + node.CountFailures();
                 
                 fprintf('\n');
                 if (bVerbose)
                     transitionHistory = dcf_transition_type( node.mainChain.transitionHistory )
                     stateTypeHistory = dcf_state_type( node.mainChain.stateTypeHistory )
                 end
+            end
+
+            if (s ~= this.CountSuccesses()) 
+                disp('WHAT THE FUCK SUCCESSES')
+            end
+
+            if (f ~= this.CountFailures()) 
+                disp('WHAT THE FUCK FAILURES')
             end
             
             fprintf('\n===Overall===\n');

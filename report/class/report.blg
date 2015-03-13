@@ -1,0 +1,60 @@
+This is BibTeX, Version 0.99d (TeX Live 2013)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
+The top-level auxiliary file: report.aux
+The style file: IEEEtranS.bst
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Database file #1: ref.bib.bib
+Warning--I didn't find a database entry for "dcf-unsaturated"
+Warning--I didn't find a database entry for "???"
+-- IEEEtranS.bst version 1.13 (2008/09/30) by Michael Shell.
+-- http://www.michaelshell.org/tex/ieeetran/bibtex/
+-- See the "IEEEtran_bst_HOWTO.pdf" manual for usage information.
+** Sorting version - not for normal IEEE work.
+
+Done.
+You've used 5 entries,
+            4498 wiz_defined-function locations,
+            926 strings with 8992 characters,
+and the built_in function-call counts, 4711 in all, are:
+= -- 428
+> -- 104
+< -- 42
++ -- 59
+- -- 22
+* -- 249
+:= -- 728
+add.period$ -- 11
+call.type$ -- 5
+change.case$ -- 25
+chr.to.int$ -- 93
+cite$ -- 5
+duplicate$ -- 295
+empty$ -- 325
+format.name$ -- 25
+if$ -- 1043
+int.to.chr$ -- 0
+int.to.str$ -- 5
+missing$ -- 46
+newline$ -- 40
+num.names$ -- 10
+pop$ -- 101
+preamble$ -- 1
+purify$ -- 20
+quote$ -- 2
+skip$ -- 349
+stack$ -- 0
+substring$ -- 249
+swap$ -- 252
+text.length$ -- 11
+text.prefix$ -- 0
+top$ -- 6
+type$ -- 54
+warning$ -- 0
+while$ -- 25
+width$ -- 6
+write$ -- 75
+(There were 2 warnings)
