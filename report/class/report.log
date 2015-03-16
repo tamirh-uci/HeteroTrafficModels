@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013) (format=pdflatex 2013.5.30)  13 MAR 2015 14:39
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013) (format=pdflatex 2013.5.30)  15 MAR 2015 22:47
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -610,158 +610,137 @@ G,.JBIG2,.JB2,.eps]
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
-ABD: EveryShipout initializing macros
-
-LaTeX Warning: Citation `mah1997empirical' on page 1 undefined on input line 44
-.
+ABD: EveryShipout initializing macros [1
 
 
-LaTeX Warning: Citation `badia2010markov' on page 1 undefined on input line 46.
+{/usr/local/texlive/2013/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] [2]
+<histogram1.png, id=21, 631.35875pt x 407.5225pt>
+File: histogram1.png Graphic file (type png)
+ <use histogram1.png>
+Package pdftex.def Info: histogram1.png used on input line 55.
+(pdftex.def)             Requested size: 220.97887pt x 142.63501pt.
 
+<histogram2.png, id=23, 587.19376pt x 409.53pt>
+File: histogram2.png Graphic file (type png)
+ <use histogram2.png>
+Package pdftex.def Info: histogram2.png used on input line 63.
+(pdftex.def)             Requested size: 205.52089pt x 143.33765pt.
 
-[1
+<frame.png, id=24, 803.0pt x 481.8pt>
+File: frame.png Graphic file (type png)
+ <use frame.png>
+Package pdftex.def Info: frame.png used on input line 71.
+(pdftex.def)             Requested size: 281.05421pt x 168.63252pt.
 
-
-{/usr/local/texlive/2013/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-
-LaTeX Warning: Citation `ieee1997wireless' on page 2 undefined on input line 52
-.
-
-
-LaTeX Warning: Citation `ieee1997wireless' on page 2 undefined on input line 52
-.
-
-
-LaTeX Warning: Citation `dcf' on page 2 undefined on input line 52.
-
-
-LaTeX Warning: Citation `dcf' on page 2 undefined on input line 57.
-
-[2] <../../sketches/dcf_model.pdf, id=21, 961.5925pt x 663.47874pt>
+<gop.png, id=25, 803.0pt x 481.8pt>
+File: gop.png Graphic file (type png)
+ <use gop.png>
+Package pdftex.def Info: gop.png used on input line 79.
+(pdftex.def)             Requested size: 281.05421pt x 168.63252pt.
+ [3 <./histogram1.png> <./histogram2.png>] [4 <./frame.png> <./gop.png>]
+<../../sketches/dcf_model.pdf, id=36, 961.5925pt x 663.47874pt>
 File: ../../sketches/dcf_model.pdf Graphic file (type pdf)
 
 <use ../../sketches/dcf_model.pdf>
-Package pdftex.def Info: ../../sketches/dcf_model.pdf used on input line 76.
+Package pdftex.def Info: ../../sketches/dcf_model.pdf used on input line 113.
 (pdftex.def)             Requested size: 336.56241pt x 232.22102pt.
-
-
-LaTeX Warning: Citation `dcf' on page 3 undefined on input line 77.
-
-
-LaTeX Warning: Citation `dcf-nonsaturated' on page 3 undefined on input line 83
-.
-
-[3 <../../sketches/dcf_model.pdf>]
-<../../sketches/dcf_model_nonsaturated.pdf, id=42, 961.5925pt x 885.3075pt>
+ [5] [6 <../../sketches/dcf_model.pdf>]
+<../../sketches/dcf_model_nonsaturated.pdf, id=60, 961.5925pt x 885.3075pt>
 File: ../../sketches/dcf_model_nonsaturated.pdf Graphic file (type pdf)
 
 <use ../../sketches/dcf_model_nonsaturated.pdf>
 Package pdftex.def Info: ../../sketches/dcf_model_nonsaturated.pdf used on inpu
-t line 121.
+t line 158.
 (pdftex.def)             Requested size: 480.79507pt x 442.65266pt.
 
-Overfull \hbox (133.67154pt too wide) in paragraph at lines 121--122
+Overfull \hbox (133.67154pt too wide) in paragraph at lines 158--159
  [] 
  []
 
 
-LaTeX Warning: Citation `dcf-unsaturated' on page 4 undefined on input line 122
+LaTeX Warning: Citation `dcf-unsaturated' on page 7 undefined on input line 159
 .
 
 
-LaTeX Warning: Citation `dcf-nonsaturated' on page 4 undefined on input line 12
-7.
+LaTeX Warning: Citation `???' on page 7 undefined on input line 167.
 
-
-LaTeX Warning: Citation `???' on page 4 undefined on input line 130.
-
-[4] [5 <../../sketches/dcf_model_nonsaturated.pdf>]
-<../../sketches/size_chain_old.pdf, id=69, 377.41pt x 631.35875pt>
+<../../sketches/size_chain_old.pdf, id=61, 377.41pt x 631.35875pt>
 File: ../../sketches/size_chain_old.pdf Graphic file (type pdf)
 
 <use ../../sketches/size_chain_old.pdf>
 Package pdftex.def Info: ../../sketches/size_chain_old.pdf used on input line 1
-36.
-(pdftex.def)             Requested size: 150.96132pt x 252.53902pt.
- [6 <../../sketches/size_chain_old.pdf>]
-Overfull \hbox (139.35072pt too wide) in paragraph at lines 153--164
+73.
+(pdftex.def)             Requested size: 132.09547pt x 220.97887pt.
+ [7] [8 <../../sketches/dcf_model_nonsaturated.pdf>]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [9 <../../sketches/size_chain_old.pdf>]
+Overfull \hbox (139.35072pt too wide) in paragraph at lines 190--201
 \OT1/cmr/m/n/10 state tran-si-tion prob-a-bil-i-ties are in-cluded into the mod
 el: $[]$ 
  []
 
 
-<../../sketches/dcf_model_unsaturated_varpktsize.pdf, id=89, 961.5925pt x 1037.
-8775pt>
+<../../sketches/dcf_model_unsaturated_varpktsize.pdf, id=108, 961.5925pt x 1037
+.8775pt>
 File: ../../sketches/dcf_model_unsaturated_varpktsize.pdf Graphic file (type pd
 f)
  <use ../../sketches/dcf_model_unsaturated_varpktsize.pdf>
 Package pdftex.def Info: ../../sketches/dcf_model_unsaturated_varpktsize.pdf us
-ed on input line 167.
-(pdftex.def)             Requested size: 480.79507pt x 518.93748pt.
+ed on input line 204.
+(pdftex.def)             Requested size: 336.56241pt x 363.26257pt.
 
-Overfull \hbox (133.67154pt too wide) in paragraph at lines 167--168
- [] 
- []
-
-
-LaTeX Warning: Float too large for page by 14.54921pt on input line 171.
-
-
-LaTeX Warning: Citation `dcf-nonsaturated' on page 7 undefined on input line 17
-4.
-
-
-<../../sketches/dcf_model_unsaturated_varpktsize_interarrival.pdf, id=90, 961.5
-925pt x 1055.945pt>
+<../../sketches/dcf_model_unsaturated_varpktsize_interarrival.pdf, id=109, 961.
+5925pt x 1055.945pt>
 File: ../../sketches/dcf_model_unsaturated_varpktsize_interarrival.pdf Graphic 
 file (type pdf)
 
 <use ../../sketches/dcf_model_unsaturated_varpktsize_interarrival.pdf>
 Package pdftex.def Info: ../../sketches/dcf_model_unsaturated_varpktsize_intera
-rrival.pdf used on input line 180.
-(pdftex.def)             Requested size: 480.79507pt x 527.9712pt.
+rrival.pdf used on input line 217.
+(pdftex.def)             Requested size: 336.56241pt x 369.58629pt.
 
-Overfull \hbox (133.67154pt too wide) in paragraph at lines 180--181
- [] 
+(./report.bbl
+Underfull \hbox (badness 10000) in paragraph at lines 26--29
+[]\OT1/cmr/m/n/9 ``Video: Sony demo.'' [On-line]. Avail-able:
  []
 
 
-LaTeX Warning: Float too large for page by 23.58293pt on input line 184.
+Overfull \hbox (8.63745pt too wide) in paragraph at lines 26--29
+\OT1/cmr/m/n/9 http://trace.eas.asu.edu/mpeg4/single/SonyCIF[]G16B1Mp/SonyCIF[]
+G16B1Mp04/ 
+ []
 
-(./report.bbl [7] [8 <../../sketches/dcf_model_unsaturated_varpktsize.pdf>]
-[9 <../../sketches/dcf_model_unsaturated_varpktsize_interarrival.pdf>])
-[10] (./report.aux)
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
- ) 
+[10] [11 <../../sketches/dcf_model_unsaturated_varpktsize.pdf>] [12 <../../sket
+ches/dcf_model_unsaturated_varpktsize_interarrival.pdf>]) [13] (./report.aux) )
+ 
 Here is how much of TeX's memory you used:
- 11313 strings out of 493315
- 211157 string characters out of 6137904
- 268285 words of memory out of 5000000
- 14522 multiletter control sequences out of 15000+600000
+ 11345 strings out of 493315
+ 211660 string characters out of 6137904
+ 267364 words of memory out of 5000000
+ 14550 multiletter control sequences out of 15000+600000
  6910 words of font info for 25 fonts, out of 8000000 for 9000
  957 hyphenation exceptions out of 8191
  63i,9n,57p,1216b,323s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb
-></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb>
-</usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></
-usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></u
-sr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></usr
-/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/l
-ocal/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/loc
-al/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/local/
-texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/tex
-live/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texliv
-e/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive
-/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></usr/local/texlive/2
-013/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/201
-3/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/2013
-/texmf-dist/fonts/type1/public/amsfonts/cm/cmti9.pfb>
-Output written on report.pdf (10 pages, 265038 bytes).
+</usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb><
+/usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></
+usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></us
+r/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr
+/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></usr/l
+ocal/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/loc
+al/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local
+/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/local/te
+xlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texli
+ve/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texlive/
+2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2
+013/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></usr/local/texlive/201
+3/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2013/
+texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/2013/t
+exmf-dist/fonts/type1/public/amsfonts/cm/cmti9.pfb>
+Output written on report.pdf (13 pages, 396557 bytes).
 PDF statistics:
- 186 PDF objects out of 1000 (max. 8388607)
- 137 compressed objects within 2 object streams
+ 205 PDF objects out of 1000 (max. 8388607)
+ 145 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
- 38 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 58 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -18,9 +18,13 @@
 \end{abstract}
 
 \section{Introduction}
-Wireless networks have become pervasive in modern computer and communication systems. The widespread adoption of mobile and personal computing devices, such as smartphones and tablets, continues to drive commercial investment in high performance wireless networking technologies. Concurrently, the type of traffic traversing these networks has also evolved -- divergently -- an increasing rate. Every kind of information from textual data to video stream segments traverse wireless networks. Society's dependence on WLAN technologies like the 802.11 MAC and PHY protocol suites have cultivated a massive amount of analytical and experimental research studying their performance. 
+Wireless networks have become pervasive in modern computer and communication systems. The widespread adoption of mobile and personal computing devices, such as smartphones and tablets, continues to drive commercial investment in high performance wireless networking technologies. Concurrently, the type of traffic traversing these networks has also evolved -- divergently -- an increasing rate. Every kind of information from textual data to video stream segments now traverses wireless networks. Society's dependence on WLAN technologies such as the 802.11 protocol suites have cultivated a massive amount of analytical and experimental research studying their performance. 
 
-A major portion of this research has focused on the 802.11 distributed control function (DCF). In particular, there is a lack of analytical analysis studying the performance of heterogeneous traffic in a multi-node system. 
+To date, a major portion of this research has focused on the 802.11 random access control protocol -- the distributed control function (DCF). This work was pioneered by Bianchi's original Markov model for the DCF function \cite{bianchi1996performance}, which stimulated several advancements to his simplistic model \cite{bianchi1998ieee} and numerous applications in the field \cite{crow1996performance,chhaya1997performance}. Many of these models and empirical studies represent a network of nodes by a single collision parameter. In particular, there is a lack of work combining these models together beyond a single parameter. Furthermore, many of these works study the performance of the DCF function (with respect to individual and average system throughput) for single types of traffic. True multi-node models that study the interaction of different traffic models have not been studied.
+
+The goal of this work is to determine if the random behavior of the DCF protocol is best suited for all types of traffic, or if the DCF should in some way be tailored to the \emph{type} of underlying traffic being served by the DCF access scheme. To this end, we first present a series of extensions to Bianchi's original DCF Markov model to emulate arbitrary types of traffic. In particular, we provide extensions to support arbitrary packet length and variable packet inter-arrival time. We then instantiate individual instances of these Markov models that emulate the behavior of the DCF access scheme by tailoring each of these parameters, e.g., packet length and interarrival time, using realistic values drawn from these types of modern application traffic. Following this, we combine these model instances to study the performance of the DCF function with respect to heterogeneous traffic in a true multi-node system. 
+
+Our experimental results seem to provide evidence that the deterministic nature of multimedia (e.g., store-and-forward) traffic streams obtain higher performance than more nondeteministic (elastic) traffic. Furthermore, our results show that large interarrival time between traffic packets benefits the coexistence of heterogeneous traffic streams. 
 
 \section{Related Work}
 % \cite{dcf}
@@ -37,27 +41,54 @@ A major portion of this research has focused on the 802.11 distributed control f
 Today's computer and communication networks are being used to transfer increasingly heterogeneous traffic between parties. In particular, file downloads, standard web browsing, video streaming, and client-server video game traffic are four very common types of traffic that dominate the Internet traffic today. In this section, we describe the characteristics of each of these traffic types. We use a variety of parameters to describe these types of traffic. Specifically, we focus on packet size, interrival time, traffic saturation, and burstiness. 
 
 \begin{itemize}
-	\item File Download Traffic: A model for file downloads must support long bursts of packet arrivals and long interarrival times. 
+	\item File Download Traffic: File downloads are elastic, meaning that they must be reliable but are also tolerant to random delays. Applications that \emph{generate} file download traffic usually do so with long bursts of packet arrivals and long interarrival times \cite{kumar2004communication}. File downloads are sufficiently random that we do not consider a fixed distribution for any parameters. Rather, we choose these at random by our own free will. 
 
-	\item Web Browsing Traffic: Web browsing traffic is quite diverse in packet size, interrarival time, and burstiness. For simplicity, we assume that web browsing traffic has uniform packet sizes, deterministic interarrival time, and probabilistic packet arrival in the buffer. This enables us to use the nonsaturated DCF model to study this traffic.
-
-	\cite{mah1997empirical}
+	\item Web Browsing Traffic: Web browsing traffic is quite diverse in packet size, interrarival time, and burstiness. Mah \cite{mah1997empirical} studied various web browsing traces to develop statistics for these characteristics. In particular, it was found that these characteristics, such as content request and reply lengths (packet size) follow a Zipf disribution (see Figures \ref{fig:histogram1} and \ref{fig:histogram2}).For simplicity, we assume that web browsing traffic has random packet sizes sample from a Zipf distribution, deterministic interarrival time, and probabilistic packet arrival in the buffer. This enables us to use a slightly modified version of the nonsaturated DCF model (described in Section \ref{sec:nonsaturated}) to study this traffic. 
 
 	\item Video Streaming Traffic: Video streaming traffic as described in \cite{badia2010markov} is composed of two types of packets -- I and D packets -- each of which are tightly correlated and with different characteristics. Video segments are sent in sets of I and D packets, wherein multiple small D packets carrying video data are dependent on a single I packet with metadata necessary to decode the video stream. The length of each I and D packet is correlated to past packet lengths. For example, let $\lambda_j(t|s)$ denote the probability that a packet of type $j \in \{I ,D \}$ is $t$ time slots long given that the previous packet of type $j$ was $s$ packets long. The size of both I and D packets are bounded within a finite range so as to make the analytical model tractable. 
+
+	In this work we consider a more specific type of multimedia encoding scheme -- MPEG. MPEG video traffic streams consist of I, P, and B packets \cite{sony-demo}. In this case, a single I frame is transmitted, is an intraframe and is heavily coded (thus, larger) to ensure it can be correctly decoded by all receivers. P frames follow the I frame, and are used to transmit actual multimedia data. These rely on the previous I frame and P frames to be decoded correctly. B frames -- bidirectional frames -- are transmitted in between I and P frames and naturally serve to relay information in both directions. 
 \end{itemize}
 
-Frame
-http://trace.eas.asu.edu/mpeg4/single/SonyCIF_G16B1Mp/SonyCIF_G16B1Mp04/pdf.png
+\begin{figure*}
+\begin{center}
+\includegraphics[scale=0.35]{histogram1.png}
+\caption{Distribution of multimedia frame sizes \cite{mah1997empirical}.}
+\label{fig:histogram1}
+\end{center}
+\end{figure*}
 
-GoP
-http://trace.eas.asu.edu/mpeg4/single/SonyCIF_G16B1Mp/SonyCIF_G16B1Mp04/goppdf.png
+\begin{figure*}
+\begin{center}
+\includegraphics[scale=0.35]{histogram2.png}
+\caption{Distribution of multimedia frame sizes \cite{mah1997empirical}.}
+\label{fig:histogram2}
+\end{center}
+\end{figure*}
 
-We will use the characteristics of each of these models to tune our analytical approach in the experimental section of this report. 
+\begin{figure*}
+\begin{center}
+\includegraphics[scale=0.35]{frame.png}
+\caption{Distribution of multimedia frame sizes \cite{sony-demo}.}
+\label{fig:frame}
+\end{center}
+\end{figure*}
+
+\begin{figure*}
+\begin{center}
+\includegraphics[scale=0.35]{gop.png}
+\caption{Distribution of GoP sizes in multimedia traffic \cite{sony-demo}.}
+\label{fig:gop}
+\end{center}
+\end{figure*}
+
+We will use the characteristics of each of these models to tune our Markov models in the experimental section of this report. 
 
 \section{The 802.11 Distributed Control Function}
 The 802.11 DCF \cite{ieee1997wireless} is at the core of this work. It is a simplistic random access scheme based on the carrier sense multiple access with collision avoidance (CSMA/CA) protocol. Failed packets are retried according to a binary exponential backoff rule. At each packet transmission, the backoff is uniformly in the range ($0, w-1$), where $w$ is the length of the ``contention window'' and is directly dependent on the number of failed attempts for the packet thus far. The window $w$ is set to $W_{min}$ to begin, and upon every failure, the backoff counter is doubled. At stage $i$, the backoff timer is $2^iW_{min}$. The maximum backoff is bounded by $W_{max} = 2^mW_{min}$. Selections of $W_{min}$ and $W_{max}$ are dependent upon the physical layer specifications in the 802.11 standard \cite{ieee1997wireless,dcf}. For example, frequency hopping spread spectrum calls for $W_{min} = 16$ and $W_{max} = 1024$ ($m = 6$). 
 
 \section{Incremental Markov Models for Heterogeneous Traffic}
+In this section we describe the necessary evolutions of Bianchi's original Markov model to support parameterized packet length, interarrival time, and buffer saturation.
 
 \subsection{Original DCF Model}
 A simple Markov model for the 802.11 DCF function was proposed in the seminal work by Bianchi \cite{dcf}. The system state is described by two discrete-time stochastic processes $b(t)$ and $s(t)$: $b(t)$ represents the backoff \emph{time counter} and $s(t)$ represents the backoff \emph{stage} for a given station or node, each of which is advanced at each time step (i.e., from $t$ to $t + 1$). Each node is equipped with a \emph{saturated} buffer of packets to transmit; there is never a case where a node has to wait for a packet to arrive in the buffer before attempting a transmission. Also, instead of modeling multiple nodes simultaneously to accurately assess the probability of collision, this model assumes a constant probability of collision $p$ -- the conditional collision probability -- at each time slot. In the real world, this probability is a function of the network and environmental interferences, e.g., shadowing, fading, etc. However, by making this a constant and therefore independent from other nodes, the model simplifies to capturing the dynamics of the bidimensional process $\{ b(t), s(t) \}$ as a discrete-time Markov chain, shown in Figure \ref{fig:dcf_model}. 
@@ -85,7 +116,7 @@ The only non-null transition probabilities in this Markov chain are given below:
 \end{center}
 \end{figure*}
 
-\subsection{Limited and Diverse Traffic}
+\subsection{Limited and Diverse Traffic} \label{sec:nonsaturated}
 While accurate, the original DCF model is constrained in that it assumes homogeneous traffic and a saturated stream of packets for transmission. Malone et al. \cite{dcf-nonsaturated} presented a modified version of Bianchi's model that captures non-saturated traffic loads. The essential idea behind their variant is that there exists a constant packet arrival probability $q$ at each time slot, much like there exists a constant collision probability $p$. If a node successfully transmits a packet and the buffer is not-empty, the state of the system proceeds as normal. Conversely, if a packet is not ready for transmission, then the chain enters a stage known as ``postbackoff,'' denoted $(0,k)_e$ for $k \in [0, W_0-1]$. A node may state in this state indefinitely until a packet arrives. 
 
 To capture the mechanics of the DCF function in this condition, the postbackoff set of stages are nearly indentical to backoff stage $i = 0$. If a packet arrives at any time when the system is in a postbackoff state, it immediately transitions into the backoff stage $i = 0$, with a decremented backoff timer. However, if the postbackoff timer reaches $0$, where the postbackoff is said to be complete, the node will stay in this state until a packet arrives with probability $q$. Once a packet arrives in state $(0, 0)_e$ with probability $q$, there are three possible outcomes: (1) the packet is transmitted successfully, a collision occurs with probability $p$, or the medium (channel) is sensed as busy with probability $1 - P_{idle} = p$. 
@@ -139,7 +170,7 @@ To do this, we consider a range of possible packet sizes, e.g., $[1,l]$, where $
 
 \begin{figure}
 \begin{center}
-\includegraphics[scale=0.4]{../../sketches/size_chain_old.pdf}
+\includegraphics[scale=0.35]{../../sketches/size_chain_old.pdf}
 \caption{A blackbox Markov chain that captures bounded variabilities in a particular parameter, such as packet length or packet interarrival time.}
 \label{fig:size_chain}
 \end{center}
@@ -170,7 +201,7 @@ To model this behavior, which is visually shown in Figure \ref{fig:dcf_model_uns
 
 \begin{figure*}
 \begin{center}
-\includegraphics[scale=0.5]{../../sketches/dcf_model_unsaturated_varpktsize.pdf}
+\includegraphics[scale=0.35]{../../sketches/dcf_model_unsaturated_varpktsize.pdf}
 \caption{The modified unsaturated DCF Markov model that captures variable-length packet payloads.}
 \label{fig:dcf_model_unsaturated_varpktsize}
 \end{center}
@@ -183,7 +214,7 @@ To capture these dynamics, we re-use the size chain blackboxes introduced in the
 
 \begin{figure*}
 \begin{center}
-\includegraphics[scale=0.5]{../../sketches/dcf_model_unsaturated_varpktsize_interarrival.pdf}
+\includegraphics[scale=0.35]{../../sketches/dcf_model_unsaturated_varpktsize_interarrival.pdf}
 \caption{The modified unsaturated DCF Markov model that captures variable-length packet payloads.}
 \label{fig:dcf_model_unsaturated_varpktsize_interarrival}
 \end{center}

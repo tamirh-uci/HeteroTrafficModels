@@ -14,47 +14,48 @@ Warning--I didn't find a database entry for "???"
 -- http://www.michaelshell.org/tex/ieeetran/bibtex/
 -- See the "IEEEtran_bst_HOWTO.pdf" manual for usage information.
 ** Sorting version - not for normal IEEE work.
+Warning--to sort, need author, organization, or key in sony-demo
 
 Done.
-You've used 5 entries,
+You've used 11 entries,
             4498 wiz_defined-function locations,
-            926 strings with 8992 characters,
-and the built_in function-call counts, 4711 in all, are:
-= -- 428
-> -- 104
-< -- 42
-+ -- 59
-- -- 22
-* -- 249
-:= -- 728
-add.period$ -- 11
-call.type$ -- 5
-change.case$ -- 25
-chr.to.int$ -- 93
-cite$ -- 5
-duplicate$ -- 295
-empty$ -- 325
-format.name$ -- 25
-if$ -- 1043
+            957 strings with 9927 characters,
+and the built_in function-call counts, 9081 in all, are:
+= -- 831
+> -- 197
+< -- 74
++ -- 108
+- -- 42
+* -- 457
+:= -- 1411
+add.period$ -- 24
+call.type$ -- 11
+change.case$ -- 52
+chr.to.int$ -- 165
+cite$ -- 12
+duplicate$ -- 579
+empty$ -- 661
+format.name$ -- 48
+if$ -- 2025
 int.to.chr$ -- 0
-int.to.str$ -- 5
-missing$ -- 46
-newline$ -- 40
-num.names$ -- 10
-pop$ -- 101
+int.to.str$ -- 11
+missing$ -- 93
+newline$ -- 60
+num.names$ -- 20
+pop$ -- 223
 preamble$ -- 1
-purify$ -- 20
+purify$ -- 42
 quote$ -- 2
-skip$ -- 349
+skip$ -- 682
 stack$ -- 0
-substring$ -- 249
-swap$ -- 252
-text.length$ -- 11
+substring$ -- 452
+swap$ -- 468
+text.length$ -- 19
 text.prefix$ -- 0
 top$ -- 6
-type$ -- 54
-warning$ -- 0
-while$ -- 25
-width$ -- 6
-write$ -- 75
-(There were 2 warnings)
+type$ -- 113
+warning$ -- 1
+while$ -- 47
+width$ -- 13
+write$ -- 131
+(There were 3 warnings)

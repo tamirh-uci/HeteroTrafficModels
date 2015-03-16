@@ -1,3 +1,6 @@
-% simulation_random_web
-% simulation_random_download
+simulation_random_web
+simulation_random_download
 simulation_random_multimedia
+simulation_web_download
+simulation_web_multimedia
+simulation_download_multimedia
