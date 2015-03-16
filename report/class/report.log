@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013) (format=pdflatex 2013.5.30)  15 MAR 2015 22:47
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013) (format=pdflatex 2013.5.30)  15 MAR 2015 22:51
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -700,6 +700,41 @@ Package pdftex.def Info: ../../sketches/dcf_model_unsaturated_varpktsize_intera
 rrival.pdf used on input line 217.
 (pdftex.def)             Requested size: 336.56241pt x 369.58629pt.
 
+<../../sketches/collapses.pdf, id=110, 663.47874pt x 293.095pt>
+File: ../../sketches/collapses.pdf Graphic file (type pdf)
+
+<use ../../sketches/collapses.pdf>
+Package pdftex.def Info: ../../sketches/collapses.pdf used on input line 227.
+(pdftex.def)             Requested size: 232.22102pt x 102.58478pt.
+
+<../../sketches/compressible_dcf.pdf, id=111, 618.31pt x 469.755pt>
+File: ../../sketches/compressible_dcf.pdf Graphic file (type pdf)
+
+<use ../../sketches/compressible_dcf.pdf>
+Package pdftex.def Info: ../../sketches/compressible_dcf.pdf used on input line
+ 235.
+(pdftex.def)             Requested size: 216.41174pt x 164.41672pt.
+
+<../../sketches/compressible_dcf_arrival.pdf, id=112, 907.39pt x 541.02126pt>
+File: ../../sketches/compressible_dcf_arrival.pdf Graphic file (type pdf)
+
+<use ../../sketches/compressible_dcf_arrival.pdf>
+Package pdftex.def Info: ../../sketches/compressible_dcf_arrival.pdf used on in
+put line 243.
+(pdftex.def)             Requested size: 317.59126pt x 189.36028pt.
+
+<../../sketches/compressible_dcf_all.pdf, id=113, 1124.2pt x 726.715pt>
+File: ../../sketches/compressible_dcf_all.pdf Graphic file (type pdf)
+
+<use ../../sketches/compressible_dcf_all.pdf>
+Package pdftex.def Info: ../../sketches/compressible_dcf_all.pdf used on input 
+line 251.
+(pdftex.def)             Requested size: 393.47589pt x 254.35405pt.
+
+Overfull \hbox (46.35236pt too wide) in paragraph at lines 251--252
+ [] 
+ []
+
 (./report.bbl
 Underfull \hbox (badness 10000) in paragraph at lines 26--29
 []\OT1/cmr/m/n/9 ``Video: Sony demo.'' [On-line]. Avail-able:
@@ -712,35 +747,37 @@ G16B1Mp04/
  []
 
 [10] [11 <../../sketches/dcf_model_unsaturated_varpktsize.pdf>] [12 <../../sket
-ches/dcf_model_unsaturated_varpktsize_interarrival.pdf>]) [13] (./report.aux) )
- 
+ches/dcf_model_unsaturated_varpktsize_interarrival.pdf>] [13 <../../sketches/co
+llapses.pdf> <../../sketches/compressible_dcf.pdf>] [14 <../../sketches/compres
+sible_dcf_arrival.pdf> <../../sketches/compressible_dcf_all.pdf>]) [15]
+(./report.aux) ) 
 Here is how much of TeX's memory you used:
- 11345 strings out of 493315
- 211660 string characters out of 6137904
- 267364 words of memory out of 5000000
- 14550 multiletter control sequences out of 15000+600000
+ 11369 strings out of 493315
+ 212494 string characters out of 6137904
+ 267404 words of memory out of 5000000
+ 14570 multiletter control sequences out of 15000+600000
  6910 words of font info for 25 fonts, out of 8000000 for 9000
  957 hyphenation exceptions out of 8191
- 63i,9n,57p,1216b,323s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb><
-/usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></
-usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></us
-r/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr
-/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></usr/l
-ocal/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/loc
-al/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local
-/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/local/te
-xlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texli
-ve/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texlive/
-2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2
-013/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></usr/local/texlive/201
-3/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2013/
-texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/2013/t
-exmf-dist/fonts/type1/public/amsfonts/cm/cmti9.pfb>
-Output written on report.pdf (13 pages, 396557 bytes).
+ 63i,9n,57p,1216b,325s stack positions out of 5000i,500n,10000p,200000b,80000s
+</usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts
+/cm/cmbx10.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/
+cm/cmbx12.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/c
+m/cmbx9.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/
+cmmi10.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/c
+mmi5.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmm
+i7.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10
+.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pf
+b></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb><
+/usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></us
+r/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr
+/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></usr/l
+ocal/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/loc
+al/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/loca
+l/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmti9.pfb>
+Output written on report.pdf (15 pages, 444943 bytes).
 PDF statistics:
- 205 PDF objects out of 1000 (max. 8388607)
- 145 compressed objects within 2 object streams
+ 280 PDF objects out of 1000 (max. 8388607)
+ 201 compressed objects within 3 object streams
  0 named destinations out of 1000 (max. 500000)
- 58 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 78 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -220,6 +220,77 @@ To capture these dynamics, we re-use the size chain blackboxes introduced in the
 \end{center}
 \end{figure*}
 
+\section{Markov Model Implementation}
+In this section we describe the implementation details of our individual nodes and complete simulation that were used to realize the analytical models just described. These details will be of importance to those seeking to extend our tunable analytical models. 
+
+\subsection{Managing Markov Model Dimensional Complexity}
+By adding more tunable parameters to Bianchi's 2-dimensional DCF, we needed a way to manage the growing complexity of the model. We accomplished in two ways:
+\begin{enumerate}
+	\item Creating small Markov models for each ``state'' of the system, i.e., the packet size calculation, treating them as black boxes.
+	\item Use ``compressible'' states as logical and instantaneous bridges between Markov model black boxes.
+\end{enumerate}
+An example of a compressible state is shown in Figure \ref{fig:collapses}. Observe that the $x1$ and $x2$ states are the ``bridges'' between the states $S1$ and $S2,S3,S4$. When ``compressed'', the transition probabilities between $S1$ and $S2$, for example, becomes the product of the transition probabilities into and out of the compressible state. 
+
+\begin{figure*}
+\begin{center}
+\includegraphics[scale=0.35]{../../sketches/collapses.pdf}
+\caption{TODO.}
+\label{fig:collapses}
+\end{center}
+\end{figure*}
+
+To illustrate the efficacy of these states, consider the compressible variant of the DCF model shown in Figure \ref{fig:compressible_dcf}.
+
+\begin{figure*}
+\begin{center}
+\includegraphics[scale=0.35]{../../sketches/compressible_dcf.pdf}
+\caption{TODO.}
+\label{fig:compressible_dcf}
+\end{center}
+\end{figure*}
+
+\begin{figure*}
+\begin{center}
+\includegraphics[scale=0.35]{../../sketches/compressible_dcf_arrival.pdf}
+\caption{TODO.}
+\label{fig:compressible_dcf_arrival}
+\end{center}
+\end{figure*}
+
+\begin{figure*}
+\begin{center}
+\includegraphics[scale=0.35]{../../sketches/compressible_dcf_all.pdf}
+\caption{TODO.}
+\label{fig:compressible_dcf_all}
+\end{center}
+\end{figure*}
+
+\subsection{Metrics Computations}
+In our work, we mainly consider the following metrics: throughput, packet transmission success probability, and packet failure probability. Let $n$ be the total number of steps in the simulation, $s$ be the number of successful transmissions, and $f$ be the number of failed transmissions. Throughput $S$ is defined as the ratio of successful transmissions out of \emph{all} possible time steps in the system, i.e., $S = p / n$. The success probability $P_s$ is defined as the number of success transitions compared to the number of transmission attempt transitions, i.e., $P_s = p / (p + f)$. Finally, the packet failure probability $P_f$ is defined as the number of failied transitions compared to the number of transmission attempts, i.e., $P_f = f / (p + f)$. 
+
+\section{Experiment Setup}
+
+\begin{figure*}
+\begin{center}
+\includegraphics[scale=0.35]{../../sketches/compressible_dcf_all.pdf}
+\caption{TODO.}
+\label{fig:compressible_dcf_all}
+\end{center}
+\end{figure*}
+
+\begin{figure*}
+\begin{center}
+\includegraphics[scale=0.35]{../../sketches/compressible_dcf_all.pdf}
+\caption{TODO.}
+\label{fig:compressible_dcf_all}
+\end{center}
+\end{figure*}
+% TODO: multinode and big backoff windows, discussion, metric computations
+
+\section{Simulation Results and Analysis}
+
+\input{figures}
+
 \bibliographystyle{IEEEtranS}
 \bibliography{ref.bib}
 
