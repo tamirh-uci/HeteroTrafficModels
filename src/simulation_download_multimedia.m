@@ -108,7 +108,7 @@ for i1 = 1:numArrive1
                     legend('download throughput', 'multimedia throughput', 'average throughput');
 
                     fileName = sprintf('fig-simulation_download_multimedia-payload-%d_%d_%d_%d_%d.fig', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), bps(b));
-                    saveas(gcf,['.', filesep, fileName], 'eps');  % gca?
+                    saveas(gcf,['.', filesep, fileName], 'fig');  % gca?
                 end
                 end
                 
@@ -136,7 +136,7 @@ for i1 = 1:numArrive1
                     legend('download throughput', 'multimedia throughput', 'average throughput');
 
                     fileName = sprintf('fig-simulation_download_multimedia-bps-%d_%d_%d_%d_%d.fig', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), payload(p));
-                    saveas(gcf,['.', filesep, fileName], 'eps');  % gca?
+                    saveas(gcf,['.', filesep, fileName], 'fig');  % gca?
                 end
                 end
             end

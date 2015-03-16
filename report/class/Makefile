@@ -1,10 +1,10 @@
 FILE=report
 
 all:
-	pdflatex $(FILE).tex
-	pdflatex $(FILE).tex
+	pdflatex -shell-escape $(FILE).tex
+	pdflatex -shell-escape $(FILE).tex
 	bibtex $(FILE)
-	pdflatex $(FILE)
+	pdflatex -shell-escape $(FILE)
 
 clean:
 	rm $(FILE).pdf *.aux *.log *.bbl 
