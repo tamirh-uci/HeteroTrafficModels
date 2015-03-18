@@ -62,9 +62,29 @@ I.~C. S. L. M.~S. Committee \emph{et~al.}, ``Wireless lan medium access control
 B.~P. Crow, ``Performance evaluation of the ieee 802.11 wireless local area
   network protocol,'' Ph.D. dissertation, UNIVERSITY OF ARIZONA, 1996.
 
+\bibitem{gao2013throughput}
+Y.~Gao, X.~Sun, and L.~Dai, ``Throughput optimization of heterogeneous ieee
+  802.11 dcf networks,'' \emph{Wireless Communications, IEEE Transactions on},
+  vol.~12, no.~1, pp. 398--411, 2013.
+
+\bibitem{henderson2008network}
+T.~R. Henderson, M.~Lacage, G.~F. Riley, C.~Dowell, and J.~Kopena, ``Network
+  simulations with the ns-3 simulator,'' \emph{SIGCOMM demonstration}, vol.~15,
+  p.~17, 2008.
+
 \bibitem{kumar2004communication}
 A.~Kumar, D.~Manjunath, and J.~Kuri, \emph{Communication networking: an
   analytical approach}.\hskip 1em plus 0.5em minus 0.4em\relax Elsevier, 2004.
+
+\bibitem{li2011buffer}
+T.~Li, D.~Leith, and D.~Malone, ``Buffer sizing for 802.11-based networks,''
+  \emph{IEEE/ACM Transactions on Networking (TON)}, vol.~19, no.~1, pp.
+  156--169, 2011.
+
+\bibitem{li2008predictable}
+Y.~Li, L.~Qiu, Y.~Zhang, R.~Mahajan, and E.~Rozner, ``Predictable performance
+  optimization for wireless networks,'' \emph{ACM SIGCOMM Computer
+  Communication Review}, vol.~38, no.~4, pp. 413--426, 2008.
 
 \bibitem{mah1997empirical}
 B.~A. Mah, ``An empirical model of http network traffic,'' in \emph{INFOCOM'97.
@@ -79,5 +99,32 @@ D.~Malone, K.~Duffy, and D.~Leith, ``Modeling the 802.11 distributed
   \emph{IEEE/ACM Trans. Netw.}, vol.~15, no.~1, pp. 159--172, Feb. 2007.
   [Online]. Available: \url{http://dx.doi.org/10.1109/TNET.2006.890136}
 \BIBentrySTDinterwordspacing
+
+\bibitem{nguyen2012performance}
+S.~H. Nguyen, H.~L. Vu, and L.~L. Andrew, ``Performance analysis of ieee 802.11
+  wlans with saturated and unsaturated sources,'' \emph{Vehicular Technology,
+  IEEE Transactions on}, vol.~61, no.~1, pp. 333--345, 2012.
+
+\bibitem{qiu2007general}
+L.~Qiu, Y.~Zhang, F.~Wang, M.~K. Han, and R.~Mahajan, ``A general model of
+  wireless interference,'' in \emph{Proceedings of the 13th annual ACM
+  international conference on Mobile computing and networking}.\hskip 1em plus
+  0.5em minus 0.4em\relax ACM, 2007, pp. 171--182.
+
+\bibitem{rozner2007traffic}
+E.~Rozner, Y.~Mehta, A.~Akella, and L.~Qiu, ``Traffic-aware channel assignment
+  in enterprise wireless lans,'' in \emph{Network Protocols, 2007. ICNP 2007.
+  IEEE International Conference on}.\hskip 1em plus 0.5em minus 0.4em\relax
+  IEEE, 2007, pp. 133--143.
+
+\bibitem{zhao2009simple}
+Q.~Zhao, D.~H. Tsang, and T.~Sakurai, ``A simple and approximate model for
+  nonsaturated ieee 802.11 dcf,'' \emph{Mobile Computing, IEEE Transactions
+  on}, vol.~8, no.~11, pp. 1539--1553, 2009.
+
+\bibitem{zhao2011modeling}
+------, ``Modeling nonsaturated ieee 802.11 dcf networks utilizing an arbitrary
+  buffer size,'' \emph{Mobile Computing, IEEE Transactions on}, vol.~10, no.~9,
+  pp. 1248--1263, 2011.
 
 \end{thebibliography}

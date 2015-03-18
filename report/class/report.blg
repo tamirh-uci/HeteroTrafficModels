@@ -8,8 +8,6 @@ Reallocated singl_function (elt_size=4) to 100 items from 50.
 Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
 Reallocated singl_function (elt_size=4) to 100 items from 50.
 Database file #1: ref.bib.bib
-Warning--I didn't find a database entry for "dcf-unsaturated"
-Warning--I didn't find a database entry for "???"
 -- IEEEtranS.bst version 1.13 (2008/09/30) by Michael Shell.
 -- http://www.michaelshell.org/tex/ieeetran/bibtex/
 -- See the "IEEEtran_bst_HOWTO.pdf" manual for usage information.
@@ -17,45 +15,45 @@ Warning--I didn't find a database entry for "???"
 Warning--to sort, need author, organization, or key in sony-demo
 
 Done.
-You've used 11 entries,
+You've used 20 entries,
             4498 wiz_defined-function locations,
-            957 strings with 9927 characters,
-and the built_in function-call counts, 9081 in all, are:
-= -- 831
-> -- 197
-< -- 74
-+ -- 108
-- -- 42
-* -- 457
-:= -- 1411
-add.period$ -- 24
-call.type$ -- 11
-change.case$ -- 52
-chr.to.int$ -- 165
-cite$ -- 12
-duplicate$ -- 579
-empty$ -- 661
-format.name$ -- 48
-if$ -- 2025
+            1008 strings with 11564 characters,
+and the built_in function-call counts, 18822 in all, are:
+= -- 1720
+> -- 487
+< -- 164
++ -- 264
+- -- 110
+* -- 969
+:= -- 2826
+add.period$ -- 44
+call.type$ -- 20
+change.case$ -- 113
+chr.to.int$ -- 369
+cite$ -- 21
+duplicate$ -- 1178
+empty$ -- 1306
+format.name$ -- 125
+if$ -- 4234
 int.to.chr$ -- 0
-int.to.str$ -- 11
-missing$ -- 93
-newline$ -- 60
-num.names$ -- 20
-pop$ -- 223
+int.to.str$ -- 20
+missing$ -- 189
+newline$ -- 87
+num.names$ -- 38
+pop$ -- 458
 preamble$ -- 1
-purify$ -- 42
+purify$ -- 94
 quote$ -- 2
-skip$ -- 682
+skip$ -- 1397
 stack$ -- 0
-substring$ -- 452
-swap$ -- 468
-text.length$ -- 19
+substring$ -- 988
+swap$ -- 993
+text.length$ -- 41
 text.prefix$ -- 0
 top$ -- 6
-type$ -- 113
+type$ -- 212
 warning$ -- 1
-while$ -- 47
-width$ -- 13
-write$ -- 131
-(There were 3 warnings)
+while$ -- 98
+width$ -- 22
+write$ -- 225
+(There was 1 warning)

@@ -15,8 +15,7 @@
 \maketitle
 
 \begin{abstract}
-%\boldmath
-% TODO
+We study the random behavior of the 802.11 DCF protocol for wireless LANs that serve heterogeneous traffic. Our study is based on a novel paramterized Markov model, which can be tuned according to the packet interarrival time, packet buffer arrival probability, packet length, and interarrival wait probability associated with any type of application traffic. Using these parameterized model templates, we instantiate individual instances with parameters drawn from realistic statistical characterizations of modern application traffic, such as web browsing, file downloads, and multimedia traffic. Assuming a fixed network-wide conditional collision probability, we then emulate the behavior of the DCF access scheme within the context of a single node. Following this, we combine these individual model instances to study the performance of the DCF function with respect to heterogeneous traffic in a true multi-node system. Our experimental results provide evidence that the deterministic nature of multimedia (e.g., store-and-forward) traffic streams leads to higher performance (i.e., higher throughput) than more nondeteministic (elastic) traffic. Furthermore, our results show that large interarrival time between traffic packets benefits the coexistence of heterogeneous traffic streams. 
 \end{abstract}
 
 \section{Introduction}
@@ -24,20 +23,9 @@ Wireless networks have become pervasive in modern computer and communication sys
 
 To date, a major portion of this research has focused on the 802.11 random access control protocol -- the distributed control function (DCF). This work was pioneered by Bianchi's original Markov model for the DCF function \cite{bianchi1996performance}, which stimulated several advancements to his simplistic model \cite{bianchi1998ieee} and numerous applications in the field \cite{crow1996performance,chhaya1997performance}. Many of these models and empirical studies represent a network of nodes by a single collision parameter. In particular, there is a lack of work combining these models together beyond a single parameter. Furthermore, many of these works study the performance of the DCF function (with respect to individual and average system throughput) for single types of traffic. True multi-node models that study the interaction of different traffic models have not been studied.
 
-The goal of this work is to determine if the random behavior of the DCF protocol is best suited for all types of traffic, or if the DCF should in some way be tailored to the \emph{type} of underlying traffic being served by the DCF access scheme. To this end, we first present a series of extensions to Bianchi's original DCF Markov model to emulate arbitrary types of traffic. In particular, we provide extensions to support arbitrary packet length and variable packet inter-arrival time. We then instantiate individual instances of these Markov models that emulate the behavior of the DCF access scheme by tailoring each of these parameters, e.g., packet length and interarrival time, using realistic values drawn from these types of modern application traffic. Following this, we combine these model instances to study the performance of the DCF function with respect to heterogeneous traffic in a true multi-node system. 
+The goal of this work is to determine if the random behavior of the DCF protocol is best suited for all types of traffic, or if the DCF should in some way be tailored to the \emph{type} of underlying traffic being served by the DCF access scheme. To this end, we first present a series of extensions to Bianchi's original DCF Markov model to emulate arbitrary types of traffic. In particular, we provide extensions to support arbitrary packet length and variable packet inter-arrival time. We then instantiate individual instances of these Markov models that emulate the behavior of the DCF access scheme by tailoring each of these parameters, e.g., packet length and interarrival time, using realistic values drawn distributions representative of modern application traffic. Following this, we combine these model instances to study the performance of the DCF function with respect to heterogeneous traffic in a true multi-node system. 
 
-Our experimental results seem to provide evidence that the deterministic nature of multimedia (e.g., store-and-forward) traffic streams obtain higher performance than more nondeteministic (elastic) traffic. Furthermore, our results show that large interarrival time between traffic packets benefits the coexistence of heterogeneous traffic streams. 
-
-\section{Related Work}
-% \cite{dcf}
-% \cite{dcf-nonsaturated}
-% TODO
-
-%%% simulation papers
-% bianchi1998ieee
-% bianchi1996performance
-% crow1996performance
-% chhaya1997performance
+Our experimental results provide evidence that the deterministic nature of multimedia (e.g., store-and-forward) traffic streams leads to higher performance (i.e., higher throughput) than more nondeteministic (elastic) traffic. Furthermore, our results show that large interarrival time between traffic packets benefits the coexistence of heterogeneous traffic streams. 
 
 \section{Heterogeneous Traffic Models}
 Today's computer and communication networks are being used to transfer increasingly heterogeneous traffic between parties. In particular, file downloads, standard web browsing, video streaming, and client-server video game traffic are four very common types of traffic that dominate the Internet traffic today. In this section, we describe the characteristics of each of these traffic types. We use a variety of parameters to describe these types of traffic. Specifically, we focus on packet size, interrival time, traffic saturation, and burstiness. \\
@@ -46,7 +34,7 @@ Today's computer and communication networks are being used to transfer increasin
 \textbf{File Download Traffic:} File downloads are elastic, meaning that they must be reliable but are also tolerant to random delays. Applications that \emph{generate} file download traffic usually do so with long bursts of packet arrivals and long interarrival times \cite{kumar2004communication}. File downloads are sufficiently random that we do not consider a fixed distribution for any parameters. Rather, we choose these at random by our own free will. \\
 
 \noindent
-\textbf{Web Browsing Traffic:} Web browsing traffic is quite diverse in packet size, interrarival time, and burstiness. Mah \cite{mah1997empirical} studied various web browsing traces to develop statistics for these characteristics. In particular, it was found that these characteristics, such as content request and reply lengths (packet size) follow a Zipf disribution (see Figures \ref{fig:histogram1} and \ref{fig:histogram2}).For simplicity, we assume that web browsing traffic has random packet sizes sample from a Zipf distribution, deterministic interarrival time, and probabilistic packet arrival in the buffer. This enables us to use a slightly modified version of the nonsaturated DCF model (described in Section \ref{sec:nonsaturated}) to study this traffic. \\
+\textbf{Web Browsing Traffic:} Web browsing traffic is quite diverse in packet size, interrarival time, and burstiness. Mah \cite{mah1997empirical} studied various web browsing traces to develop statistics for these characteristics. In particular, it was found that these characteristics, such as content request and reply lengths (packet size) follow a Zipf disribution (see Figure \ref{fig:histogram1}).For simplicity, we assume that web browsing traffic has random packet sizes sample from a Zipf distribution, deterministic interarrival time, and probabilistic packet arrival in the buffer. This enables us to use a slightly modified version of the nonsaturated DCF model (described in Section \ref{sec:nonsaturated}) to study this traffic. \\
 
 \begin{figure*}
 \begin{center}
@@ -55,6 +43,7 @@ Today's computer and communication networks are being used to transfer increasin
 \multicolumn{2}{c}{Distribution of web traffic request and reply sizes, respectively \cite{mah1997empirical}.}
 \end{tabular}
 \end{center}
+\label{fig:histogram1}
 \end{figure*}
 
 \noindent
@@ -97,7 +86,7 @@ We will use the characteristics of each of these models to tune our Markov model
 The 802.11 DCF \cite{ieee1997wireless} is at the core of this work. It is a simplistic random access scheme based on the carrier sense multiple access with collision avoidance (CSMA/CA) protocol. Failed packets are retried according to a binary exponential backoff rule. At each packet transmission, the backoff is uniformly in the range ($0, w-1$), where $w$ is the length of the ``contention window'' and is directly dependent on the number of failed attempts for the packet thus far. The window $w$ is set to $W_{min}$ to begin, and upon every failure, the backoff counter is doubled. At stage $i$, the backoff timer is $2^iW_{min}$. The maximum backoff is bounded by $W_{max} = 2^mW_{min}$. Selections of $W_{min}$ and $W_{max}$ are dependent upon the physical layer specifications in the 802.11 standard \cite{ieee1997wireless,dcf}. For example, frequency hopping spread spectrum calls for $W_{min} = 16$ and $W_{max} = 1024$ ($m = 6$). 
 
 \section{Incremental Markov Models for Heterogeneous Traffic}
-In this section we describe the necessary evolutions of Bianchi's original Markov model to support parameterized packet length, interarrival time, and buffer saturation.
+In this section we describe the necessary evolutions of Bianchi's original Markov model to support parameterized packet length, interarrival time, and buffer saturation. Ultimately, the extensions enable us to parameterize the following characteristics: interarrival time, packet size, probability of a new packet arriving (i.e., buffer saturation), and the probability of a node waiting for a non-zero interarrival time. The usage of these parameters to emulate web browsing, file downloads, and multimedia traffic is elaborated upon in Section \ref{sec:experiment}.
 
 \subsection{Original DCF Model}
 A simple Markov model for the 802.11 DCF function was proposed in the seminal work by Bianchi \cite{dcf}. The system state is described by two discrete-time stochastic processes $b(t)$ and $s(t)$: $b(t)$ represents the backoff \emph{time counter} and $s(t)$ represents the backoff \emph{stage} for a given station or node, each of which is advanced at each time step (i.e., from $t$ to $t + 1$). Each node is equipped with a \emph{saturated} buffer of packets to transmit; there is never a case where a node has to wait for a packet to arrive in the buffer before attempting a transmission. Also, instead of modeling multiple nodes simultaneously to accurately assess the probability of collision, this model assumes a constant probability of collision $p$ -- the conditional collision probability -- at each time slot. In the real world, this probability is a function of the network and environmental interferences, e.g., shadowing, fading, etc. However, by making this a constant and therefore independent from other nodes, the model simplifies to capturing the dynamics of the bidimensional process $\{ b(t), s(t) \}$ as a discrete-time Markov chain, shown in Figure \ref{fig:dcf_model}. 
@@ -154,7 +143,7 @@ With the addition of the postbackoff states $S'$, the Markov chain itself is now
 \begin{figure*}
 \begin{center}
 \includegraphics[scale=0.35]{../../sketches/dcf_model_nonsaturated.pdf}
-\caption{The modified DCF Markov model that captures non-saturated traffic \cite{dcf-unsaturated}.}
+\caption{The modified DCF Markov model that captures non-saturated traffic \cite{dcf-nonsaturated}.}
 \label{fig:dcf_model_nonsaturated}
 \end{center}
 \end{figure*}
@@ -274,45 +263,109 @@ In the actual implementation, a packet size range of length $n$ is modeled by \e
 \end{center}
 \end{figure*}
 
-\subsection{Simulator Overview}
+\subsection{Multi-Node Simulator Overview and Metrics Computations}
 
-Having described the architecture of the Markov chain, we now describe how we implement the multi-node simulator using individual instances of these chains. Let $n$ be the number of nodes in a system, each with a unique set of traffic characteristics and, therefore, a unique Markov model, state space, and transition probability matrix. The simulator maintains a collection of the 
+Having described the architecture of the Markov chain, we now describe how we implement the multi-node simulator using individual instances of these chains. Let $N$ be the number of nodes in a system, each with a unique set of traffic characteristics and, therefore, a unique Markov model, state space, and transition probability matrix. The simulator maintains a collection of individual simulator nodes, each one with its own Markov chain state space and probability transition matrix. At each time step, the simulator advances the state of each node according to the current system state and its individual state. For example, if at time $t$ the simulator sees that nodes $n_i$ and $n_j$ are trying to transmit, then the simulator will advance each from its current state by setting $p = 1.0$. Ultimately, the state of the collection of nodes determines network-based parameters such as $p$, the conditional collision probability. The simulator algorithm is shown in Figure \ref{alg:simulator}. 
 
+\begin{figure*}
 \begin{algorithmic}
-
-\REQUIRE{Some long text here. Unfortunately this text is a mess. Spaces and line breaks are missing and the text gets weird block layout when setting line breaks manually.}
-\FORALL{$i = 1 \ldots \mid L_{items}\mid $  } 
-\STATE {i miss spaces here, too}
-
+\REQUIRE{$N$ simulator nodes $n_1,\dots,n_N$, and a time step limit $T$}
+\FOR{$t = 1 \to T$}
+	\STATE {Determine if there is a collision based on current node states}
+	\FOR{$i = 1 \to N$}
+		\STATE $p_i := 1.0$ if $n_i$ is in a collision, else $p_i = 0$
+		\STATE{Advance the state of $n_i$ with $p_i$, and record the transition}
+	\ENDFOR
 \ENDFOR
-
 \end{algorithmic}
+\caption{The multi-node simulator algorithm.}
+\label{alg:simulator}
+\end{figure*}
 
-\subsection{Metrics Computations}
-In our work, we mainly consider the following metrics: throughput, packet transmission success probability, and packet failure probability. Let $n$ be the total number of steps in the simulation, $s$ be the number of successful transmissions, and $f$ be the number of failed transmissions. Throughput $S$ is defined as the ratio of successful transmissions out of \emph{all} possible time steps in the system, i.e., $S = p / n$. The success probability $P_s$ is defined as the number of success transitions compared to the number of transmission attempt transitions, i.e., $P_s = p / (p + f)$. Finally, the packet failure probability $P_f$ is defined as the number of failied transitions compared to the number of transmission attempts, i.e., $P_f = f / (p + f)$. 
+The master simulator individual simulator nodes are also responsible for bookkeeping relevant events. Specifically, traces of state transitions are recorded so that the entire system dynamics can be replayed and relevant metrics can be computed about both individual nodes and the group as a whole. In our work, we mainly consider the following metrics: throughput, packet transmission success probability, and packet failure probability. Let $n$ be the total number of steps in the simulation, $s$ be the number of successful transmissions, and $f$ be the number of failed transmissions. Throughput $S$ is defined as the ratio of successful transmissions out of \emph{all} possible time steps in the system, i.e., $S = p / n$. The success probability $P_s$ is defined as the number of success transitions compared to the number of transmission attempt transitions, i.e., $P_s = p / (p + f)$. Finally, the packet failure probability $P_f$ is defined as the number of failied transitions compared to the number of transmission attempts, i.e., $P_f = f / (p + f)$. 
 
-\section{Experiment Setup}
+\section{Experimental Setup} \label{sec:experiment}
+To test our experiment, we ran the simulation on the system and traffic configurations listed in Tables \ref{tab:configurations}, \ref{tab:traffics}, and \ref{tab:multimedia}. Traffic parameters with ranges of values are sampled according to the distribution specific that that type of traffic. For example, file download packet sizes are sampled uniformly from the given packet range. 
+
+Notice that we limited our study to small backoffs and only two nodes. The reason for this restriction was two-fold. Firstly, having more than one node increased the number of variables in our experiments. In order to accurately assess the influence of any \emph{single} variable on the individual node and overall system performance. Consider Figures \ref{fig:smallwindow} and \ref{fig:multinodes}. In the former, we see that the throughput metric variance is much more distinct with small backoff windows (i.e., the slope of the throughput change is steeper). In the latter, it is unclear what factors are influencing the throughput since there are so many variables. We could consider all parameter combinations in the multiple node setting, but with at least four parameters in each node with at least five values for each parameter, such an analysis would be intractible. Thus, we limit ourselves to multinode settings with $N = 2$ to simplify our analysis. 
+
+We comment that since we do not study the time to conduct each experiment, the actual simulation machine parameters are not important. These details are omitted for space. 
+
+\begin{table}
+\begin{center}
+\caption{System configuration parameters.}
+\label{tab:configurations}
+\begin{tabular}{|c|c|} \hline
+	Time Steps & 100000 \\
+	$W_{min}$ & 2 \\
+	$W_{max}$ & 16 \\
+	$m$ & 4 \\ \hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\begin{table}
+\begin{center}
+\caption{Application traffic configuration parameters.}
+\label{tab:traffics}
+\begin{tabular}{|c|c|c|c|c|} \hline
+	Traffic Type & \multicolumn{4}{c|}{Parameter Values} \\ \hline
+	~ & Interarrival Time & Packet Size & P(Arrive) & P(Interarrival) \\ \hline \hline
+	Random & \{0,1,2,3,4,5\} & \{1,2,3,4,5\} & \{0.0, 0.25, 0.5, 0.75, 1.0\} & \{0.0, 1.0\} \\ \hline
+	Web Browsing & \{5\} & \{1\} & \{1.0\} & \{0.5, 0.6, 0.7, 0.8, 0.9, 1.0\} \\ \hline
+	File Download & \{5, 10, 25\} & \{5, 10, 25\} & \{1.0\} & \{1.0\} \\ \hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\begin{table}
+\begin{center}
+\caption{Multimedia traffic configuration parameters.}
+\label{tab:multimedia}
+\begin{tabular}{|c|c|} \hline
+	Parameter & Values \\ \hline
+	BPS & \{2MB/s, 4MB/s, 8MB/s, 16MB/s, 32MB/s\} \\
+	Payload Size & \{12000b\} \\ \hline
+\end{tabular}
+\end{center}
+\end{table}
 
 \begin{figure*}
 \begin{center}
-\includegraphics[scale=0.35]{../../sketches/compressible_dcf_all.pdf}
-\caption{TODO.}
-\label{fig:compressible_dcf_all}
+\includegraphics[scale=0.6]{smallwindow.png}
+\caption{A comparison of the effect of a small backoff vs large backoff window. The small backoff window leads to much more pronounced changes in the metrics of interest, which lends itself to this analytical study.}
+\label{fig:smallwindow}
 \end{center}
 \end{figure*}
 
 \begin{figure*}
 \begin{center}
-\includegraphics[scale=0.35]{../../sketches/compressible_dcf_all.pdf}
-\caption{TODO.}
-\label{fig:compressible_dcf_all}
+\includegraphics[scale=0.6]{multinodes.png}
+\caption{Metric values as a function of the number of nodes added to the system.}
+\label{fig:multinodes}
 \end{center}
 \end{figure*}
-% TODO: multinode and big backoff windows, discussion, metric computations
 
 \section{Simulation Results and Analysis}
+In this section we discuss the results of our simulations collected from the experimental setup prescribed in the previous section. 
+
+\todo[inline]{finish}
 
 \input{figures}
+
+\section{Related Work}
+Analytical models of the 802.11 DCF function began with Bianchi's seminal work in \cite{bianchi1996performance}. His saturated model was extended to handle non-saturated traffic by Malone et al. in \cite{dcf-nonsaturated} and Zhao et al. in \cite{zhao2009simple} (the latter is a significantly simpler model than the former). In addition to a constant conditional collision probability $p$, the work of Malone et al. includes a per-epoch probability of a packet arrival in the buffer $q$. The authors used this probability to study the performance of non-saturated traffic parameterized by $q$. Nguyen et al. \cite{nguyen2012performance} combine nodes with different saturated and unsaturated characteristics, QoS requirements, and even different backoff timer windows (e.g., $W_{max}$ and $W_{min}$ values). They show that real-time traffic loads are infeasible when the number of nodes exceeds $8$. These results match our observations that multimedia traffic, which can be a type of real-time traffic, starves nodes with more random access patterns.
+
+Qiu et al. \cite{qiu2007general} extended this even further to study the interference caused by an arbitrary number of nodes, and provide additional support for receiver models of packet-loss rates and unicast sender and receiver models. The latter additions are made possible by including model support for senders and receivers of different packets, e.g., data, ACKs, and NACKs. Our work is distinct from this in that we model traffic as a \emph{distributon} of packet types, sizes, lengths, and interarrival times. In addition to this different packet source generation model, the fact that we focus on only two nodes in our simulations (see Section \ref{sec:experiment}) makes it infeasible to compare their results to ours. 
+
+Analysis of the effect of frame buffer sizes was first studied by Zhao et al. in \cite{zhao2011modeling}. However, the goal was not to study the effect of a fixed buffer size used to transport all packets, rather than to study the effect of per-traffic buffer sizes. Li et al. \cite{li2011buffer} also studied the problems and impact of fixed-size buffers in the 802.11 DCF protocol. They found that dynamic buffer sizes, e.g., those tailored to the type of traffic, help achieve high throughput while maintaining low delay across a diverse spread of network and environment conditions. 
+
+In this work, our main goal is to study the performance of the DCF in the presence of hetereogeneous traffic. Others have gone beyond this analysis to propose protocol modifications meant to improve said performance. An example of such work is \cite{li2008predictable}, which presents a variety of algorithms that adapt the DCF for optimal fairness. Another is the work of Gao et al. \cite{gao2013throughput}, in which they study throughput optimization techniques for systems of saturated and unsaturated heterogeneous nodes. However, heterogeneity, in the context of their work, is defined solely with respect to traffic input rates and initial backoff window sizes. Their formal analysis of the individual and system throughput, however, is significantly more involved than our own. In fact, they are able derive sufficient conditions based \emph{only} on the size of saturated groups necessary to achieve the maximal throghput. One such condition is that the initial backoff window of saturated node groups should increase linearly with their size, and that the rate of increase is inversely proportional to the overall group throughput. Again, we do not study the behavior of multinode systems with respect to non-uniform backoff windows, though future work could easily incorporate this extension.
+
+Rozner et al. \cite{rozner2007traffic} study channel assignment techniques based on traffic types found in enterprise WLANs. They frame their analysis in the context of overall system throughput, and conclude that traffic-agnostic access schemes lead to suboptimal throughput measures in random enterprise networks. We do not consider these types of assignment schemes. However, our work is still distinct in that we study the performance using a strictly Markovian model. That is, we do not use simulations built on, for example, NS-3 \cite{henderson2008network}, to study the performance. Our approach lends itself to much more formal and analytical studies. Future work could entail comparing our results against their own.
+
+\section{Conclusion}
+In this work we studied the performance of the defacto 802.11 DCF access scheme when serving heterogeneous traffic. We present a novel parameterized Markov model that can used to emulate arbitrary types of application traffic, and then use these models to study the coexistence of said traffic. Our experimental results provide evidence that the deterministic nature of multimedia (e.g., store-and-forward) traffic streams leads to higher performance (i.e., higher throughput) than more nondeteministic (elastic) traffic. Furthermore, our results show that large interarrival time between traffic packets benefits the coexistence of heterogeneous traffic streams. 
 
 \bibliographystyle{IEEEtranS}
 \bibliography{ref.bib}

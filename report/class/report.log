@@ -1,8 +1,8 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013) (format=pdflatex 2013.5.30)  16 MAR 2015 16:24
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013) (format=pdflatex 2013.5.30)  17 MAR 2015 19:51
 entering extended mode
  \write18 enabled.
  %&-line parsing enabled.
-**report.tex
+**report
 (./report.tex
 LaTeX2e <2011/06/27>
 Babel <3.9f> and hyphenation patterns for 78 languages loaded.
@@ -569,14 +569,7 @@ Package: ifxetex 2010/09/12 v0.6 Provides ifxetex conditional
 \Gm@layoutvoffset=\dimen187
 \Gm@dimlist=\toks35
 )
-(./report.aux
-
-LaTeX Warning: Label `fig:compressible_dcf_all' multiply defined.
-
-
-LaTeX Warning: Label `fig:compressible_dcf_all' multiply defined.
-
-)
+(./report.aux)
 \openout1 = `report.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 10.
@@ -591,7 +584,8 @@ LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 10.
 LaTeX Font Info:    ... okay on input line 10.
 LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 10.
 LaTeX Font Info:    ... okay on input line 10.
- (/usr/local/texlive/2013/texmf-dist/tex/context/base/supp-pdf.mkii
+
+(/usr/local/texlive/2013/texmf-dist/tex/context/base/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count160
 \scratchdimen=\dimen188
@@ -684,32 +678,7 @@ ABD: EveryShipout initializing macros
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
 
-LaTeX Warning: Citation `bianchi1996performance' on page 1 undefined on input l
-ine 25.
-
-
-LaTeX Warning: Citation `bianchi1998ieee' on page 1 undefined on input line 25.
-
-
-
-LaTeX Warning: Citation `crow1996performance' on page 1 undefined on input line
- 25.
-
-
-LaTeX Warning: Citation `chhaya1997performance' on page 1 undefined on input li
-ne 25.
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 43--44
-
- []
-
-
-LaTeX Warning: Citation `kumar2004communication' on page 1 undefined on input l
-ine 46.
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 45--47
+Underfull \hbox (badness 10000) in paragraph at lines 31--32
 
  []
 
@@ -717,64 +686,38 @@ Underfull \hbox (badness 10000) in paragraph at lines 45--47
 
 
 {/usr/local/texlive/2013/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-
-LaTeX Warning: Citation `mah1997empirical' on page 2 undefined on input line 49
-.
-
-
-LaTeX Warning: Reference `fig:histogram1' on page 2 undefined on input line 49.
-
-
-
-LaTeX Warning: Reference `fig:histogram2' on page 2 undefined on input line 49.
-
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 48--50
+Underfull \hbox (badness 10000) in paragraph at lines 33--35
 
  []
 
-<histogram1.png, id=15, 631.35875pt x 407.5225pt>
+
+Underfull \hbox (badness 10000) in paragraph at lines 36--38
+
+ []
+
+<histogram1.png, id=14, 631.35875pt x 407.5225pt>
 File: histogram1.png Graphic file (type png)
  <use histogram1.png>
-Package pdftex.def Info: histogram1.png used on input line 54.
+Package pdftex.def Info: histogram1.png used on input line 42.
 (pdftex.def)             Requested size: 189.40909pt x 122.25769pt.
 
-<histogram2.png, id=17, 587.19376pt x 409.53pt>
+<histogram2.png, id=16, 587.19376pt x 409.53pt>
 File: histogram2.png Graphic file (type png)
  <use histogram2.png>
-Package pdftex.def Info: histogram2.png used on input line 54.
+Package pdftex.def Info: histogram2.png used on input line 42.
 (pdftex.def)             Requested size: 176.15948pt x 122.85994pt.
 
-
-LaTeX Warning: Citation `mah1997empirical' on page 2 undefined on input line 55
-.
-
-
-LaTeX Warning: Citation `badia2010markov' on page 2 undefined on input line 61.
-
-
-
-LaTeX Warning: Citation `sony-demo' on page 2 undefined on input line 63.
-
-<frame.png, id=18, 803.0pt x 481.8pt>
+<frame.png, id=17, 803.0pt x 481.8pt>
 File: frame.png Graphic file (type png)
  <use frame.png>
-Package pdftex.def Info: frame.png used on input line 67.
+Package pdftex.def Info: frame.png used on input line 56.
 (pdftex.def)             Requested size: 281.05421pt x 168.63252pt.
 
-
-LaTeX Warning: Citation `sony-demo' on page 2 undefined on input line 68.
-
-<gop.png, id=19, 803.0pt x 481.8pt>
+<gop.png, id=18, 803.0pt x 481.8pt>
 File: gop.png Graphic file (type png)
  <use gop.png>
-Package pdftex.def Info: gop.png used on input line 75.
+Package pdftex.def Info: gop.png used on input line 64.
 (pdftex.def)             Requested size: 281.05421pt x 168.63252pt.
-
-
-LaTeX Warning: Citation `sony-demo' on page 2 undefined on input line 76.
-
 Package epstopdf Info: Source file: <../../src/results/browse_time.eps>
 (epstopdf)                    date: 2015-03-16 16:15:01
 (epstopdf)                    size: 18319 bytes
@@ -784,16 +727,16 @@ d-to.pdf>
 (epstopdf)                    size: 5201 bytes
 (epstopdf)             Command: <epstopdf --outfile=../../src/results/browse_ti
 me-eps-converted-to.pdf ../../src/results/browse_time.eps>
-(epstopdf)             \includegraphics on input line 85.
+(epstopdf)             \includegraphics on input line 74.
 Package epstopdf Info: Output file is already uptodate.
 
-<../../src/results/browse_time-eps-converted-to.pdf, id=20, 1151.30125pt x 538.
+<../../src/results/browse_time-eps-converted-to.pdf, id=19, 1151.30125pt x 538.
 01pt>
 File: ../../src/results/browse_time-eps-converted-to.pdf Graphic file (type pdf
 )
  <use ../../src/results/browse_time-eps-converted-to.pdf>
 Package pdftex.def Info: ../../src/results/browse_time-eps-converted-to.pdf use
-d on input line 85.
+d on input line 74.
 (pdftex.def)             Requested size: 469.7528pt x 100.36765pt.
 Package epstopdf Info: Source file: <../../src/results/file_time.eps>
 (epstopdf)                    date: 2015-03-16 16:15:37
@@ -804,15 +747,15 @@ to.pdf>
 (epstopdf)                    size: 4995 bytes
 (epstopdf)             Command: <epstopdf --outfile=../../src/results/file_time
 -eps-converted-to.pdf ../../src/results/file_time.eps>
-(epstopdf)             \includegraphics on input line 86.
+(epstopdf)             \includegraphics on input line 75.
 Package epstopdf Info: Output file is already uptodate.
 
-<../../src/results/file_time-eps-converted-to.pdf, id=21, 1066.98625pt x 567.11
+<../../src/results/file_time-eps-converted-to.pdf, id=20, 1066.98625pt x 567.11
 874pt>
 File: ../../src/results/file_time-eps-converted-to.pdf Graphic file (type pdf)
  <use ../../src/results/file_time-eps-converted-to.pdf>
 Package pdftex.def Info: ../../src/results/file_time-eps-converted-to.pdf used 
-on input line 86.
+on input line 75.
 (pdftex.def)             Requested size: 469.75218pt x 100.37222pt.
 Package epstopdf Info: Source file: <../../src/results/video_time.eps>
 (epstopdf)                    date: 2015-03-16 16:16:45
@@ -823,15 +766,15 @@ Package epstopdf Info: Source file: <../../src/results/video_time.eps>
 (epstopdf)                    size: 5250 bytes
 (epstopdf)             Command: <epstopdf --outfile=../../src/results/video_tim
 e-eps-converted-to.pdf ../../src/results/video_time.eps>
-(epstopdf)             \includegraphics on input line 87.
+(epstopdf)             \includegraphics on input line 76.
 Package epstopdf Info: Output file is already uptodate.
 
-<../../src/results/video_time-eps-converted-to.pdf, id=22, 562.1pt x 421.575pt>
+<../../src/results/video_time-eps-converted-to.pdf, id=21, 562.1pt x 421.575pt>
 File: ../../src/results/video_time-eps-converted-to.pdf Graphic file (type pdf)
 
 <use ../../src/results/video_time-eps-converted-to.pdf>
 Package pdftex.def Info: ../../src/results/video_time-eps-converted-to.pdf used
- on input line 87.
+ on input line 76.
 (pdftex.def)             Requested size: 469.75067pt x 100.37598pt.
 Package epstopdf Info: Source file: <../../src/results/all.eps>
 (epstopdf)                    date: 2015-03-16 16:14:40
@@ -842,81 +785,47 @@ Package epstopdf Info: Source file: <../../src/results/all.eps>
 (epstopdf)                    size: 8158 bytes
 (epstopdf)             Command: <epstopdf --outfile=../../src/results/all-eps-c
 onverted-to.pdf ../../src/results/all.eps>
-(epstopdf)             \includegraphics on input line 88.
+(epstopdf)             \includegraphics on input line 77.
 Package epstopdf Info: Output file is already uptodate.
 
-<../../src/results/all-eps-converted-to.pdf, id=23, 1249.66875pt x 718.685pt>
+<../../src/results/all-eps-converted-to.pdf, id=22, 1249.66875pt x 718.685pt>
 File: ../../src/results/all-eps-converted-to.pdf Graphic file (type pdf)
 
 <use ../../src/results/all-eps-converted-to.pdf>
 Package pdftex.def Info: ../../src/results/all-eps-converted-to.pdf used on inp
-ut line 88.
+ut line 77.
 (pdftex.def)             Requested size: 469.74966pt x 100.37395pt.
 
-Overfull \hbox (2.79778pt too wide) in paragraph at lines 84--90
+Overfull \hbox (2.79778pt too wide) in paragraph at lines 73--79
 [][] 
  []
-
-
-LaTeX Warning: Citation `ieee1997wireless' on page 2 undefined on input line 97
-.
-
-
-LaTeX Warning: Citation `ieee1997wireless' on page 2 undefined on input line 97
-.
-
-
-LaTeX Warning: Citation `dcf' on page 2 undefined on input line 97.
 
 [2 <./histogram1.png> <./histogram2.png>] [3 <./frame.png> <./gop.png>]
 [4 <../../src/results/browse_time-eps-converted-to.pdf> <../../src/results/file
 _time-eps-converted-to.pdf> <../../src/results/video_time-eps-converted-to.pdf>
  <../../src/results/all-eps-converted-to.pdf>]
-
-LaTeX Warning: Citation `dcf' on page 5 undefined on input line 103.
-
 <../../sketches/dcf_model.pdf, id=61, 961.5925pt x 663.47874pt>
 File: ../../sketches/dcf_model.pdf Graphic file (type pdf)
 
 <use ../../sketches/dcf_model.pdf>
-Package pdftex.def Info: ../../sketches/dcf_model.pdf used on input line 122.
+Package pdftex.def Info: ../../sketches/dcf_model.pdf used on input line 111.
 (pdftex.def)             Requested size: 336.56241pt x 232.22102pt.
-
-
-LaTeX Warning: Citation `dcf' on page 5 undefined on input line 123.
-
-
-LaTeX Warning: Citation `dcf-nonsaturated' on page 5 undefined on input line 12
-9.
-
-[5]
+ [5]
 <../../sketches/dcf_model_nonsaturated.pdf, id=67, 961.5925pt x 885.3075pt>
 File: ../../sketches/dcf_model_nonsaturated.pdf Graphic file (type pdf)
 
 <use ../../sketches/dcf_model_nonsaturated.pdf>
 Package pdftex.def Info: ../../sketches/dcf_model_nonsaturated.pdf used on inpu
-t line 156.
+t line 145.
 (pdftex.def)             Requested size: 336.56241pt x 309.86226pt.
-
-
-LaTeX Warning: Citation `dcf-unsaturated' on page 6 undefined on input line 157
-.
-
-
-LaTeX Warning: Citation `dcf-nonsaturated' on page 6 undefined on input line 16
-2.
-
-
-LaTeX Warning: Citation `badia2010markov' on page 6 undefined on input line 165
-.
-
-[6 <../../sketches/dcf_model.pdf>] [7 <../../sketches/dcf_model_nonsaturated.pd
-f>] <../../sketches/size_chain_old.pdf, id=110, 377.41pt x 631.35875pt>
+ [6 <../../sketches/dcf_model.pdf>] [7 <../../sketches/dcf_model_nonsaturated.p
+df>]
+<../../sketches/size_chain_old.pdf, id=110, 377.41pt x 631.35875pt>
 File: ../../sketches/size_chain_old.pdf Graphic file (type pdf)
 
 <use ../../sketches/size_chain_old.pdf>
 Package pdftex.def Info: ../../sketches/size_chain_old.pdf used on input line 1
-71.
+60.
 (pdftex.def)             Requested size: 132.09547pt x 220.97887pt.
  [8 <../../sketches/size_chain_old.pdf>]
 <../../sketches/dcf_model_unsaturated_varpktsize.pdf, id=130, 961.5925pt x 1037
@@ -925,14 +834,9 @@ File: ../../sketches/dcf_model_unsaturated_varpktsize.pdf Graphic file (type pd
 f)
  <use ../../sketches/dcf_model_unsaturated_varpktsize.pdf>
 Package pdftex.def Info: ../../sketches/dcf_model_unsaturated_varpktsize.pdf us
-ed on input line 205.
+ed on input line 194.
 (pdftex.def)             Requested size: 336.56241pt x 363.26257pt.
-
-
-LaTeX Warning: Citation `dcf-nonsaturated' on page 9 undefined on input line 21
-2.
-
-[9 <../../sketches/dcf_model_unsaturated_varpktsize.pdf>]
+ [9 <../../sketches/dcf_model_unsaturated_varpktsize.pdf>]
 <../../sketches/dcf_model_unsaturated_varpktsize_interarrival.pdf, id=150, 961.
 5925pt x 1055.945pt>
 File: ../../sketches/dcf_model_unsaturated_varpktsize_interarrival.pdf Graphic 
@@ -940,14 +844,14 @@ file (type pdf)
 
 <use ../../sketches/dcf_model_unsaturated_varpktsize_interarrival.pdf>
 Package pdftex.def Info: ../../sketches/dcf_model_unsaturated_varpktsize_intera
-rrival.pdf used on input line 218.
+rrival.pdf used on input line 207.
 (pdftex.def)             Requested size: 336.56241pt x 369.58629pt.
  [10 <../../sketches/dcf_model_unsaturated_varpktsize_interarrival.pdf>]
 <../../sketches/collapses.pdf, id=171, 663.47874pt x 293.095pt>
 File: ../../sketches/collapses.pdf Graphic file (type pdf)
 
 <use ../../sketches/collapses.pdf>
-Package pdftex.def Info: ../../sketches/collapses.pdf used on input line 237.
+Package pdftex.def Info: ../../sketches/collapses.pdf used on input line 226.
 (pdftex.def)             Requested size: 265.3868pt x 117.23592pt.
 
 <../../sketches/compressible_dcf.pdf, id=172, 618.31pt x 469.755pt>
@@ -955,7 +859,7 @@ File: ../../sketches/compressible_dcf.pdf Graphic file (type pdf)
 
 <use ../../sketches/compressible_dcf.pdf>
 Package pdftex.def Info: ../../sketches/compressible_dcf.pdf used on input line
- 247.
+ 236.
 (pdftex.def)             Requested size: 278.23692pt x 211.3878pt.
  [11 <../../sketches/collapses.pdf> <../../sketches/compressible_dcf.pdf>]
 <../../sketches/compressible_dcf_arrival.pdf, id=208, 907.39pt x 541.02126pt>
@@ -963,7 +867,7 @@ File: ../../sketches/compressible_dcf_arrival.pdf Graphic file (type pdf)
 
 <use ../../sketches/compressible_dcf_arrival.pdf>
 Package pdftex.def Info: ../../sketches/compressible_dcf_arrival.pdf used on in
-put line 259.
+put line 248.
 (pdftex.def)             Requested size: 362.94957pt x 216.40466pt.
 
 <../../sketches/compressible_dcf_all.pdf, id=209, 1124.2pt x 726.715pt>
@@ -971,21 +875,32 @@ File: ../../sketches/compressible_dcf_all.pdf Graphic file (type pdf)
 
 <use ../../sketches/compressible_dcf_all.pdf>
 Package pdftex.def Info: ../../sketches/compressible_dcf_all.pdf used on input 
-line 271.
+line 260.
 (pdftex.def)             Requested size: 393.47589pt x 254.35405pt.
- [12 <../../sketches/compressible_dcf_arrival.pdf>]
-File: ../../sketches/compressible_dcf_all.pdf Graphic file (type pdf)
- <use ../../sketches/compressible_dcf_all.pdf>
-Package pdftex.def Info: ../../sketches/compressible_dcf_all.pdf used on input 
-line 298.
-(pdftex.def)             Requested size: 393.47589pt x 254.35405pt.
-File: ../../sketches/compressible_dcf_all.pdf Graphic file (type pdf)
+ [12 <../../sketches/compressible_dcf_arrival.pdf>] [13 <../../sketches/compres
+sible_dcf_all.pdf>]
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 314.
 
-<use ../../sketches/compressible_dcf_all.pdf>
-Package pdftex.def Info: ../../sketches/compressible_dcf_all.pdf used on input 
-line 306.
-(pdftex.def)             Requested size: 393.47589pt x 254.35405pt.
- (./figures.tex
+
+(/usr/local/texlive/2013/texmf-dist/tex/latex/base/omscmr.fd
+File: omscmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <9> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 314.
+
+<smallwindow.png, id=253, 677.4108pt x 270.7716pt>
+File: smallwindow.png Graphic file (type png)
+ <use smallwindow.png>
+Package pdftex.def Info: smallwindow.png used on input line 335.
+(pdftex.def)             Requested size: 406.44962pt x 162.4642pt.
+
+<multinodes.png, id=254, 484.209pt x 336.7782pt>
+File: multinodes.png Graphic file (type png)
+ <use multinodes.png>
+Package pdftex.def Info: multinodes.png used on input line 343.
+(pdftex.def)             Requested size: 290.52763pt x 202.06847pt.
+
+(./figures.tex
 Package epstopdf Info: Source file: <../../src/fig-simulation_download_multimed
 ia-bps-1_1_10_10_12000.eps>
 (epstopdf)                    date: 2015-03-16 14:09:43
@@ -997,162 +912,18 @@ ia-bps-1_1_10_10_12000-eps-converted-to.pdf>
 (epstopdf)             Command: <epstopdf --outfile=../../src/fig-simulation_do
 wnload_multimedia-bps-1_1_10_10_12000-eps-converted-to.pdf ../../src/fig-simula
 tion_download_multimedia-bps-1_1_10_10_12000.eps>
-(epstopdf)             \includegraphics on input line 4.
+(epstopdf)             \includegraphics on input line 17.
 Package epstopdf Info: Output file is already uptodate.
 
 <../../src/fig-simulation_download_multimedia-bps-1_1_10_10_12000-eps-converted
--to.pdf, id=230, 562.1pt x 421.575pt>
+-to.pdf, id=255, 562.1pt x 421.575pt>
 File: ../../src/fig-simulation_download_multimedia-bps-1_1_10_10_12000-eps-conv
 erted-to.pdf Graphic file (type pdf)
 
 <use ../../src/fig-simulation_download_multimedia-bps-1_1_10_10_12000-eps-conve
 rted-to.pdf>
 Package pdftex.def Info: ../../src/fig-simulation_download_multimedia-bps-1_1_1
-0_10_12000-eps-converted-to.pdf used on input line 4.
-(pdftex.def)             Requested size: 196.73795pt x 147.55345pt.
-Package epstopdf Info: Source file: <../../src/fig-simulation_download_multimed
-ia-bps-1_1_10_25_12000.eps>
-(epstopdf)                    date: 2015-03-16 14:09:37
-(epstopdf)                    size: 78130 bytes
-(epstopdf)             Output file: <../../src/fig-simulation_download_multimed
-ia-bps-1_1_10_25_12000-eps-converted-to.pdf>
-(epstopdf)                    date: 2015-03-16 15:08:20
-(epstopdf)                    size: 9939 bytes
-(epstopdf)             Command: <epstopdf --outfile=../../src/fig-simulation_do
-wnload_multimedia-bps-1_1_10_25_12000-eps-converted-to.pdf ../../src/fig-simula
-tion_download_multimedia-bps-1_1_10_25_12000.eps>
-(epstopdf)             \includegraphics on input line 4.
-Package epstopdf Info: Output file is already uptodate.
-
-<../../src/fig-simulation_download_multimedia-bps-1_1_10_25_12000-eps-converted
--to.pdf, id=231, 562.1pt x 421.575pt>
-File: ../../src/fig-simulation_download_multimedia-bps-1_1_10_25_12000-eps-conv
-erted-to.pdf Graphic file (type pdf)
-
-<use ../../src/fig-simulation_download_multimedia-bps-1_1_10_25_12000-eps-conve
-rted-to.pdf>
-Package pdftex.def Info: ../../src/fig-simulation_download_multimedia-bps-1_1_1
-0_25_12000-eps-converted-to.pdf used on input line 4.
-(pdftex.def)             Requested size: 196.73795pt x 147.55345pt.
-Package epstopdf Info: Source file: <../../src/fig-simulation_download_multimed
-ia-bps-1_1_10_5_12000.eps>
-(epstopdf)                    date: 2015-03-16 14:09:32
-(epstopdf)                    size: 78128 bytes
-(epstopdf)             Output file: <../../src/fig-simulation_download_multimed
-ia-bps-1_1_10_5_12000-eps-converted-to.pdf>
-(epstopdf)                    date: 2015-03-16 15:08:20
-(epstopdf)                    size: 9938 bytes
-(epstopdf)             Command: <epstopdf --outfile=../../src/fig-simulation_do
-wnload_multimedia-bps-1_1_10_5_12000-eps-converted-to.pdf ../../src/fig-simulat
-ion_download_multimedia-bps-1_1_10_5_12000.eps>
-(epstopdf)             \includegraphics on input line 6.
-Package epstopdf Info: Output file is already uptodate.
-
-<../../src/fig-simulation_download_multimedia-bps-1_1_10_5_12000-eps-converted-
-to.pdf, id=232, 562.1pt x 421.575pt>
-File: ../../src/fig-simulation_download_multimedia-bps-1_1_10_5_12000-eps-conve
-rted-to.pdf Graphic file (type pdf)
-
-<use ../../src/fig-simulation_download_multimedia-bps-1_1_10_5_12000-eps-conver
-ted-to.pdf>
-Package pdftex.def Info: ../../src/fig-simulation_download_multimedia-bps-1_1_1
-0_5_12000-eps-converted-to.pdf used on input line 6.
-(pdftex.def)             Requested size: 196.73795pt x 147.55345pt.
-Package epstopdf Info: Source file: <../../src/fig-simulation_download_multimed
-ia-bps-1_1_25_10_12000.eps>
-(epstopdf)                    date: 2015-03-16 14:09:27
-(epstopdf)                    size: 78120 bytes
-(epstopdf)             Output file: <../../src/fig-simulation_download_multimed
-ia-bps-1_1_25_10_12000-eps-converted-to.pdf>
-(epstopdf)                    date: 2015-03-16 15:08:20
-(epstopdf)                    size: 9925 bytes
-(epstopdf)             Command: <epstopdf --outfile=../../src/fig-simulation_do
-wnload_multimedia-bps-1_1_25_10_12000-eps-converted-to.pdf ../../src/fig-simula
-tion_download_multimedia-bps-1_1_25_10_12000.eps>
-(epstopdf)             \includegraphics on input line 6.
-Package epstopdf Info: Output file is already uptodate.
-
-<../../src/fig-simulation_download_multimedia-bps-1_1_25_10_12000-eps-converted
--to.pdf, id=233, 562.1pt x 421.575pt>
-File: ../../src/fig-simulation_download_multimedia-bps-1_1_25_10_12000-eps-conv
-erted-to.pdf Graphic file (type pdf)
-
-<use ../../src/fig-simulation_download_multimedia-bps-1_1_25_10_12000-eps-conve
-rted-to.pdf>
-Package pdftex.def Info: ../../src/fig-simulation_download_multimedia-bps-1_1_2
-5_10_12000-eps-converted-to.pdf used on input line 6.
-(pdftex.def)             Requested size: 196.73795pt x 147.55345pt.
-Package epstopdf Info: Source file: <../../src/fig-simulation_download_multimed
-ia-bps-1_1_25_25_12000.eps>
-(epstopdf)                    date: 2015-03-16 14:09:21
-(epstopdf)                    size: 78126 bytes
-(epstopdf)             Output file: <../../src/fig-simulation_download_multimed
-ia-bps-1_1_25_25_12000-eps-converted-to.pdf>
-(epstopdf)                    date: 2015-03-16 15:08:21
-(epstopdf)                    size: 9933 bytes
-(epstopdf)             Command: <epstopdf --outfile=../../src/fig-simulation_do
-wnload_multimedia-bps-1_1_25_25_12000-eps-converted-to.pdf ../../src/fig-simula
-tion_download_multimedia-bps-1_1_25_25_12000.eps>
-(epstopdf)             \includegraphics on input line 8.
-Package epstopdf Info: Output file is already uptodate.
-
-<../../src/fig-simulation_download_multimedia-bps-1_1_25_25_12000-eps-converted
--to.pdf, id=234, 562.1pt x 421.575pt>
-File: ../../src/fig-simulation_download_multimedia-bps-1_1_25_25_12000-eps-conv
-erted-to.pdf Graphic file (type pdf)
-
-<use ../../src/fig-simulation_download_multimedia-bps-1_1_25_25_12000-eps-conve
-rted-to.pdf>
-Package pdftex.def Info: ../../src/fig-simulation_download_multimedia-bps-1_1_2
-5_25_12000-eps-converted-to.pdf used on input line 8.
-(pdftex.def)             Requested size: 196.73795pt x 147.55345pt.
-Package epstopdf Info: Source file: <../../src/fig-simulation_download_multimed
-ia-bps-1_1_25_5_12000.eps>
-(epstopdf)                    date: 2015-03-16 14:09:17
-(epstopdf)                    size: 78125 bytes
-(epstopdf)             Output file: <../../src/fig-simulation_download_multimed
-ia-bps-1_1_25_5_12000-eps-converted-to.pdf>
-(epstopdf)                    date: 2015-03-16 15:08:21
-(epstopdf)                    size: 9929 bytes
-(epstopdf)             Command: <epstopdf --outfile=../../src/fig-simulation_do
-wnload_multimedia-bps-1_1_25_5_12000-eps-converted-to.pdf ../../src/fig-simulat
-ion_download_multimedia-bps-1_1_25_5_12000.eps>
-(epstopdf)             \includegraphics on input line 8.
-Package epstopdf Info: Output file is already uptodate.
-
-<../../src/fig-simulation_download_multimedia-bps-1_1_25_5_12000-eps-converted-
-to.pdf, id=235, 562.1pt x 421.575pt>
-File: ../../src/fig-simulation_download_multimedia-bps-1_1_25_5_12000-eps-conve
-rted-to.pdf Graphic file (type pdf)
-
-<use ../../src/fig-simulation_download_multimedia-bps-1_1_25_5_12000-eps-conver
-ted-to.pdf>
-Package pdftex.def Info: ../../src/fig-simulation_download_multimedia-bps-1_1_2
-5_5_12000-eps-converted-to.pdf used on input line 8.
-(pdftex.def)             Requested size: 196.73795pt x 147.55345pt.
-Package epstopdf Info: Source file: <../../src/fig-simulation_download_multimed
-ia-bps-1_1_5_10_12000.eps>
-(epstopdf)                    date: 2015-03-16 14:09:12
-(epstopdf)                    size: 78128 bytes
-(epstopdf)             Output file: <../../src/fig-simulation_download_multimed
-ia-bps-1_1_5_10_12000-eps-converted-to.pdf>
-(epstopdf)                    date: 2015-03-16 15:08:21
-(epstopdf)                    size: 9944 bytes
-(epstopdf)             Command: <epstopdf --outfile=../../src/fig-simulation_do
-wnload_multimedia-bps-1_1_5_10_12000-eps-converted-to.pdf ../../src/fig-simulat
-ion_download_multimedia-bps-1_1_5_10_12000.eps>
-(epstopdf)             \includegraphics on input line 10.
-Package epstopdf Info: Output file is already uptodate.
-
-<../../src/fig-simulation_download_multimedia-bps-1_1_5_10_12000-eps-converted-
-to.pdf, id=236, 562.1pt x 421.575pt>
-File: ../../src/fig-simulation_download_multimedia-bps-1_1_5_10_12000-eps-conve
-rted-to.pdf Graphic file (type pdf)
-
-<use ../../src/fig-simulation_download_multimedia-bps-1_1_5_10_12000-eps-conver
-ted-to.pdf>
-Package pdftex.def Info: ../../src/fig-simulation_download_multimedia-bps-1_1_5
-_10_12000-eps-converted-to.pdf used on input line 10.
+0_10_12000-eps-converted-to.pdf used on input line 17.
 (pdftex.def)             Requested size: 196.73795pt x 147.55345pt.
 Package epstopdf Info: Source file: <../../src/fig-simulation_download_multimed
 ia-bps-1_1_5_25_12000.eps>
@@ -1165,138 +936,39 @@ ia-bps-1_1_5_25_12000-eps-converted-to.pdf>
 (epstopdf)             Command: <epstopdf --outfile=../../src/fig-simulation_do
 wnload_multimedia-bps-1_1_5_25_12000-eps-converted-to.pdf ../../src/fig-simulat
 ion_download_multimedia-bps-1_1_5_25_12000.eps>
-(epstopdf)             \includegraphics on input line 10.
+(epstopdf)             \includegraphics on input line 17.
 Package epstopdf Info: Output file is already uptodate.
 
 <../../src/fig-simulation_download_multimedia-bps-1_1_5_25_12000-eps-converted-
-to.pdf, id=237, 562.1pt x 421.575pt>
+to.pdf, id=256, 562.1pt x 421.575pt>
 File: ../../src/fig-simulation_download_multimedia-bps-1_1_5_25_12000-eps-conve
 rted-to.pdf Graphic file (type pdf)
 
 <use ../../src/fig-simulation_download_multimedia-bps-1_1_5_25_12000-eps-conver
 ted-to.pdf>
 Package pdftex.def Info: ../../src/fig-simulation_download_multimedia-bps-1_1_5
-_25_12000-eps-converted-to.pdf used on input line 10.
+_25_12000-eps-converted-to.pdf used on input line 17.
 (pdftex.def)             Requested size: 196.73795pt x 147.55345pt.
 Package epstopdf Info: Source file: <../../src/fig-simulation_download_multimed
-ia-bps-1_1_5_5_12000.eps>
-(epstopdf)                    date: 2015-03-16 14:09:03
-(epstopdf)                    size: 77338 bytes
+ia-bps-1_1_5_25_12000.eps>
+(epstopdf)                    date: 2015-03-16 14:09:07
+(epstopdf)                    size: 77836 bytes
 (epstopdf)             Output file: <../../src/fig-simulation_download_multimed
-ia-bps-1_1_5_5_12000-eps-converted-to.pdf>
+ia-bps-1_1_5_25_12000-eps-converted-to.pdf>
 (epstopdf)                    date: 2015-03-16 15:08:21
-(epstopdf)                    size: 9991 bytes
+(epstopdf)                    size: 9918 bytes
 (epstopdf)             Command: <epstopdf --outfile=../../src/fig-simulation_do
-wnload_multimedia-bps-1_1_5_5_12000-eps-converted-to.pdf ../../src/fig-simulati
-on_download_multimedia-bps-1_1_5_5_12000.eps>
-(epstopdf)             \includegraphics on input line 19.
+wnload_multimedia-bps-1_1_5_25_12000-eps-converted-to.pdf ../../src/fig-simulat
+ion_download_multimedia-bps-1_1_5_25_12000.eps>
+(epstopdf)             \includegraphics on input line 18.
 Package epstopdf Info: Output file is already uptodate.
+File: ../../src/fig-simulation_download_multimedia-bps-1_1_5_25_12000-eps-conve
+rted-to.pdf Graphic file (type pdf)
 
-<../../src/fig-simulation_download_multimedia-bps-1_1_5_5_12000-eps-converted-t
-o.pdf, id=238, 562.1pt x 421.575pt>
-File: ../../src/fig-simulation_download_multimedia-bps-1_1_5_5_12000-eps-conver
-ted-to.pdf Graphic file (type pdf)
-
-<use ../../src/fig-simulation_download_multimedia-bps-1_1_5_5_12000-eps-convert
-ed-to.pdf>
+<use ../../src/fig-simulation_download_multimedia-bps-1_1_5_25_12000-eps-conver
+ted-to.pdf>
 Package pdftex.def Info: ../../src/fig-simulation_download_multimedia-bps-1_1_5
-_5_12000-eps-converted-to.pdf used on input line 19.
-(pdftex.def)             Requested size: 196.73795pt x 147.55345pt.
-Package epstopdf Info: Source file: <../../src/fig-simulation_random_download-i
-nterarival-1_0_1_0_1_1_25.eps>
-(epstopdf)                    date: 2015-03-16 14:06:15
-(epstopdf)                    size: 14380 bytes
-(epstopdf)             Output file: <../../src/fig-simulation_random_download-i
-nterarival-1_0_1_0_1_1_25-eps-converted-to.pdf>
-(epstopdf)                    date: 2015-03-16 15:08:21
-(epstopdf)                    size: 8097 bytes
-(epstopdf)             Command: <epstopdf --outfile=../../src/fig-simulation_ra
-ndom_download-interarival-1_0_1_0_1_1_25-eps-converted-to.pdf ../../src/fig-sim
-ulation_random_download-interarival-1_0_1_0_1_1_25.eps>
-(epstopdf)             \includegraphics on input line 19.
-Package epstopdf Info: Output file is already uptodate.
-
-<../../src/fig-simulation_random_download-interarival-1_0_1_0_1_1_25-eps-conver
-ted-to.pdf, id=239, 562.1pt x 421.575pt>
-File: ../../src/fig-simulation_random_download-interarival-1_0_1_0_1_1_25-eps-c
-onverted-to.pdf Graphic file (type pdf)
-
-<use ../../src/fig-simulation_random_download-interarival-1_0_1_0_1_1_25-eps-co
-nverted-to.pdf>
-Package pdftex.def Info: ../../src/fig-simulation_random_download-interarival-1
-_0_1_0_1_1_25-eps-converted-to.pdf used on input line 19.
-(pdftex.def)             Requested size: 196.73795pt x 147.55345pt.
-Package epstopdf Info: Source file: <../../src/fig-simulation_random_download-i
-nterarival-1_0_5_0_1_1_25.eps>
-(epstopdf)                    date: 2015-03-16 14:08:58
-(epstopdf)                    size: 15200 bytes
-(epstopdf)             Output file: <../../src/fig-simulation_random_download-i
-nterarival-1_0_5_0_1_1_25-eps-converted-to.pdf>
-(epstopdf)                    date: 2015-03-16 15:08:22
-(epstopdf)                    size: 8001 bytes
-(epstopdf)             Command: <epstopdf --outfile=../../src/fig-simulation_ra
-ndom_download-interarival-1_0_5_0_1_1_25-eps-converted-to.pdf ../../src/fig-sim
-ulation_random_download-interarival-1_0_5_0_1_1_25.eps>
-(epstopdf)             \includegraphics on input line 20.
-Package epstopdf Info: Output file is already uptodate.
-
-<../../src/fig-simulation_random_download-interarival-1_0_5_0_1_1_25-eps-conver
-ted-to.pdf, id=240, 562.1pt x 421.575pt>
-File: ../../src/fig-simulation_random_download-interarival-1_0_5_0_1_1_25-eps-c
-onverted-to.pdf Graphic file (type pdf)
-
-<use ../../src/fig-simulation_random_download-interarival-1_0_5_0_1_1_25-eps-co
-nverted-to.pdf>
-Package pdftex.def Info: ../../src/fig-simulation_random_download-interarival-1
-_0_5_0_1_1_25-eps-converted-to.pdf used on input line 20.
-(pdftex.def)             Requested size: 196.73795pt x 147.55345pt.
-Package epstopdf Info: Source file: <../../src/fig-simulation_random_download-m
-axpackets-1_0_1_0_1_1_25.eps>
-(epstopdf)                    date: 2015-03-16 14:08:53
-(epstopdf)                    size: 14378 bytes
-(epstopdf)             Output file: <../../src/fig-simulation_random_download-m
-axpackets-1_0_1_0_1_1_25-eps-converted-to.pdf>
-(epstopdf)                    date: 2015-03-16 15:08:22
-(epstopdf)                    size: 8810 bytes
-(epstopdf)             Command: <epstopdf --outfile=../../src/fig-simulation_ra
-ndom_download-maxpackets-1_0_1_0_1_1_25-eps-converted-to.pdf ../../src/fig-simu
-lation_random_download-maxpackets-1_0_1_0_1_1_25.eps>
-(epstopdf)             \includegraphics on input line 20.
-Package epstopdf Info: Output file is already uptodate.
-
-<../../src/fig-simulation_random_download-maxpackets-1_0_1_0_1_1_25-eps-convert
-ed-to.pdf, id=241, 562.1pt x 421.575pt>
-File: ../../src/fig-simulation_random_download-maxpackets-1_0_1_0_1_1_25-eps-co
-nverted-to.pdf Graphic file (type pdf)
-
-<use ../../src/fig-simulation_random_download-maxpackets-1_0_1_0_1_1_25-eps-con
-verted-to.pdf>
-Package pdftex.def Info: ../../src/fig-simulation_random_download-maxpackets-1_
-0_1_0_1_1_25-eps-converted-to.pdf used on input line 20.
-(pdftex.def)             Requested size: 196.73795pt x 147.55345pt.
-Package epstopdf Info: Source file: <../../src/fig-simulation_random_download-m
-axpackets-1_0_5_0_1_1_25.eps>
-(epstopdf)                    date: 2015-03-16 14:08:47
-(epstopdf)                    size: 15198 bytes
-(epstopdf)             Output file: <../../src/fig-simulation_random_download-m
-axpackets-1_0_5_0_1_1_25-eps-converted-to.pdf>
-(epstopdf)                    date: 2015-03-16 15:08:22
-(epstopdf)                    size: 8710 bytes
-(epstopdf)             Command: <epstopdf --outfile=../../src/fig-simulation_ra
-ndom_download-maxpackets-1_0_5_0_1_1_25-eps-converted-to.pdf ../../src/fig-simu
-lation_random_download-maxpackets-1_0_5_0_1_1_25.eps>
-(epstopdf)             \includegraphics on input line 21.
-Package epstopdf Info: Output file is already uptodate.
-
-<../../src/fig-simulation_random_download-maxpackets-1_0_5_0_1_1_25-eps-convert
-ed-to.pdf, id=242, 562.1pt x 421.575pt>
-File: ../../src/fig-simulation_random_download-maxpackets-1_0_5_0_1_1_25-eps-co
-nverted-to.pdf Graphic file (type pdf)
-
-<use ../../src/fig-simulation_random_download-maxpackets-1_0_5_0_1_1_25-eps-con
-verted-to.pdf>
-Package pdftex.def Info: ../../src/fig-simulation_random_download-maxpackets-1_
-0_5_0_1_1_25-eps-converted-to.pdf used on input line 21.
+_25_12000-eps-converted-to.pdf used on input line 18.
 (pdftex.def)             Requested size: 196.73795pt x 147.55345pt.
 Package epstopdf Info: Source file: <../../src/fig-simulation_random_multimedia
 -bps-1_0_1_0_12000.eps>
@@ -1309,42 +981,114 @@ Package epstopdf Info: Source file: <../../src/fig-simulation_random_multimedia
 (epstopdf)             Command: <epstopdf --outfile=../../src/fig-simulation_ra
 ndom_multimedia-bps-1_0_1_0_12000-eps-converted-to.pdf ../../src/fig-simulation
 _random_multimedia-bps-1_0_1_0_12000.eps>
-(epstopdf)             \includegraphics on input line 21.
+(epstopdf)             \includegraphics on input line 18.
 Package epstopdf Info: Output file is already uptodate.
 
 <../../src/fig-simulation_random_multimedia-bps-1_0_1_0_12000-eps-converted-to.
-pdf, id=243, 562.1pt x 421.575pt>
+pdf, id=257, 562.1pt x 421.575pt>
 File: ../../src/fig-simulation_random_multimedia-bps-1_0_1_0_12000-eps-converte
 d-to.pdf Graphic file (type pdf)
 
 <use ../../src/fig-simulation_random_multimedia-bps-1_0_1_0_12000-eps-converted
 -to.pdf>
 Package pdftex.def Info: ../../src/fig-simulation_random_multimedia-bps-1_0_1_0
-_12000-eps-converted-to.pdf used on input line 21.
+_12000-eps-converted-to.pdf used on input line 18.
 (pdftex.def)             Requested size: 196.73795pt x 147.55345pt.
-Package epstopdf Info: Source file: <../../src/fig-simulation_random_multimedia
--bps-1_0_5_0_12000.eps>
-(epstopdf)                    date: 2015-03-16 14:08:35
-(epstopdf)                    size: 77829 bytes
-(epstopdf)             Output file: <../../src/fig-simulation_random_multimedia
--bps-1_0_5_0_12000-eps-converted-to.pdf>
+Package epstopdf Info: Source file: <../../src/fig-simulation_random_download-i
+nterarival-1_0_5_0_1_1_25.eps>
+(epstopdf)                    date: 2015-03-16 14:08:58
+(epstopdf)                    size: 15200 bytes
+(epstopdf)             Output file: <../../src/fig-simulation_random_download-i
+nterarival-1_0_5_0_1_1_25-eps-converted-to.pdf>
 (epstopdf)                    date: 2015-03-16 15:08:22
-(epstopdf)                    size: 10080 bytes
+(epstopdf)                    size: 8001 bytes
 (epstopdf)             Command: <epstopdf --outfile=../../src/fig-simulation_ra
-ndom_multimedia-bps-1_0_5_0_12000-eps-converted-to.pdf ../../src/fig-simulation
-_random_multimedia-bps-1_0_5_0_12000.eps>
-(epstopdf)             \includegraphics on input line 22.
+ndom_download-interarival-1_0_5_0_1_1_25-eps-converted-to.pdf ../../src/fig-sim
+ulation_random_download-interarival-1_0_5_0_1_1_25.eps>
+(epstopdf)             \includegraphics on input line 40.
 Package epstopdf Info: Output file is already uptodate.
 
-<../../src/fig-simulation_random_multimedia-bps-1_0_5_0_12000-eps-converted-to.
-pdf, id=244, 562.1pt x 421.575pt>
-File: ../../src/fig-simulation_random_multimedia-bps-1_0_5_0_12000-eps-converte
-d-to.pdf Graphic file (type pdf)
+<../../src/fig-simulation_random_download-interarival-1_0_5_0_1_1_25-eps-conver
+ted-to.pdf, id=258, 562.1pt x 421.575pt>
+File: ../../src/fig-simulation_random_download-interarival-1_0_5_0_1_1_25-eps-c
+onverted-to.pdf Graphic file (type pdf)
 
-<use ../../src/fig-simulation_random_multimedia-bps-1_0_5_0_12000-eps-converted
--to.pdf>
-Package pdftex.def Info: ../../src/fig-simulation_random_multimedia-bps-1_0_5_0
-_12000-eps-converted-to.pdf used on input line 22.
+<use ../../src/fig-simulation_random_download-interarival-1_0_5_0_1_1_25-eps-co
+nverted-to.pdf>
+Package pdftex.def Info: ../../src/fig-simulation_random_download-interarival-1
+_0_5_0_1_1_25-eps-converted-to.pdf used on input line 40.
+(pdftex.def)             Requested size: 196.73795pt x 147.55345pt.
+Package epstopdf Info: Source file: <../../src/fig-simulation_random_download-m
+axpackets-1_0_5_0_1_1_25.eps>
+(epstopdf)                    date: 2015-03-16 14:08:47
+(epstopdf)                    size: 15198 bytes
+(epstopdf)             Output file: <../../src/fig-simulation_random_download-m
+axpackets-1_0_5_0_1_1_25-eps-converted-to.pdf>
+(epstopdf)                    date: 2015-03-16 15:08:22
+(epstopdf)                    size: 8710 bytes
+(epstopdf)             Command: <epstopdf --outfile=../../src/fig-simulation_ra
+ndom_download-maxpackets-1_0_5_0_1_1_25-eps-converted-to.pdf ../../src/fig-simu
+lation_random_download-maxpackets-1_0_5_0_1_1_25.eps>
+(epstopdf)             \includegraphics on input line 40.
+Package epstopdf Info: Output file is already uptodate.
+
+<../../src/fig-simulation_random_download-maxpackets-1_0_5_0_1_1_25-eps-convert
+ed-to.pdf, id=259, 562.1pt x 421.575pt>
+File: ../../src/fig-simulation_random_download-maxpackets-1_0_5_0_1_1_25-eps-co
+nverted-to.pdf Graphic file (type pdf)
+
+<use ../../src/fig-simulation_random_download-maxpackets-1_0_5_0_1_1_25-eps-con
+verted-to.pdf>
+Package pdftex.def Info: ../../src/fig-simulation_random_download-maxpackets-1_
+0_5_0_1_1_25-eps-converted-to.pdf used on input line 40.
+(pdftex.def)             Requested size: 196.73795pt x 147.55345pt.
+Package epstopdf Info: Source file: <../../src/fig-simulation_random_download-i
+nterarival-1_0_1_0_1_1_25.eps>
+(epstopdf)                    date: 2015-03-16 14:06:15
+(epstopdf)                    size: 14380 bytes
+(epstopdf)             Output file: <../../src/fig-simulation_random_download-i
+nterarival-1_0_1_0_1_1_25-eps-converted-to.pdf>
+(epstopdf)                    date: 2015-03-16 15:08:21
+(epstopdf)                    size: 8097 bytes
+(epstopdf)             Command: <epstopdf --outfile=../../src/fig-simulation_ra
+ndom_download-interarival-1_0_1_0_1_1_25-eps-converted-to.pdf ../../src/fig-sim
+ulation_random_download-interarival-1_0_1_0_1_1_25.eps>
+(epstopdf)             \includegraphics on input line 41.
+Package epstopdf Info: Output file is already uptodate.
+
+<../../src/fig-simulation_random_download-interarival-1_0_1_0_1_1_25-eps-conver
+ted-to.pdf, id=260, 562.1pt x 421.575pt>
+File: ../../src/fig-simulation_random_download-interarival-1_0_1_0_1_1_25-eps-c
+onverted-to.pdf Graphic file (type pdf)
+
+<use ../../src/fig-simulation_random_download-interarival-1_0_1_0_1_1_25-eps-co
+nverted-to.pdf>
+Package pdftex.def Info: ../../src/fig-simulation_random_download-interarival-1
+_0_1_0_1_1_25-eps-converted-to.pdf used on input line 41.
+(pdftex.def)             Requested size: 196.73795pt x 147.55345pt.
+Package epstopdf Info: Source file: <../../src/fig-simulation_random_download-m
+axpackets-1_0_1_0_1_1_25.eps>
+(epstopdf)                    date: 2015-03-16 14:08:53
+(epstopdf)                    size: 14378 bytes
+(epstopdf)             Output file: <../../src/fig-simulation_random_download-m
+axpackets-1_0_1_0_1_1_25-eps-converted-to.pdf>
+(epstopdf)                    date: 2015-03-16 15:08:22
+(epstopdf)                    size: 8810 bytes
+(epstopdf)             Command: <epstopdf --outfile=../../src/fig-simulation_ra
+ndom_download-maxpackets-1_0_1_0_1_1_25-eps-converted-to.pdf ../../src/fig-simu
+lation_random_download-maxpackets-1_0_1_0_1_1_25.eps>
+(epstopdf)             \includegraphics on input line 41.
+Package epstopdf Info: Output file is already uptodate.
+
+<../../src/fig-simulation_random_download-maxpackets-1_0_1_0_1_1_25-eps-convert
+ed-to.pdf, id=261, 562.1pt x 421.575pt>
+File: ../../src/fig-simulation_random_download-maxpackets-1_0_1_0_1_1_25-eps-co
+nverted-to.pdf Graphic file (type pdf)
+
+<use ../../src/fig-simulation_random_download-maxpackets-1_0_1_0_1_1_25-eps-con
+verted-to.pdf>
+Package pdftex.def Info: ../../src/fig-simulation_random_download-maxpackets-1_
+0_1_0_1_1_25-eps-converted-to.pdf used on input line 41.
 (pdftex.def)             Requested size: 196.73795pt x 147.55345pt.
 Package epstopdf Info: Source file: <../../src/fig-simulation_random_web-penter
 -1_0_1_0_1_1_5.eps>
@@ -1357,18 +1101,18 @@ Package epstopdf Info: Source file: <../../src/fig-simulation_random_web-penter
 (epstopdf)             Command: <epstopdf --outfile=../../src/fig-simulation_ra
 ndom_web-penter-1_0_1_0_1_1_5-eps-converted-to.pdf ../../src/fig-simulation_ran
 dom_web-penter-1_0_1_0_1_1_5.eps>
-(epstopdf)             \includegraphics on input line 22.
+(epstopdf)             \includegraphics on input line 65.
 Package epstopdf Info: Output file is already uptodate.
 
 <../../src/fig-simulation_random_web-penter-1_0_1_0_1_1_5-eps-converted-to.pdf,
- id=245, 562.1pt x 421.575pt>
+ id=262, 562.1pt x 421.575pt>
 File: ../../src/fig-simulation_random_web-penter-1_0_1_0_1_1_5-eps-converted-to
 .pdf Graphic file (type pdf)
 
 <use ../../src/fig-simulation_random_web-penter-1_0_1_0_1_1_5-eps-converted-to.
 pdf>
 Package pdftex.def Info: ../../src/fig-simulation_random_web-penter-1_0_1_0_1_1
-_5-eps-converted-to.pdf used on input line 22.
+_5-eps-converted-to.pdf used on input line 65.
 (pdftex.def)             Requested size: 196.73795pt x 147.55345pt.
 Package epstopdf Info: Source file: <../../src/fig-simulation_random_web-penter
 -1_0_5_0_1_1_5.eps>
@@ -1381,186 +1125,68 @@ Package epstopdf Info: Source file: <../../src/fig-simulation_random_web-penter
 (epstopdf)             Command: <epstopdf --outfile=../../src/fig-simulation_ra
 ndom_web-penter-1_0_5_0_1_1_5-eps-converted-to.pdf ../../src/fig-simulation_ran
 dom_web-penter-1_0_5_0_1_1_5.eps>
-(epstopdf)             \includegraphics on input line 32.
+(epstopdf)             \includegraphics on input line 65.
 Package epstopdf Info: Output file is already uptodate.
 
 <../../src/fig-simulation_random_web-penter-1_0_5_0_1_1_5-eps-converted-to.pdf,
- id=246, 562.1pt x 421.575pt>
+ id=263, 562.1pt x 421.575pt>
 File: ../../src/fig-simulation_random_web-penter-1_0_5_0_1_1_5-eps-converted-to
 .pdf Graphic file (type pdf)
 
 <use ../../src/fig-simulation_random_web-penter-1_0_5_0_1_1_5-eps-converted-to.
 pdf>
 Package pdftex.def Info: ../../src/fig-simulation_random_web-penter-1_0_5_0_1_1
-_5-eps-converted-to.pdf used on input line 32.
+_5-eps-converted-to.pdf used on input line 65.
 (pdftex.def)             Requested size: 196.73795pt x 147.55345pt.
-Package epstopdf Info: Source file: <../../src/fig-simulation_web_download-inte
-rarival-1_1_1_5_1_1_25.eps>
-(epstopdf)                    date: 2015-03-16 14:08:10
-(epstopdf)                    size: 13938 bytes
-(epstopdf)             Output file: <../../src/fig-simulation_web_download-inte
-rarival-1_1_1_5_1_1_25-eps-converted-to.pdf>
-(epstopdf)                    date: 2015-03-16 15:08:27
-(epstopdf)                    size: 7705 bytes
-(epstopdf)             Command: <epstopdf --outfile=../../src/fig-simulation_we
-b_download-interarival-1_1_1_5_1_1_25-eps-converted-to.pdf ../../src/fig-simula
-tion_web_download-interarival-1_1_1_5_1_1_25.eps>
-(epstopdf)             \includegraphics on input line 32.
-Package epstopdf Info: Output file is already uptodate.
+) [14] [15 <./smallwindow.png> <./multinodes.png>] [16 <../../src/fig-simulatio
+n_download_multimedia-bps-1_1_10_10_12000-eps-converted-to.pdf> <../../src/fig-
+simulation_download_multimedia-bps-1_1_5_25_12000-eps-converted-to.pdf> <../../
+src/fig-simulation_random_multimedia-bps-1_0_1_0_12000-eps-converted-to.pdf>] [
+17 <../../src/fig-simulation_random_download-interarival-1_0_5_0_1_1_25-eps-con
+verted-to.pdf> <../../src/fig-simulation_random_download-maxpackets-1_0_5_0_1_1
+_25-eps-converted-to.pdf> <../../src/fig-simulation_random_download-interarival
+-1_0_1_0_1_1_25-eps-converted-to.pdf> <../../src/fig-simulation_random_download
+-maxpackets-1_0_1_0_1_1_25-eps-converted-to.pdf> <../../src/fig-simulation_rand
+om_web-penter-1_0_1_0_1_1_5-eps-converted-to.pdf> <../../src/fig-simulation_ran
+dom_web-penter-1_0_5_0_1_1_5-eps-converted-to.pdf>] (./report.bbl
+Overfull \hbox (49.68954pt too wide) in paragraph at lines 26--29
+[]\OT1/cmr/m/n/9 ``Video: Sony demo.'' [On-line]. Avail-able: http://trace.eas.
+asu.edu/mpeg4/single/SonyCIF[]G16B1Mp/SonyCIF[]G16B1Mp04/ 
+ []
 
-<../../src/fig-simulation_web_download-interarival-1_1_1_5_1_1_25-eps-converted
--to.pdf, id=247, 562.1pt x 421.575pt>
-File: ../../src/fig-simulation_web_download-interarival-1_1_1_5_1_1_25-eps-conv
-erted-to.pdf Graphic file (type pdf)
-
-<use ../../src/fig-simulation_web_download-interarival-1_1_1_5_1_1_25-eps-conve
-rted-to.pdf>
-Package pdftex.def Info: ../../src/fig-simulation_web_download-interarival-1_1_
-1_5_1_1_25-eps-converted-to.pdf used on input line 32.
-(pdftex.def)             Requested size: 196.73795pt x 147.55345pt.
-
-
-! LaTeX Error: Unknown graphics extension: .000000e-01_1_5_1_1_25.eps.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.33 ...interarival-1_5.000000e-01_1_5_1_1_25.eps}
-                                                   & \includegraphics[scale=...
-
-? 
-Package epstopdf Info: Source file: <../../src/fig-simulation_web_download-maxp
-ackets-1_1_1_5_1_1_25.eps>
-(epstopdf)                    date: 2015-03-16 14:05:55
-(epstopdf)                    size: 13936 bytes
-(epstopdf)             Output file: <../../src/fig-simulation_web_download-maxp
-ackets-1_1_1_5_1_1_25-eps-converted-to.pdf>
-(epstopdf)                    date: 2015-03-16 15:08:27
-(epstopdf)                    size: 8415 bytes
-(epstopdf)             Command: <epstopdf --outfile=../../src/fig-simulation_we
-b_download-maxpackets-1_1_1_5_1_1_25-eps-converted-to.pdf ../../src/fig-simulat
-ion_web_download-maxpackets-1_1_1_5_1_1_25.eps>
-(epstopdf)             \includegraphics on input line 33.
-Package epstopdf Info: Output file is already uptodate.
-
-<../../src/fig-simulation_web_download-maxpackets-1_1_1_5_1_1_25-eps-converted-
-to.pdf, id=248, 562.1pt x 421.575pt>
-File: ../../src/fig-simulation_web_download-maxpackets-1_1_1_5_1_1_25-eps-conve
-rted-to.pdf Graphic file (type pdf)
-
-<use ../../src/fig-simulation_web_download-maxpackets-1_1_1_5_1_1_25-eps-conver
-ted-to.pdf>
-Package pdftex.def Info: ../../src/fig-simulation_web_download-maxpackets-1_1_1
-_5_1_1_25-eps-converted-to.pdf used on input line 33.
-(pdftex.def)             Requested size: 196.73795pt x 147.55345pt.
-
-
-! LaTeX Error: Unknown graphics extension: .000000e-01_1_5_1_1_25.eps.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.34 ...-maxpackets-1_5.000000e-01_1_5_1_1_25.eps}
-                                                   & \includegraphics[scale=...
-
-? 
-Package epstopdf Info: Source file: <../../src/fig-simulation_web_multimedia-bp
-s-1_1_1_5_12000.eps>
-(epstopdf)                    date: 2015-03-16 14:05:22
-(epstopdf)                    size: 77334 bytes
-(epstopdf)             Output file: <../../src/fig-simulation_web_multimedia-bp
-s-1_1_1_5_12000-eps-converted-to.pdf>
-(epstopdf)                    date: 2015-03-16 15:08:28
-(epstopdf)                    size: 9979 bytes
-(epstopdf)             Command: <epstopdf --outfile=../../src/fig-simulation_we
-b_multimedia-bps-1_1_1_5_12000-eps-converted-to.pdf ../../src/fig-simulation_we
-b_multimedia-bps-1_1_1_5_12000.eps>
-(epstopdf)             \includegraphics on input line 34.
-Package epstopdf Info: Output file is already uptodate.
-
-<../../src/fig-simulation_web_multimedia-bps-1_1_1_5_12000-eps-converted-to.pdf
-, id=249, 562.1pt x 421.575pt>
-File: ../../src/fig-simulation_web_multimedia-bps-1_1_1_5_12000-eps-converted-t
-o.pdf Graphic file (type pdf)
-
-<use ../../src/fig-simulation_web_multimedia-bps-1_1_1_5_12000-eps-converted-to
-.pdf>
-Package pdftex.def Info: ../../src/fig-simulation_web_multimedia-bps-1_1_1_5_12
-000-eps-converted-to.pdf used on input line 34.
-(pdftex.def)             Requested size: 196.73795pt x 147.55345pt.
-
-
-! LaTeX Error: Unknown graphics extension: .000000e-01_1_5_12000.eps.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.36 ...timedia-bps-1_5.000000e-01_1_5_12000.eps}}
-                                                  
-? 
-)
-No file report.bbl.
-[13 <../../sketches/compressible_dcf_all.pdf>] [14] [15 <../../src/fig-simulati
-on_download_multimedia-bps-1_1_10_10_12000-eps-converted-to.pdf> <../../src/fig
--simulation_download_multimedia-bps-1_1_10_25_12000-eps-converted-to.pdf> <../.
-./src/fig-simulation_download_multimedia-bps-1_1_10_5_12000-eps-converted-to.pd
-f> <../../src/fig-simulation_download_multimedia-bps-1_1_25_10_12000-eps-conver
-ted-to.pdf> <../../src/fig-simulation_download_multimedia-bps-1_1_25_25_12000-e
-ps-converted-to.pdf> <../../src/fig-simulation_download_multimedia-bps-1_1_25_5
-_12000-eps-converted-to.pdf> <../../src/fig-simulation_download_multimedia-bps-
-1_1_5_10_12000-eps-converted-to.pdf> <../../src/fig-simulation_download_multime
-dia-bps-1_1_5_25_12000-eps-converted-to.pdf>] [16 <../../src/fig-simulation_dow
-nload_multimedia-bps-1_1_5_5_12000-eps-converted-to.pdf> <../../src/fig-simulat
-ion_random_download-interarival-1_0_1_0_1_1_25-eps-converted-to.pdf> <../../src
-/fig-simulation_random_download-interarival-1_0_5_0_1_1_25-eps-converted-to.pdf
-> <../../src/fig-simulation_random_download-maxpackets-1_0_1_0_1_1_25-eps-conve
-rted-to.pdf> <../../src/fig-simulation_random_download-maxpackets-1_0_5_0_1_1_2
-5-eps-converted-to.pdf> <../../src/fig-simulation_random_multimedia-bps-1_0_1_0
-_12000-eps-converted-to.pdf> <../../src/fig-simulation_random_multimedia-bps-1_
-0_5_0_12000-eps-converted-to.pdf> <../../src/fig-simulation_random_web-penter-1
-_0_1_0_1_1_5-eps-converted-to.pdf>] [17 <../../src/fig-simulation_random_web-pe
-nter-1_0_5_0_1_1_5-eps-converted-to.pdf> <../../src/fig-simulation_web_download
--interarival-1_1_1_5_1_1_25-eps-converted-to.pdf> <../../src/fig-simulation_web
-_download-maxpackets-1_1_1_5_1_1_25-eps-converted-to.pdf> <../../src/fig-simula
-tion_web_multimedia-bps-1_1_1_5_12000-eps-converted-to.pdf>] (./report.aux)
-
-LaTeX Warning: There were undefined references.
-
-
-LaTeX Warning: There were multiply-defined labels.
-
- ) 
+[18]) [19] (./report.aux) ) 
 Here is how much of TeX's memory you used:
- 12125 strings out of 493315
- 230604 string characters out of 6137904
- 286703 words of memory out of 5000000
- 15275 multiletter control sequences out of 15000+600000
- 8846 words of font info for 32 fonts, out of 8000000 for 9000
+ 12161 strings out of 493315
+ 227805 string characters out of 6137904
+ 287865 words of memory out of 5000000
+ 15317 multiletter control sequences out of 15000+600000
+ 9191 words of font info for 33 fonts, out of 8000000 for 9000
  957 hyphenation exceptions out of 8191
- 63i,13n,68p,1220b,409s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb
-></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb>
-</usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></
-usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></u
-sr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></usr
-/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/l
-ocal/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/loc
-al/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local
-/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/local/te
-xlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texli
-ve/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texlive/
-2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></usr/local/texlive/2
-013/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/20
-13/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></usr/local/texlive/2013
-/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2013/t
-exmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb>
-Output written on report.pdf (17 pages, 572576 bytes).
+ 63i,13n,80p,1332b,575s stack positions out of 5000i,500n,10000p,200000b,80000s
+</usr/local/texlive/2013/texmf-dist/fonts/type1/publ
+ic/amsfonts/cm/cmbx10.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/publi
+c/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public
+/amsfonts/cm/cmbx9.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/a
+msfonts/cm/cmmi10.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/am
+sfonts/cm/cmmi5.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsf
+onts/cm/cmmi6.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfon
+ts/cm/cmmi7.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts
+/cm/cmmi9.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/c
+m/cmr10.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/
+cmr5.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmr
+6.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.p
+fb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb>
+</usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb><
+/usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></
+usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></us
+r/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/
+local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/lo
+cal/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/loc
+al/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmti9.pfb>
+Output written on report.pdf (19 pages, 1035514 bytes).
 PDF statistics:
- 543 PDF objects out of 1000 (max. 8388607)
- 380 compressed objects within 4 object streams
+ 435 PDF objects out of 1000 (max. 8388607)
+ 304 compressed objects within 4 object streams
  0 named destinations out of 1000 (max. 500000)
- 198 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 153 words of extra memory for PDF output out of 10000 (max. 10000000)
 
