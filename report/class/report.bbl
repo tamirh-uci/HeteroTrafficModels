@@ -21,12 +21,6 @@
 \providecommand{\BIBdecl}{\relax}
 \BIBdecl
 
-\bibitem{sony-demo}
-\BIBentryALTinterwordspacing
-``Video: Sony demo.'' [Online]. Available:
-  \url{{http://trace.eas.asu.edu/mpeg4/single/SonyCIF\_G16B1Mp/SonyCIF\_G16B1Mp04/}}
-\BIBentrySTDinterwordspacing
-
 \bibitem{badia2010markov}
 L.~Badia, N.~Baldo, M.~Levorato, and M.~Zorzi, ``A markov framework for error
   control techniques based on selective retransmission in video transmission
@@ -110,6 +104,24 @@ L.~Qiu, Y.~Zhang, F.~Wang, M.~K. Han, and R.~Mahajan, ``A general model of
   wireless interference,'' in \emph{Proceedings of the 13th annual ACM
   international conference on Mobile computing and networking}.\hskip 1em plus
   0.5em minus 0.4em\relax ACM, 2007, pp. 171--182.
+
+\bibitem{trafficqual2008}
+M.~Reisslein and G.~Prasanth, Van der~Auwera, ``Traffic and quality
+  characterization of single-layer video streams encoded with h.264\/mpeg-4
+  advanced video coding standard and scalable video coding extension,''
+  \emph{IEEE Transactions on Broadcasting}, vol.~54, no.~3, pp. 698--718, 2008.
+
+\bibitem{sony-demo}
+\BIBentryALTinterwordspacing
+M.~Reisslein, P.~Seeling, and B.~Kulapala, ``Video: Sony demo.'' [Online].
+  Available:
+  \url{{http://trace.eas.asu.edu/mpeg4/single/SonyCIF\_G16B1Mp/SonyCIF\_G16B1Mp04/}}
+\BIBentrySTDinterwordspacing
+
+\bibitem{netperfeval2004}
+------, ``Network performance evaluation with frame size and quality traces of
+  single-layer and two-layer video: A tutorial,'' \emph{IEEE Communications
+  Surveys and Tutorials}, vol.~6, no.~3, pp. 58--78, Third Quarter 2004.
 
 \bibitem{rozner2007traffic}
 E.~Rozner, Y.~Mehta, A.~Akella, and L.~Qiu, ``Traffic-aware channel assignment
