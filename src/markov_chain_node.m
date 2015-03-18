@@ -49,15 +49,18 @@ classdef markov_chain_node < handle
             tx = this.txTypes(this.prevStateIndex, this.currentStateIndex);
         end
         
-        function Setup(this, markovModel, pi)
-            epsilon = 0.0001;
-            steadyStateMaxRepeat = 10000;
-            
+        function Setup(this, markovModel, pi, startState)
             nValidStates = size(pi, 2);
-            
             this.sampleIndices  = 1:nValidStates;
             
-            startStateIndex = markovModel.WeightedRandomState(epsilon, steadyStateMaxRepeat);
+            if (startState > 0)
+                startStateIndex = startState;
+            else
+                epsilon = 0.0001;
+                steadyStateMaxRepeat = 10000;
+                startStateIndex = markovModel.WeightedRandomState(epsilon, steadyStateMaxRepeat);
+            end
+            
             this.prevStateIndex = startStateIndex;
             this.currentStateIndex = startStateIndex;
         end

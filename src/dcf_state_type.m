@@ -9,10 +9,12 @@ classdef dcf_state_type < int32
         Interarrival(4)
         Postbackoff(5)
         
-        VideoFrame(20)
-        IFrame(21)
-        BFrame(22)
-        PFrame(23)
+        IFrameNew(20)
+        IFrameContinue(21)
+        BFrameNew(30)
+        BFrameContinue(31)
+        PFrameNew(40)
+        PFrameContinue(41)
         
         % All values here and below are considered collapsible states
         Collapsible(64)

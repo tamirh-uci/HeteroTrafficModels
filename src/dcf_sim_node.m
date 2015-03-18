@@ -74,13 +74,13 @@ classdef dcf_sim_node < handle
             [this.piMultiTransmit, ~, ~] = this.markovMultiTransmit.TransitionTable();
             %failureTable = this.piMultiTransmit
             
-            this.mainChain.Setup(this.markovSingleTransmit, this.piSingleTransmit);
+            this.mainChain.Setup(this.markovSingleTransmit, this.piSingleTransmit, 0);
             
             if (~isempty(this.secondaryChain))
                 this.markovSecondary = this.secondaryChain.chain.CreateMarkovChain(false);
                 [this.piSecondary, this.secondaryChain.txTypes, this.secondaryChain.stateTypes] = this.markovSecondary.TransitionTable();
                 
-                this.secondaryChain.Setup(this.markovSecondary, this.piSecondary);
+                this.secondaryChain.Setup(this.markovSecondary, this.piSecondary, 1);
             end
         end
         
@@ -106,16 +106,15 @@ classdef dcf_sim_node < handle
         % determine what exactly it is we're transmitting
         function PostStep(this)
             if (~isempty(this.secondaryChain))
-                % Keep track of secondary chain only when it needs to
-                % change
+                % Step the secondary chain to get new frame type
                 if (this.IsTransmitting())
                     this.secondaryChain.StepUntil(this.piSecondary, this.secondaryEndStates);
-                    this.secondaryChain.Log();
                 end
             end
             
             % Keep track of every state transition
             this.mainChain.Log();
+            this.secondaryChain.Log();
         end
         
         % We need to look for packetsize chains which failed
@@ -123,6 +122,7 @@ classdef dcf_sim_node < handle
         % chain
         function PostSimulationProcessing(this, bDoPacketchainBacktrack, bVerbose)
             this.mainChain.PostSimulation(bDoPacketchainBacktrack, bVerbose);
+            this.secondaryChain.PostSimulation(false, bVerbose);
         end
         
         % An entire packet successfully transmitted
