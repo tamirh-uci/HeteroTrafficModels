@@ -9,11 +9,11 @@ classdef simulation_single_node < handle
         doRando = false;
         doVideo = true;
         
-        timeSteps = 50;
+        timeSteps = 50000;
         wMin = 2;
         wMax = 16;
         
-        pSuccessOptions = [0.5];
+        pSuccessOptions = [0.1, 0.4, 0.7, 1.0];
 
         % FILE DOWNLOAD
         files_pArrive = 1.0;
@@ -120,9 +120,14 @@ classdef simulation_single_node < handle
         end
         
         function run(this)
+            t = 0:this.timeSteps;
+            colors = { [0, 1, 1], [1, 0, 0], [0, 1, 0], [0.5, 1, 0], [0.5, 0, 1], [1, 0.5, 0], [1, 0, 1] };
+            
             [m, ~] = dcf_matrix_collapsible.CalculateDimensions(this.wMin, this.wMax);
 
+            i = 0;
             for pSuccess = this.pSuccessOptions
+                i = i + 1;
                 % Separate simulation for each node type
                 files_simulator = dcf_simulator_oo(pSuccess, 0.0);
                 webtx_simulator = dcf_simulator_oo(pSuccess, 0.0);
@@ -151,8 +156,13 @@ classdef simulation_single_node < handle
                 this.recordSim(this.doRando, rando_simulator, files_fName, files_fNcsv, 0);
                 this.recordSim(this.doVideo, video_simulator, files_fName, files_fNcsv, this.video_bps);
 
+                % Plot the frame transmissions
+                vid = video_simulator.GetNode(1).secondaryChain;
+                plot(vid.stateTypeHistory, 'Color', colors{i});
+                hold all
+                
                 fprintf('Done!\n');
             end % for pSuccess
-        end
+        end %function run()
     end %methods
 end %classdef
