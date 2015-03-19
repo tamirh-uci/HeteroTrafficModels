@@ -9,24 +9,25 @@ classdef simulation_single_node < handle
         doRando = false;
         doVideo = true;
         
-        timeSteps = 4000;
+        timeSteps = 2000;
         wMin = 2;
         wMax = 16;
         
-        pSuccessOptions = [0.4, 0.6, 0.8, 1.0];
-
+        %pSuccessOptions = [0.4, 0.6, 0.8, 1.0];
+        pSuccessOptions = [1.0];
+        
         % FILE DOWNLOAD
         files_pArrive = 1.0;
         files_pEnter = 1.0;
-        files_nMaxPackets = 10;
-        files_nInterarrival = 10;
+        files_nMaxPackets = 25;
+        files_nInterarrival = 25;
 
         % WEB TRAFFIC
         %TODO: Fix postbackoff
         %webtx_pArrive = 0.5;
         webtx_pArrive = 1.0;
         webtx_pEnter = 0.5;
-        webtx_nMaxPackets = 5;
+        webtx_nMaxPackets = 1;
         webtx_nInterarrival = 5;
 
         % RANDOM TRAFFIC
@@ -36,7 +37,7 @@ classdef simulation_single_node < handle
         rando_nInterarrival = 0;
 
         % MULTIMEDIA STREAMING
-        video_bps = 4 * 1000000; % 16MBits/second
+        video_bps_options = 1000000 * [2, 4, 8, 16, 32]; % 4MBits/second
         video_payloadSize = 1500*8;
     end
     
@@ -153,7 +154,7 @@ classdef simulation_single_node < handle
             %set(fig, 'Visible','off');
             bar(data, 'stacked', 'BarWidth', 1.0, 'EdgeColor', 'none');
             legend('I-Frame', 'P-Frame', 'B-Frame', 'backoff');
-            title(sprintf('Single multimedia node with pSuccess=%.2f, wMin=%d, wMax=%d', pSuccess, this.wMin, this.wMax));
+            title(sprintf('Single multimedia node with pSuccess=%.2f, bps=%d', pSuccess, video_bps));
             
             saveas(fig, sprintf('fig-singlenode_mm_sim%.2f.eps', pSuccess));
         end
@@ -168,6 +169,7 @@ classdef simulation_single_node < handle
             %rows = size(this.pSuccessOptions, 2) / cols;
             
             i = 0;
+            for video_bps = this.video_bps_options
             for pSuccess = this.pSuccessOptions
                 i = i + 1;
                 % Separate simulation for each node type
@@ -179,12 +181,14 @@ classdef simulation_single_node < handle
                 add_file_download_node( files_simulator, m, this.wMin, 1, this.files_pArrive, this.files_pEnter, this.files_nMaxPackets, this.files_nInterarrival);
                 add_web_traffic_node(   webtx_simulator, m, this.wMin, 2, this.webtx_pArrive, this.webtx_pEnter, this.webtx_nMaxPackets, this.webtx_nInterarrival);
                 add_random_node(        rando_simulator, m, this.wMin, 3, this.rando_pArrive, this.rando_pEnter, this.rando_nMaxPackets, this.rando_nInterarrival);
-                add_multimedia_node(    video_simulator, m, this.wMin, 4, this.video_bps, this.video_payloadSize);
+                
+                add_multimedia_node(    video_simulator, m, this.wMin, 4, video_bps, this.video_payloadSize);
+                add_file_download_node( video_simulator, m, this.wMin, 5, this.files_pArrive, this.files_pEnter, this.files_nMaxPackets, this.files_nInterarrival);
 
                 [files_fName, files_fNcsv] = simulation_single_node.fnames('files', pSuccess, this.files_pArrive, this.files_pEnter, this.files_nMaxPackets, this.files_nInterarrival, 0, 0);
                 [webtx_fName, webtx_fNcsv] = simulation_single_node.fnames('webtx', pSuccess, this.webtx_pArrive, this.webtx_pEnter, this.webtx_nMaxPackets, this.webtx_nInterarrival, 0, 0);
                 [rando_fName, rando_fNcsv] = simulation_single_node.fnames('rando', pSuccess, this.rando_pArrive, this.rando_pEnter, this.rando_nMaxPackets, this.rando_nInterarrival, 0, 0);
-                [video_fName, video_fNcsv] = simulation_single_node.fnames('video', pSuccess, 0, 0, 0, 0, this.video_bps, this.video_payloadSize);
+                [video_fName, video_fNcsv] = simulation_single_node.fnames('video', pSuccess, 0, 0, 0, 0, video_bps, this.video_payloadSize);
                 
                 fprintf('Running simulations...\n');
                 this.runSim(this.doFiles, files_simulator, files_fName);
@@ -194,17 +198,17 @@ classdef simulation_single_node < handle
 
                 fprintf('Writing results to file...\n');
                 this.recordSim(this.doFiles, files_simulator, files_fName, files_fNcsv, 0);
-                this.recordSim(this.doWebtx, webtx_simulator, files_fName, files_fNcsv, 0);
-                this.recordSim(this.doRando, rando_simulator, files_fName, files_fNcsv, 0);
-                this.recordSim(this.doVideo, video_simulator, files_fName, files_fNcsv, this.video_bps);
+                this.recordSim(this.doWebtx, webtx_simulator, webtx_fName, webtx_fNcsv, 0);
+                this.recordSim(this.doRando, rando_simulator, rando_fName, rando_fNcsv, 0);
+                this.recordSim(this.doVideo, video_simulator, video_fName, video_fNcsv, video_bps);
 
                 % Plot the frame transmissions
+                fprintf('Plotting...\n');
                 this.plotVid(video_simulator.GetNode(1), pSuccess, i);
                 
-                %hold all
-                
-                fprintf('Done!\n');
+                fprintf('Done with pSuccess=%f + video_bps=%d\n', pSuccess, video_bps);
             end % for pSuccess
+            end % for video_bps
         end %function run()
     end %methods
 end %classdef
