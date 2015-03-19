@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014/Cygwin) (preloaded format=pdflatex 2015.3.18)  18 MAR 2015 13:18
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014/Cygwin) (preloaded format=pdflatex 2015.3.18)  18 MAR 2015 22:46
 entering extended mode
  \write18 enabled.
  %&-line parsing enabled.
@@ -696,7 +696,36 @@ File: gop.png Graphic file (type png)
  <use gop.png>
 Package pdftex.def Info: gop.png used on input line 65.
 (pdftex.def)             Requested size: 281.05421pt x 168.63252pt.
- [2 <./histogram1.png> <./histogram2.png>] [3 <./frame.png> <./gop.png>]
+
+<single_mm_pSucc04.png, id=19, 1129.21875pt x 639.89063pt>
+File: single_mm_pSucc04.png Graphic file (type png)
+
+<use single_mm_pSucc04.png>
+Package pdftex.def Info: single_mm_pSucc04.png used on input line 74.
+(pdftex.def)             Requested size: 225.83975pt x 127.97585pt.
+
+<single_mm_pSucc06.png, id=20, 1129.21875pt x 639.89063pt>
+File: single_mm_pSucc06.png Graphic file (type png)
+
+<use single_mm_pSucc06.png>
+Package pdftex.def Info: single_mm_pSucc06.png used on input line 74.
+(pdftex.def)             Requested size: 225.83975pt x 127.97585pt.
+
+<single_mm_pSucc08.png, id=21, 1129.21875pt x 639.89063pt>
+File: single_mm_pSucc08.png Graphic file (type png)
+
+<use single_mm_pSucc08.png>
+Package pdftex.def Info: single_mm_pSucc08.png used on input line 84.
+(pdftex.def)             Requested size: 225.83975pt x 127.97585pt.
+
+<single_mm_pSucc10.png, id=22, 1129.21875pt x 639.89063pt>
+File: single_mm_pSucc10.png Graphic file (type png)
+
+<use single_mm_pSucc10.png>
+Package pdftex.def Info: single_mm_pSucc10.png used on input line 84.
+(pdftex.def)             Requested size: 225.83975pt x 127.97585pt.
+ [2 <./histogram1.png> <./histogram2.png>] [3 <./frame.png> <./gop.png> <./sing
+le_mm_pSucc04.png> <./single_mm_pSucc06.png>]
 Package epstopdf Info: Source file: <../../src/results/browse_time.eps>
 (epstopdf)                    date: 2015-03-18 09:54:45
 (epstopdf)                    size: 19576 bytes
@@ -706,16 +735,16 @@ d-to.pdf>
 (epstopdf)                    size: 5201 bytes
 (epstopdf)             Command: <epstopdf --outfile=../../src/results/browse_ti
 me-eps-converted-to.pdf ../../src/results/browse_time.eps>
-(epstopdf)             \includegraphics on input line 75.
+(epstopdf)             \includegraphics on input line 95.
 Package epstopdf Info: Output file is already uptodate.
 
-<../../src/results/browse_time-eps-converted-to.pdf, id=33, 1151.30125pt x 538.
+<../../src/results/browse_time-eps-converted-to.pdf, id=37, 1151.30125pt x 538.
 01pt>
 File: ../../src/results/browse_time-eps-converted-to.pdf Graphic file (type pdf
 )
  <use ../../src/results/browse_time-eps-converted-to.pdf>
 Package pdftex.def Info: ../../src/results/browse_time-eps-converted-to.pdf use
-d on input line 75.
+d on input line 95.
 (pdftex.def)             Requested size: 469.7528pt x 100.36765pt.
 Package epstopdf Info: Source file: <../../src/results/file_time.eps>
 (epstopdf)                    date: 2015-03-18 09:54:45
@@ -726,15 +755,15 @@ to.pdf>
 (epstopdf)                    size: 4995 bytes
 (epstopdf)             Command: <epstopdf --outfile=../../src/results/file_time
 -eps-converted-to.pdf ../../src/results/file_time.eps>
-(epstopdf)             \includegraphics on input line 76.
+(epstopdf)             \includegraphics on input line 96.
 Package epstopdf Info: Output file is already uptodate.
 
-<../../src/results/file_time-eps-converted-to.pdf, id=34, 1066.98625pt x 567.11
+<../../src/results/file_time-eps-converted-to.pdf, id=38, 1066.98625pt x 567.11
 874pt>
 File: ../../src/results/file_time-eps-converted-to.pdf Graphic file (type pdf)
  <use ../../src/results/file_time-eps-converted-to.pdf>
 Package pdftex.def Info: ../../src/results/file_time-eps-converted-to.pdf used 
-on input line 76.
+on input line 96.
 (pdftex.def)             Requested size: 469.75218pt x 100.37222pt.
 Package epstopdf Info: Source file: <../../src/results/video_time.eps>
 (epstopdf)                    date: 2015-03-18 09:54:45
@@ -745,15 +774,15 @@ Package epstopdf Info: Source file: <../../src/results/video_time.eps>
 (epstopdf)                    size: 5250 bytes
 (epstopdf)             Command: <epstopdf --outfile=../../src/results/video_tim
 e-eps-converted-to.pdf ../../src/results/video_time.eps>
-(epstopdf)             \includegraphics on input line 77.
+(epstopdf)             \includegraphics on input line 97.
 Package epstopdf Info: Output file is already uptodate.
 
-<../../src/results/video_time-eps-converted-to.pdf, id=35, 562.1pt x 421.575pt>
+<../../src/results/video_time-eps-converted-to.pdf, id=39, 562.1pt x 421.575pt>
 File: ../../src/results/video_time-eps-converted-to.pdf Graphic file (type pdf)
 
 <use ../../src/results/video_time-eps-converted-to.pdf>
 Package pdftex.def Info: ../../src/results/video_time-eps-converted-to.pdf used
- on input line 77.
+ on input line 97.
 (pdftex.def)             Requested size: 469.75067pt x 100.37598pt.
 Package epstopdf Info: Source file: <../../src/results/all.eps>
 (epstopdf)                    date: 2015-03-18 09:54:45
@@ -764,126 +793,122 @@ Package epstopdf Info: Source file: <../../src/results/all.eps>
 (epstopdf)                    size: 8158 bytes
 (epstopdf)             Command: <epstopdf --outfile=../../src/results/all-eps-c
 onverted-to.pdf ../../src/results/all.eps>
-(epstopdf)             \includegraphics on input line 78.
+(epstopdf)             \includegraphics on input line 98.
 Package epstopdf Info: Output file is already uptodate.
 
-<../../src/results/all-eps-converted-to.pdf, id=36, 1249.66875pt x 718.685pt>
+<../../src/results/all-eps-converted-to.pdf, id=40, 1249.66875pt x 718.685pt>
 File: ../../src/results/all-eps-converted-to.pdf Graphic file (type pdf)
 
 <use ../../src/results/all-eps-converted-to.pdf>
 Package pdftex.def Info: ../../src/results/all-eps-converted-to.pdf used on inp
-ut line 78.
+ut line 98.
 (pdftex.def)             Requested size: 469.74966pt x 100.37395pt.
 
-Overfull \hbox (2.79778pt too wide) in paragraph at lines 74--80
+Overfull \hbox (2.79778pt too wide) in paragraph at lines 94--100
 [][] 
  []
 
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [4 <../../src/results/browse_time-eps-converted-to.pdf> <../../src/results/fil
-e_time-eps-converted-to.pdf> <../../src/results/video_time-eps-converted-to.pdf
-> <../../src/results/all-eps-converted-to.pdf>]
-<../../sketches/dcf_model.pdf, id=61, 961.5925pt x 663.47874pt>
+[4 <./single_mm_pSucc08.png> <./single_mm_pSucc10.png>] [5 <../../src/results/b
+rowse_time-eps-converted-to.pdf> <../../src/results/file_time-eps-converted-to.
+pdf> <../../src/results/video_time-eps-converted-to.pdf> <../../src/results/all
+-eps-converted-to.pdf>]
+<../../sketches/dcf_model.pdf, id=68, 961.5925pt x 663.47874pt>
 File: ../../sketches/dcf_model.pdf Graphic file (type pdf)
 
 <use ../../sketches/dcf_model.pdf>
-Package pdftex.def Info: ../../sketches/dcf_model.pdf used on input line 112.
+Package pdftex.def Info: ../../sketches/dcf_model.pdf used on input line 132.
 (pdftex.def)             Requested size: 336.56241pt x 232.22102pt.
- [5]
-<../../sketches/dcf_model_nonsaturated.pdf, id=66, 961.5925pt x 885.3075pt>
+ [6 <../../sketches/dcf_model.pdf>]
+<../../sketches/dcf_model_nonsaturated.pdf, id=89, 961.5925pt x 885.3075pt>
 File: ../../sketches/dcf_model_nonsaturated.pdf Graphic file (type pdf)
 
 <use ../../sketches/dcf_model_nonsaturated.pdf>
 Package pdftex.def Info: ../../sketches/dcf_model_nonsaturated.pdf used on inpu
-t line 146.
+t line 166.
 (pdftex.def)             Requested size: 336.56241pt x 309.86226pt.
- [6 <../../sketches/dcf_model.pdf>] [7 <../../sketches/dcf_model_nonsaturated.p
-df>]
-<../../sketches/size_chain_old.pdf, id=110, 377.41pt x 631.35875pt>
+ [7 <../../sketches/dcf_model_nonsaturated.pdf>]
+<../../sketches/size_chain_old.pdf, id=114, 377.41pt x 631.35875pt>
 File: ../../sketches/size_chain_old.pdf Graphic file (type pdf)
 
 <use ../../sketches/size_chain_old.pdf>
 Package pdftex.def Info: ../../sketches/size_chain_old.pdf used on input line 1
-61.
+81.
 (pdftex.def)             Requested size: 132.09547pt x 220.97887pt.
-
-Underfull \vbox (badness 2772) has occurred while \output is active []
-
  [8 <../../sketches/size_chain_old.pdf>]
-<../../sketches/dcf_model_unsaturated_varpktsize.pdf, id=130, 961.5925pt x 1037
+<../../sketches/dcf_model_unsaturated_varpktsize.pdf, id=134, 961.5925pt x 1037
 .8775pt>
 File: ../../sketches/dcf_model_unsaturated_varpktsize.pdf Graphic file (type pd
 f)
  <use ../../sketches/dcf_model_unsaturated_varpktsize.pdf>
 Package pdftex.def Info: ../../sketches/dcf_model_unsaturated_varpktsize.pdf us
-ed on input line 195.
+ed on input line 215.
 (pdftex.def)             Requested size: 336.56241pt x 363.26257pt.
- [9 <../../sketches/dcf_model_unsaturated_varpktsize.pdf>]
-<../../sketches/dcf_model_unsaturated_varpktsize_interarrival.pdf, id=150, 961.
+
+<../../sketches/dcf_model_unsaturated_varpktsize_interarrival.pdf, id=135, 961.
 5925pt x 1055.945pt>
 File: ../../sketches/dcf_model_unsaturated_varpktsize_interarrival.pdf Graphic 
 file (type pdf)
 
 <use ../../sketches/dcf_model_unsaturated_varpktsize_interarrival.pdf>
 Package pdftex.def Info: ../../sketches/dcf_model_unsaturated_varpktsize_intera
-rrival.pdf used on input line 208.
+rrival.pdf used on input line 228.
 (pdftex.def)             Requested size: 336.56241pt x 369.58629pt.
- [10 <../../sketches/dcf_model_unsaturated_varpktsize_interarrival.pdf>]
-<../../sketches/collapses.pdf, id=171, 663.47874pt x 293.095pt>
+
+<../../sketches/collapses.pdf, id=136, 663.47874pt x 293.095pt>
 File: ../../sketches/collapses.pdf Graphic file (type pdf)
 
 <use ../../sketches/collapses.pdf>
-Package pdftex.def Info: ../../sketches/collapses.pdf used on input line 227.
+Package pdftex.def Info: ../../sketches/collapses.pdf used on input line 247.
 (pdftex.def)             Requested size: 265.3868pt x 117.23592pt.
 
-<../../sketches/compressible_dcf.pdf, id=172, 618.31pt x 469.755pt>
+<../../sketches/compressible_dcf.pdf, id=137, 618.31pt x 469.755pt>
 File: ../../sketches/compressible_dcf.pdf Graphic file (type pdf)
 
 <use ../../sketches/compressible_dcf.pdf>
 Package pdftex.def Info: ../../sketches/compressible_dcf.pdf used on input line
- 237.
+ 257.
 (pdftex.def)             Requested size: 278.23692pt x 211.3878pt.
-
-<../../sketches/compressible_dcf_arrival.pdf, id=173, 907.39pt x 541.02126pt>
+ [9] [10 <../../sketches/dcf_model_unsaturated_varpktsize.pdf>] [11 <../../sket
+ches/dcf_model_unsaturated_varpktsize_interarrival.pdf> <../../sketches/collaps
+es.pdf>]
+<../../sketches/compressible_dcf_arrival.pdf, id=196, 907.39pt x 541.02126pt>
 File: ../../sketches/compressible_dcf_arrival.pdf Graphic file (type pdf)
 
 <use ../../sketches/compressible_dcf_arrival.pdf>
 Package pdftex.def Info: ../../sketches/compressible_dcf_arrival.pdf used on in
-put line 249.
+put line 269.
 (pdftex.def)             Requested size: 362.94957pt x 216.40466pt.
- [11 <../../sketches/collapses.pdf>] [12 <../../sketches/compressible_dcf.pdf> 
-<../../sketches/compressible_dcf_arrival.pdf>]
-<../../sketches/compressible_dcf_all.pdf, id=229, 1124.2pt x 726.715pt>
+
+<../../sketches/compressible_dcf_all.pdf, id=197, 1124.2pt x 726.715pt>
 File: ../../sketches/compressible_dcf_all.pdf Graphic file (type pdf)
 
 <use ../../sketches/compressible_dcf_all.pdf>
 Package pdftex.def Info: ../../sketches/compressible_dcf_all.pdf used on input 
-line 261.
+line 281.
 (pdftex.def)             Requested size: 393.47589pt x 254.35405pt.
- [13 <../../sketches/compressible_dcf_all.pdf>]
-LaTeX Font Info:    Try loading font information for OMS+cmr on input line 315.
+ [12 <../../sketches/compressible_dcf.pdf>] [13 <../../sketches/compressible_dc
+f_arrival.pdf> <../../sketches/compressible_dcf_all.pdf>]
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 335.
 
  (/usr/share/texmf-dist/tex/latex/base/omscmr.fd
 File: omscmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <9> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 315.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 335.
 
-<smallwindow.png, id=250, 677.4108pt x 270.7716pt>
+<smallwindow.png, id=254, 677.4108pt x 270.7716pt>
 File: smallwindow.png Graphic file (type png)
  <use smallwindow.png>
-Package pdftex.def Info: smallwindow.png used on input line 336.
+Package pdftex.def Info: smallwindow.png used on input line 356.
 (pdftex.def)             Requested size: 406.44962pt x 162.4642pt.
 
-<multinodes.png, id=251, 484.209pt x 336.7782pt>
+<multinodes.png, id=255, 484.209pt x 336.7782pt>
 File: multinodes.png Graphic file (type png)
  <use multinodes.png>
-Package pdftex.def Info: multinodes.png used on input line 344.
+Package pdftex.def Info: multinodes.png used on input line 364.
 (pdftex.def)             Requested size: 290.52763pt x 202.06847pt.
  [14]
-[15 <./smallwindow.png> <./multinodes.png>] (./figures.tex
+[15 <./smallwindow.png>] [16 <./multinodes.png>] (./figures.tex
 Package epstopdf Info: Source file: <../../src/fig-simulation_random_multimedia
 -bps-1_0_1_0_12000.eps>
 (epstopdf)                    date: 2015-03-18 09:54:44
@@ -899,7 +924,7 @@ _random_multimedia-bps-1_0_1_0_12000.eps>
 Package epstopdf Info: Output file is already uptodate.
 
 <../../src/fig-simulation_random_multimedia-bps-1_0_1_0_12000-eps-converted-to.
-pdf, id=263, 562.1pt x 421.575pt>
+pdf, id=270, 562.1pt x 421.575pt>
 File: ../../src/fig-simulation_random_multimedia-bps-1_0_1_0_12000-eps-converte
 d-to.pdf Graphic file (type pdf)
 
@@ -923,7 +948,7 @@ _random_multimedia-bps-1_0_5_0_12000.eps>
 Package epstopdf Info: Output file is already uptodate.
 
 <../../src/fig-simulation_random_multimedia-bps-1_0_5_0_12000-eps-converted-to.
-pdf, id=264, 562.1pt x 421.575pt>
+pdf, id=271, 562.1pt x 421.575pt>
 File: ../../src/fig-simulation_random_multimedia-bps-1_0_5_0_12000-eps-converte
 d-to.pdf Graphic file (type pdf)
 
@@ -947,7 +972,7 @@ ulation_random_download-interarival-1_0_5_0_1_1_25.eps>
 Package epstopdf Info: Output file is already uptodate.
 
 <../../src/fig-simulation_random_download-interarival-1_0_5_0_1_1_25-eps-conver
-ted-to.pdf, id=265, 562.1pt x 421.575pt>
+ted-to.pdf, id=272, 562.1pt x 421.575pt>
 File: ../../src/fig-simulation_random_download-interarival-1_0_5_0_1_1_25-eps-c
 onverted-to.pdf Graphic file (type pdf)
 
@@ -971,7 +996,7 @@ lation_random_download-maxpackets-1_0_5_0_1_1_25.eps>
 Package epstopdf Info: Output file is already uptodate.
 
 <../../src/fig-simulation_random_download-maxpackets-1_0_5_0_1_1_25-eps-convert
-ed-to.pdf, id=266, 562.1pt x 421.575pt>
+ed-to.pdf, id=273, 562.1pt x 421.575pt>
 File: ../../src/fig-simulation_random_download-maxpackets-1_0_5_0_1_1_25-eps-co
 nverted-to.pdf Graphic file (type pdf)
 
@@ -995,7 +1020,7 @@ dom_web-penter-1_0_1_0_1_1_5.eps>
 Package epstopdf Info: Output file is already uptodate.
 
 <../../src/fig-simulation_random_web-penter-1_0_1_0_1_1_5-eps-converted-to.pdf,
- id=267, 562.1pt x 421.575pt>
+ id=274, 562.1pt x 421.575pt>
 File: ../../src/fig-simulation_random_web-penter-1_0_1_0_1_1_5-eps-converted-to
 .pdf Graphic file (type pdf)
 
@@ -1019,7 +1044,7 @@ dom_web-penter-1_0_5_0_1_1_5.eps>
 Package epstopdf Info: Output file is already uptodate.
 
 <../../src/fig-simulation_random_web-penter-1_0_5_0_1_1_5-eps-converted-to.pdf,
- id=268, 562.1pt x 421.575pt>
+ id=275, 562.1pt x 421.575pt>
 File: ../../src/fig-simulation_random_web-penter-1_0_5_0_1_1_5-eps-converted-to
 .pdf Graphic file (type pdf)
 
@@ -1028,19 +1053,19 @@ pdf>
 Package pdftex.def Info: ../../src/fig-simulation_random_web-penter-1_0_5_0_1_1
 _5-eps-converted-to.pdf used on input line 65.
 (pdftex.def)             Requested size: 196.73795pt x 147.55345pt.
-) [16] [17 <../../src/fig-simulation_random_multimedia-bps-1_0_1_0_12000-eps-co
-nverted-to.pdf> <../../src/fig-simulation_random_multimedia-bps-1_0_5_0_12000-e
-ps-converted-to.pdf> <../../src/fig-simulation_random_download-interarival-1_0_
+) [17 <../../src/fig-simulation_random_multimedia-bps-1_0_1_0_12000-eps-convert
+ed-to.pdf> <../../src/fig-simulation_random_multimedia-bps-1_0_5_0_12000-eps-co
+nverted-to.pdf>] [18 <../../src/fig-simulation_random_download-interarival-1_0_
 5_0_1_1_25-eps-converted-to.pdf> <../../src/fig-simulation_random_download-maxp
 ackets-1_0_5_0_1_1_25-eps-converted-to.pdf> <../../src/fig-simulation_random_we
 b-penter-1_0_1_0_1_1_5-eps-converted-to.pdf> <../../src/fig-simulation_random_w
-eb-penter-1_0_5_0_1_1_5-eps-converted-to.pdf>] (./report.bbl [18]) [19]
+eb-penter-1_0_5_0_1_1_5-eps-converted-to.pdf>] (./report.bbl [19]) [20]
 (./report.aux) ) 
 Here is how much of TeX's memory you used:
- 13648 strings out of 493117
- 265284 string characters out of 6141204
- 321127 words of memory out of 5000000
- 16805 multiletter control sequences out of 15000+600000
+ 13670 strings out of 493117
+ 265822 string characters out of 6141204
+ 323144 words of memory out of 5000000
+ 16823 multiletter control sequences out of 15000+600000
  9191 words of font info for 33 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  62i,13n,68p,1332b,480s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -1061,10 +1086,10 @@ ublic/amsfonts/cm/cmsy10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts
 /usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/share/texm
 f-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/texmf-dist/fonts/t
 ype1/public/amsfonts/cm/cmti9.pfb>
-Output written on report.pdf (19 pages, 1025027 bytes).
+Output written on report.pdf (20 pages, 1205743 bytes).
 PDF statistics:
- 403 PDF objects out of 1000 (max. 8388607)
- 283 compressed objects within 3 object streams
+ 410 PDF objects out of 1000 (max. 8388607)
+ 285 compressed objects within 3 object streams
  0 named destinations out of 1000 (max. 500000)
- 138 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 158 words of extra memory for PDF output out of 10000 (max. 10000000)
 
