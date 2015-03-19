@@ -9,11 +9,11 @@ classdef simulation_single_node < handle
         doRando = false;
         doVideo = true;
         
-        timeSteps = 50000;
+        timeSteps = 4000;
         wMin = 2;
         wMax = 16;
         
-        pSuccessOptions = [0.1, 0.4, 0.7, 1.0];
+        pSuccessOptions = [0.4, 0.6, 0.8, 1.0];
 
         % FILE DOWNLOAD
         files_pArrive = 1.0;
@@ -36,7 +36,7 @@ classdef simulation_single_node < handle
         rando_nInterarrival = 0;
 
         % MULTIMEDIA STREAMING
-        video_bps = 4 * 1000000; % 4MBits/second
+        video_bps = 4 * 1000000; % 16MBits/second
         video_payloadSize = 1500*8;
     end
     
@@ -57,7 +57,7 @@ classdef simulation_single_node < handle
             obj = obj@handle;
         end
         
-        function runSim(this, doSim, sim, fname, fncsv)
+        function runSim(this, doSim, sim, fname)
             if (~doSim)
                 return;
             end
@@ -119,12 +119,54 @@ classdef simulation_single_node < handle
             fclose(csv);
         end
         
+        function hist = subplotVid(~, vidHist, txsHist, height1, height2, ok1, ok2)
+            hist = zeros(size(vidHist));
+            
+            % 'new' transmissions will stand out as peaks
+            hist(vidHist==ok1) = height1;
+            hist(vidHist==ok2) = height2;
+            
+            % when there's a failure, null out the history value
+            hist(txsHist==dcf_transition_type.TxFailure | txsHist==dcf_transition_type.Backoff) = 0;
+        end
+        
+        function plotVid(this, node, pSuccess, index)
+            vidHist = node.secondaryChain.stateTypeHistory;
+            txsHist = node.mainChain.transitionHistory;
+            
+            % Separate out the data into individual frame parts
+            iHist = this.subplotVid(vidHist, txsHist, 0.95, 0.95, dcf_state_type.IFrameNew, dcf_state_type.IFrameContinue);
+            pHist = this.subplotVid(vidHist, txsHist, 0.95, 0.95, dcf_state_type.PFrameNew, dcf_state_type.PFrameContinue);
+            bHist = this.subplotVid(vidHist, txsHist, 0.95, 0.95, dcf_state_type.BFrameNew, dcf_state_type.BFrameContinue);
+            
+            backoff = zeros(size(vidHist));
+            backoff(txsHist==dcf_transition_type.Backoff) = 0.15;
+            
+            fails = zeros(size(vidHist));
+            fails(txsHist==dcf_transition_type.TxFailure) = 0.10;
+            
+            data = [iHist', pHist', bHist', (backoff+fails)'];
+            
+            %sub = subplot(rows, cols, index);
+            fig = figure(index);
+            set(fig, 'WindowStyle', 'docked');
+            %set(fig, 'Visible','off');
+            bar(data, 'stacked', 'BarWidth', 1.0, 'EdgeColor', 'none');
+            legend('I-Frame', 'P-Frame', 'B-Frame', 'backoff');
+            title(sprintf('Single multimedia node with pSuccess=%.2f, wMin=%d, wMax=%d', pSuccess, this.wMin, this.wMax));
+            
+            saveas(fig, sprintf('fig-singlenode_mm_sim%.2f.eps', pSuccess));
+        end
+        
         function run(this)
-            t = 0:this.timeSteps;
-            colors = { [0, 1, 1], [1, 0, 0], [0, 1, 0], [0.5, 1, 0], [0.5, 0, 1], [1, 0.5, 0], [1, 0, 1] };
+            %t = 0:this.timeSteps;
+            %colors = { [0, 1, 1], [1, 0, 0], [0, 1, 0], [0.5, 1, 0], [0.5, 0, 1], [1, 0.5, 0], [1, 0, 1] };
             
             [m, ~] = dcf_matrix_collapsible.CalculateDimensions(this.wMin, this.wMax);
 
+            %cols = 2;
+            %rows = size(this.pSuccessOptions, 2) / cols;
+            
             i = 0;
             for pSuccess = this.pSuccessOptions
                 i = i + 1;
@@ -145,10 +187,10 @@ classdef simulation_single_node < handle
                 [video_fName, video_fNcsv] = simulation_single_node.fnames('video', pSuccess, 0, 0, 0, 0, this.video_bps, this.video_payloadSize);
                 
                 fprintf('Running simulations...\n');
-                this.runSim(this.doFiles, files_simulator, files_fName, files_fNcsv);
-                this.runSim(this.doWebtx, webtx_simulator, webtx_fName, webtx_fNcsv);
-                this.runSim(this.doRando, rando_simulator, rando_fName, rando_fNcsv);
-                this.runSim(this.doVideo, video_simulator, video_fName, video_fNcsv);
+                this.runSim(this.doFiles, files_simulator, files_fName);
+                this.runSim(this.doWebtx, webtx_simulator, webtx_fName);
+                this.runSim(this.doRando, rando_simulator, rando_fName);
+                this.runSim(this.doVideo, video_simulator, video_fName);
 
                 fprintf('Writing results to file...\n');
                 this.recordSim(this.doFiles, files_simulator, files_fName, files_fNcsv, 0);
@@ -157,9 +199,9 @@ classdef simulation_single_node < handle
                 this.recordSim(this.doVideo, video_simulator, files_fName, files_fNcsv, this.video_bps);
 
                 % Plot the frame transmissions
-                vid = video_simulator.GetNode(1).secondaryChain;
-                plot(vid.stateTypeHistory, 'Color', colors{i});
-                hold all
+                this.plotVid(video_simulator.GetNode(1), pSuccess, i);
+                
+                %hold all
                 
                 fprintf('Done!\n');
             end % for pSuccess
