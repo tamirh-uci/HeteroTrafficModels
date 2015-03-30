@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013) (format=pdflatex 2013.5.30)  20 MAR 2015 16:35
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013) (format=pdflatex 2013.5.30)  30 MAR 2015 14:16
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -609,22 +609,6 @@ s/map/pdftex/updmap/pdftex.map}
 
 
 ]
-
-LaTeX Warning: Citation `kumar2004communication' on page 2 undefined on input l
-ine 48.
-
-
-LaTeX Warning: Citation `mah1997empirical' on page 2 undefined on input line 51
-.
-
-
-LaTeX Warning: Citation `netperfeval2004' on page 2 undefined on input line 56.
-
-
-
-LaTeX Warning: Citation `trafficqual2008' on page 2 undefined on input line 56.
-
-
 Package epstopdf Info: Source file: <../../src/results/browse_time.eps>
 (epstopdf)                    date: 2015-03-16 16:15:01
 (epstopdf)                    size: 18319 bytes
@@ -634,7 +618,7 @@ d-to.pdf>
 (epstopdf)                    size: 5201 bytes
 (epstopdf)             Command: <repstopdf --outfile=../../src/results/browse_t
 ime-eps-converted-to.pdf ../../src/results/browse_time.eps>
-(epstopdf)             \includegraphics on input line 62.
+(epstopdf)             \includegraphics on input line 54.
 Package epstopdf Info: Output file is already uptodate.
 
 <../../src/results/browse_time-eps-converted-to.pdf, id=13, 1151.30125pt x 538.
@@ -643,7 +627,7 @@ File: ../../src/results/browse_time-eps-converted-to.pdf Graphic file (type pdf
 )
  <use ../../src/results/browse_time-eps-converted-to.pdf>
 Package pdftex.def Info: ../../src/results/browse_time-eps-converted-to.pdf use
-d on input line 62.
+d on input line 54.
 (pdftex.def)             Requested size: 524.10641pt x 100.36765pt.
 Package epstopdf Info: Source file: <../../src/results/file_time.eps>
 (epstopdf)                    date: 2015-03-16 16:15:37
@@ -654,7 +638,7 @@ to.pdf>
 (epstopdf)                    size: 4995 bytes
 (epstopdf)             Command: <repstopdf --outfile=../../src/results/file_tim
 e-eps-converted-to.pdf ../../src/results/file_time.eps>
-(epstopdf)             \includegraphics on input line 63.
+(epstopdf)             \includegraphics on input line 55.
 Package epstopdf Info: Output file is already uptodate.
 
 <../../src/results/file_time-eps-converted-to.pdf, id=14, 1066.98625pt x 567.11
@@ -662,7 +646,7 @@ Package epstopdf Info: Output file is already uptodate.
 File: ../../src/results/file_time-eps-converted-to.pdf Graphic file (type pdf)
  <use ../../src/results/file_time-eps-converted-to.pdf>
 Package pdftex.def Info: ../../src/results/file_time-eps-converted-to.pdf used 
-on input line 63.
+on input line 55.
 (pdftex.def)             Requested size: 524.11403pt x 100.37222pt.
 Package epstopdf Info: Source file: <../../src/results/video_time.eps>
 (epstopdf)                    date: 2015-03-16 16:16:45
@@ -673,7 +657,7 @@ Package epstopdf Info: Source file: <../../src/results/video_time.eps>
 (epstopdf)                    size: 5250 bytes
 (epstopdf)             Command: <repstopdf --outfile=../../src/results/video_ti
 me-eps-converted-to.pdf ../../src/results/video_time.eps>
-(epstopdf)             \includegraphics on input line 64.
+(epstopdf)             \includegraphics on input line 56.
 Package epstopdf Info: Output file is already uptodate.
 
 <../../src/results/video_time-eps-converted-to.pdf, id=15, 562.1pt x 421.575pt>
@@ -681,7 +665,7 @@ File: ../../src/results/video_time-eps-converted-to.pdf Graphic file (type pdf)
 
 <use ../../src/results/video_time-eps-converted-to.pdf>
 Package pdftex.def Info: ../../src/results/video_time-eps-converted-to.pdf used
- on input line 64.
+ on input line 56.
 (pdftex.def)             Requested size: 524.1285pt x 100.37598pt.
 Package epstopdf Info: Source file: <../../src/results/all.eps>
 (epstopdf)                    date: 2015-03-16 16:14:40
@@ -692,7 +676,7 @@ Package epstopdf Info: Source file: <../../src/results/all.eps>
 (epstopdf)                    size: 8158 bytes
 (epstopdf)             Command: <repstopdf --outfile=../../src/results/all-eps-
 converted-to.pdf ../../src/results/all.eps>
-(epstopdf)             \includegraphics on input line 65.
+(epstopdf)             \includegraphics on input line 57.
 Package epstopdf Info: Output file is already uptodate.
 
 <../../src/results/all-eps-converted-to.pdf, id=16, 1249.66875pt x 718.685pt>
@@ -700,161 +684,111 @@ File: ../../src/results/all-eps-converted-to.pdf Graphic file (type pdf)
 
 <use ../../src/results/all-eps-converted-to.pdf>
 Package pdftex.def Info: ../../src/results/all-eps-converted-to.pdf used on inp
-ut line 65.
+ut line 57.
 (pdftex.def)             Requested size: 524.11363pt x 100.37395pt.
 
-Overfull \hbox (12.02875pt too wide) in paragraph at lines 61--67
+Overfull \hbox (12.02875pt too wide) in paragraph at lines 53--59
 [][] 
  []
 
 
-LaTeX Warning: Reference `sec:experiment' on page 2 undefined on input line 77.
+LaTeX Warning: Reference `sec:experiment' on page 2 undefined on input line 68.
 
 
-
-Overfull \hbox (2.18639pt too wide) in paragraph at lines 85--95
- []$ 
- []
-
-[2] <../../sketches/dcf_model.pdf, id=24, 961.5925pt x 663.47874pt>
+<../../sketches/dcf_model.pdf, id=17, 961.5925pt x 663.47874pt>
 File: ../../sketches/dcf_model.pdf Graphic file (type pdf)
 
 <use ../../sketches/dcf_model.pdf>
-Package pdftex.def Info: ../../sketches/dcf_model.pdf used on input line 99.
+Package pdftex.def Info: ../../sketches/dcf_model.pdf used on input line 92.
 (pdftex.def)             Requested size: 269.24406pt x 185.77278pt.
 
-Overfull \hbox (16.1942pt too wide) in paragraph at lines 99--100
+Overfull \hbox (16.1942pt too wide) in paragraph at lines 92--93
  [] 
  []
 
-[3 <../../src/results/browse_time-eps-converted-to.pdf> <../../src/results/file
-_time-eps-converted-to.pdf> <../../src/results/video_time-eps-converted-to.pdf>
- <../../src/results/all-eps-converted-to.pdf> <../../sketches/dcf_model.pdf>]
-Overfull \hbox (73.01648pt too wide) in paragraph at lines 113--129
+
+Overfull \hbox (16.22057pt too wide) in paragraph at lines 106--122
  []$ 
  []
 
-<../../sketches/size_chain_old.pdf, id=67, 377.41pt x 631.35875pt>
+[2 <../../sketches/dcf_model.pdf>]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [3 <../../src/results/browse_time-eps-converted-to.pdf> <../../src/results/fil
+e_time-eps-converted-to.pdf> <../../src/results/video_time-eps-converted-to.pdf
+> <../../src/results/all-eps-converted-to.pdf>]
+<../../sketches/size_chain_old.pdf, id=71, 377.41pt x 631.35875pt>
 File: ../../sketches/size_chain_old.pdf Graphic file (type pdf)
 
 <use ../../sketches/size_chain_old.pdf>
 Package pdftex.def Info: ../../sketches/size_chain_old.pdf used on input line 1
-40.
-(pdftex.def)             Requested size: 132.09547pt x 220.97887pt.
- [4 <../../sketches/size_chain_old.pdf>]
+33.
+(pdftex.def)             Requested size: 113.22386pt x 189.40909pt.
 
-LaTeX Warning: Reference `fig:dcf_model_unsaturated_varpktsize' on page 5 undef
-ined on input line 155.
-
-
-Overfull \hbox (16.57396pt too wide) in paragraph at lines 158--168
+Overfull \hbox (9.77397pt too wide) in paragraph at lines 154--164
  []$ 
  []
 
 
-<../../sketches/dcf_model_unsaturated_varpktsize_interarrival.pdf, id=91, 961.5
+<../../sketches/dcf_model_unsaturated_varpktsize_interarrival.pdf, id=72, 961.5
 925pt x 1055.945pt>
 File: ../../sketches/dcf_model_unsaturated_varpktsize_interarrival.pdf Graphic 
 file (type pdf)
 
 <use ../../sketches/dcf_model_unsaturated_varpktsize_interarrival.pdf>
 Package pdftex.def Info: ../../sketches/dcf_model_unsaturated_varpktsize_intera
-rrival.pdf used on input line 177.
+rrival.pdf used on input line 174.
 (pdftex.def)             Requested size: 240.39754pt x 263.9856pt.
-
-Underfull \hbox (badness 1783) in paragraph at lines 187--189
+ [4 <../../sketches/size_chain_old.pdf> <../../sketches/dcf_model_unsaturated_v
+arpktsize_interarrival.pdf>]
+Underfull \hbox (badness 1783) in paragraph at lines 184--185
 []\OT1/ptm/m/n/10 By adding more tun-able pa-ram-e-ters to Bianchi's 2-
  []
 
-<../../sketches/collapses.pdf, id=92, 663.47874pt x 293.095pt>
+<../../sketches/collapses.pdf, id=108, 663.47874pt x 293.095pt>
 File: ../../sketches/collapses.pdf Graphic file (type pdf)
 
 <use ../../sketches/collapses.pdf>
-Package pdftex.def Info: ../../sketches/collapses.pdf used on input line 196.
+Package pdftex.def Info: ../../sketches/collapses.pdf used on input line 188.
 (pdftex.def)             Requested size: 265.3868pt x 117.23592pt.
 
-Overfull \hbox (12.33693pt too wide) in paragraph at lines 196--197
+Overfull \hbox (12.33693pt too wide) in paragraph at lines 188--189
  [] 
  []
 
-<../../sketches/compressible_dcf.pdf, id=93, 618.31pt x 469.755pt>
+<../../sketches/compressible_dcf.pdf, id=109, 618.31pt x 469.755pt>
 File: ../../sketches/compressible_dcf.pdf Graphic file (type pdf)
 
 <use ../../sketches/compressible_dcf.pdf>
 Package pdftex.def Info: ../../sketches/compressible_dcf.pdf used on input line
- 206.
+ 198.
 (pdftex.def)             Requested size: 216.41174pt x 164.41672pt.
+LaTeX Font Info:    Try loading font information for OT1+phv on input line 204.
 
-
-LaTeX Warning: Reference `fig:compressible_dcf_arrival' on page 5 undefined on 
-input line 212.
-
-LaTeX Font Info:    Try loading font information for OT1+phv on input line 212.
 
 (/usr/local/texlive/2013/texmf-dist/tex/latex/psnfss/ot1phv.fd
 File: ot1phv.fd 2001/06/04 scalable font definitions for OT1/phv.
-) [5 <../../sketches/dcf_model_unsaturated_varpktsize_interarrival.pdf> <../../
-sketches/collapses.pdf>]
-<../../sketches/compressible_dcf_all.pdf, id=129, 1124.2pt x 726.715pt>
+)
+<../../sketches/compressible_dcf_all.pdf, id=110, 1124.2pt x 726.715pt>
 File: ../../sketches/compressible_dcf_all.pdf Graphic file (type pdf)
 
 <use ../../sketches/compressible_dcf_all.pdf>
 Package pdftex.def Info: ../../sketches/compressible_dcf_all.pdf used on input 
-line 222.
-(pdftex.def)             Requested size: 281.04932pt x 181.6783pt.
-
-Overfull \hbox (27.99945pt too wide) in paragraph at lines 222--223
- [] 
- []
-
-
-Underfull \hbox (badness 1460) in paragraph at lines 247--248
+line 214.
+(pdftex.def)             Requested size: 224.83601pt x 145.34042pt.
+ [5 <../../sketches/collapses.pdf> <../../sketches/compressible_dcf.pdf>]
+Underfull \hbox (badness 1460) in paragraph at lines 224--225
 \OT1/ptm/m/n/10 re-spon-si-ble for book-keep-ing rel-e-vant events. Specif-i-ca
 lly,
  []
 
-[6 <../../sketches/compressible_dcf.pdf> <../../sketches/compressible_dcf_all.p
-df>]
+(./htm15.bbl
+Underfull \hbox (badness 1708) in paragraph at lines 40--45
+[]\OT1/ptm/m/n/8 G. Bianchi, L. Fratta, and M. Oliv-eri, ``Per-for-mance eval-u
+-a-tion
+ []
 
-LaTeX Warning: Citation `zhao2009simple' on page 7 undefined on input line 250.
-
-
-
-LaTeX Warning: Citation `nguyen2012performance' on page 7 undefined on input li
-ne 250.
-
-
-LaTeX Warning: Citation `qiu2007general' on page 7 undefined on input line 252.
-
-
-
-LaTeX Warning: Reference `sec:experiment' on page 7 undefined on input line 252
-.
-
-
-LaTeX Warning: Citation `zhao2011modeling' on page 7 undefined on input line 25
-4.
-
-
-LaTeX Warning: Citation `li2011buffer' on page 7 undefined on input line 254.
-
-
-LaTeX Warning: Citation `li2008predictable' on page 7 undefined on input line 2
-56.
-
-
-LaTeX Warning: Citation `gao2013throughput' on page 7 undefined on input line 2
-56.
-
-
-LaTeX Warning: Citation `rozner2007traffic' on page 7 undefined on input line 2
-58.
-
-
-LaTeX Warning: Citation `henderson2008network' on page 7 undefined on input lin
-e 258.
-
-(./htm15.bbl)
+)
 
 ** Conference Paper **
 Before submitting the final camera ready copy, remember to:
@@ -866,19 +800,19 @@ Before submitting the final camera ready copy, remember to:
  uses only Type 1 fonts and that every step in the generation
  process uses the appropriate paper size.
 
-[7] (./htm15.aux)
+[6 <../../sketches/compressible_dcf_all.pdf>] (./htm15.aux)
 
 LaTeX Warning: There were undefined references.
 
  ) 
 Here is how much of TeX's memory you used:
- 12029 strings out of 493315
- 226537 string characters out of 6137904
- 281026 words of memory out of 5000000
- 15213 multiletter control sequences out of 15000+600000
+ 11991 strings out of 493315
+ 226115 string characters out of 6137904
+ 281065 words of memory out of 5000000
+ 15175 multiletter control sequences out of 15000+600000
  39737 words of font info for 76 fonts, out of 8000000 for 9000
  958 hyphenation exceptions out of 8191
- 63i,12n,57p,1335b,448s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 63i,12n,57p,1219b,355s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2013/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/t
 exlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/te
 xlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></usr/local/texl
@@ -895,10 +829,10 @@ fonts/type1/urw/helvetic/uhvr8a.pfb></usr/local/texlive/2013/texmf-dist/fonts/t
 ype1/urw/times/utmb8a.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/urw/t
 imes/utmbi8a.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/urw/times/utmr
 8a.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on htm15.pdf (7 pages, 278305 bytes).
+Output written on htm15.pdf (6 pages, 270914 bytes).
 PDF statistics:
- 223 PDF objects out of 1000 (max. 8388607)
- 164 compressed objects within 2 object streams
+ 218 PDF objects out of 1000 (max. 8388607)
+ 160 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
  63 words of extra memory for PDF output out of 10000 (max. 10000000)
 

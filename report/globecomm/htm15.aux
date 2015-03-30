@@ -3,59 +3,49 @@
 \citation{bianchi1998ieee}
 \citation{crow1996performance}
 \citation{chhaya1997performance}
-\@writefile{toc}{\contentsline {section}{\numberline {I}Introduction}{1}}
-\@writefile{toc}{\contentsline {section}{\numberline {II}Heterogeneous Traffic Models}{1}}
 \citation{kumar2004communication}
 \citation{mah1997empirical}
-\citation{badia2010markov}
 \citation{netperfeval2004}
 \citation{trafficqual2008}
+\@writefile{toc}{\contentsline {section}{\numberline {I}Introduction}{1}}
+\@writefile{toc}{\contentsline {section}{\numberline {II}Heterogeneous Traffic Models}{1}}
+\newlabel{sec:traffic}{{II}{1}}
 \citation{ieee1997wireless}
 \citation{ieee1997wireless}
 \citation{dcf}
 \citation{dcf}
-\@writefile{toc}{\contentsline {section}{\numberline {III}The 802.11 Distributed Control Function}{2}}
-\@writefile{toc}{\contentsline {section}{\numberline {IV}Incremental Markov Models for Heterogeneous Traffic}{2}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {\unhbox \voidb@x \hbox {IV-A}}Original DCF Model}{2}}
 \citation{dcf}
 \citation{dcf-nonsaturated}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Individual system transition traces for (1) web browsing, (2) file download, and (3) video streaming traffic. The bottom trace shows the superposition of all the above traces. The $x$ axis is the discrete time in the system, and the $y$ axis is the state. For completeness, state $5$ is interarrival, $4$ is the packet size calculation, $3$ is a waiting state (e.g., backoff, postbackoff), $2$ is a failure transmission, and $1$ is a successful transmission.}}{3}}
-\newlabel{fig:traces}{{1}{3}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {\unhbox \voidb@x \hbox {IV-B}}Limited and Diverse Traffic}{3}}
-\newlabel{sec:nonsaturated}{{\unhbox \voidb@x \hbox {IV-B}}{3}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces The original saturated DCF Markov model \cite  {dcf}.}}{3}}
-\newlabel{fig:dcf_model}{{2}{3}}
+\@writefile{toc}{\contentsline {section}{\numberline {III}Extensible Markov Models}{2}}
+\newlabel{sec:models}{{III}{2}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\unhbox \voidb@x \hbox {III-A}}Original DCF Model}{2}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces The original saturated DCF Markov model \cite  {dcf}.}}{2}}
+\newlabel{fig:dcf_model}{{2}{2}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\unhbox \voidb@x \hbox {III-B}}Limited and Diverse Traffic}{2}}
+\newlabel{sec:nonsaturated}{{\unhbox \voidb@x \hbox {III-B}}{2}}
 \citation{dcf-nonsaturated}
 \citation{badia2010markov}
-\@writefile{toc}{\contentsline {subsection}{\numberline {\unhbox \voidb@x \hbox {IV-C}}Adding Variable Length Frame Payloads}{4}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Individual system transition traces for (1) web browsing, (2) file download, and (3) video streaming traffic. The bottom trace shows the superposition of all the above traces. The $x$ axis is the discrete time in the system, and the $y$ axis is the state. For completeness, state $5$ is interarrival, $4$ is the packet size calculation, $3$ is a waiting state (e.g., backoff, postbackoff), $2$ is a failure transmission, and $1$ is a successful transmission.}}{3}}
+\newlabel{fig:traces}{{1}{3}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\unhbox \voidb@x \hbox {III-C}}Adding Variable Length Frame Payloads}{3}}
+\citation{dcf-nonsaturated}
 \@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces A black box Markov chain that captures bounded variabilities in a particular parameter, such as packet length or packet interarrival time.}}{4}}
 \newlabel{fig:size_chain}{{3}{4}}
-\citation{dcf-nonsaturated}
-\@writefile{toc}{\contentsline {subsection}{\numberline {\unhbox \voidb@x \hbox {IV-D}}Adding Arbitrary Inter-Arrival Times}{5}}
-\@writefile{toc}{\contentsline {section}{\numberline {V}Simulator Design and Implementation}{5}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {\unhbox \voidb@x \hbox {V-A}}Managing Markov Model Dimensional Complexity}{5}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces The modified unsaturated DCF Markov model that captures variable-length packet payloads.}}{5}}
-\newlabel{fig:dcf_model_unsaturated_varpktsize_interarrival}{{4}{5}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces The modified unsaturated DCF Markov model that captures variable-length packet payloads.}}{4}}
+\newlabel{fig:dcf_model_unsaturated_varpktsize_interarrival}{{4}{4}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\unhbox \voidb@x \hbox {III-D}}Adding Arbitrary Inter-Arrival Times}{4}}
 \@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces A sample usage of ``compressible'' states that bridge the transition gap between separate Markov chains.}}{5}}
 \newlabel{fig:collapses}{{5}{5}}
-\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Bianchi's DCF model represented using compressible states. Green states are collapsible.}}{6}}
-\newlabel{fig:compressible_dcf}{{6}{6}}
-\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces The extended compressible DCF model with support for parameterized packet lengths.}}{6}}
-\newlabel{fig:compressible_dcf_all}{{7}{6}}
-\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces The multi-node simulator algorithm.}}{6}}
-\newlabel{alg:simulator}{{8}{6}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {\unhbox \voidb@x \hbox {V-B}}Multi-Node Simulator Overview and Metrics Computations}{6}}
+\@writefile{toc}{\contentsline {section}{\numberline {IV}Simulator Design and Implementation}{5}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\unhbox \voidb@x \hbox {IV-A}}Managing Markov Model Dimensional Complexity}{5}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Bianchi's DCF model represented using compressible states. Green states are collapsible.}}{5}}
+\newlabel{fig:compressible_dcf}{{6}{5}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\unhbox \voidb@x \hbox {IV-B}}Multi-Node Simulator Overview and Metrics Computations}{5}}
 \citation{bianchi1996performance}
 \citation{dcf-nonsaturated}
 \citation{zhao2009simple}
 \citation{nguyen2012performance}
 \citation{qiu2007general}
-\citation{zhao2011modeling}
-\citation{li2011buffer}
-\citation{li2008predictable}
-\citation{gao2013throughput}
-\citation{rozner2007traffic}
-\citation{henderson2008network}
 \bibstyle{IEEEtranS}
 \bibdata{ref.bib}
 \bibcite{badia2010markov}{1}
@@ -65,7 +55,16 @@
 \bibcite{chhaya1997performance}{5}
 \bibcite{ieee1997wireless}{6}
 \bibcite{crow1996performance}{7}
-\bibcite{dcf-nonsaturated}{8}
-\@writefile{toc}{\contentsline {section}{\numberline {VI}Related Work}{7}}
-\@writefile{toc}{\contentsline {section}{\numberline {VII}Conclusion}{7}}
-\@writefile{toc}{\contentsline {section}{References}{7}}
+\bibcite{kumar2004communication}{8}
+\bibcite{mah1997empirical}{9}
+\bibcite{dcf-nonsaturated}{10}
+\bibcite{nguyen2012performance}{11}
+\bibcite{qiu2007general}{12}
+\bibcite{trafficqual2008}{13}
+\bibcite{netperfeval2004}{14}
+\bibcite{zhao2009simple}{15}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces The extended compressible DCF model with support for parameterized packet lengths.}}{6}}
+\newlabel{fig:compressible_dcf_all}{{7}{6}}
+\@writefile{toc}{\contentsline {section}{\numberline {V}Related Work}{6}}
+\@writefile{toc}{\contentsline {section}{\numberline {VI}Conclusion}{6}}
+\@writefile{toc}{\contentsline {section}{References}{6}}
