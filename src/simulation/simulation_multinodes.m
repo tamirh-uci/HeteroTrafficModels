@@ -1,15 +1,15 @@
 % Simulation parameters
 timeSteps = 100000; 
-numNormals = 2;
-numMedias = 0;
+numNormals = 3;
+numMedias = 3;
 numberOfNodes = numNormals + numMedias;
 pSuccess = 1.0; 
 pArrive = 1.0;
 pEnter = 0;
 nMaxPackets = 1;
 nInterarrival = 0;
-Wmin = 32;
-Wmax = 1024;
+Wmin = 2;
+Wmax = 16;
 
 verboseSetup = false;
 verboseExecute = false;
@@ -32,7 +32,7 @@ for i = 1:numberOfNodes
         numM= i - numNormals;
     end
     
-    fName = sprintf('%d_normal%d_media%d.sim', i, numN, numM);
+    fName = sprintf('./../results/%d_normal%d_media%d.sim', i, numN, numM);
     fprintf('\n------------\nrunning test: %s\n', fName);
     fid = fopen(fName, 'w');
     if (fid == -1)
@@ -67,11 +67,11 @@ for i = 1:numberOfNodes
 end
 plot(x, throughputValues, x, successValues, x, failureValues);
 
-title(sprintf('Small Backoffs'));
+title(sprintf('Metrics for %d %d Nodes', numN, numM));
 xlabel('Number of Nodes');
-ylabel('Throughput Value');
+ylabel('Metric Value');
 
-fileName = sprintf('normal-largewmin-%d.fig', figureId);
+fileName = sprintf('./../results/fig-%d.fig', figureId);
 saveas(gcf,['.', filesep, fileName], 'fig');  % gca?
 
 

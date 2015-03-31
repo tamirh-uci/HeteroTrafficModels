@@ -45,7 +45,7 @@ for i1 = 1:numArrive1
                                 randomNode = add_random_node(simulator, m, Wmin, 1, pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4));
                                 webNode = add_file_download_node(simulator, m, Wmin, 2, pArrive2(j1), pEnter2(j2), nPackets2(j3), nInterarrival2(j4));
                                 
-                                fName = sprintf('simulation_random_download-%d_%d_%d_%d_%d_%d_%d_%d.sim', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), pArrive2(j1), pEnter2(j2), nPackets2(j3), nInterarrival2(j4));
+                                fName = sprintf('./../results/simulation_random_download-%d_%d_%d_%d_%d_%d_%d_%d.sim', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), pArrive2(j1), pEnter2(j2), nPackets2(j3), nInterarrival2(j4));
                                 fprintf('\n------------\nrunning test: %s\n', fName);
                                 fid = fopen(fName, 'w');
                                 if (fid == -1)
@@ -114,7 +114,7 @@ for i1 = 1:numArrive1
                             ylabel('Throughput');
                             legend('random throughput', 'download throughput', 'average throughput');
 
-                            fileName = sprintf('fig-simulation_random_download-interarival-%d_%d_%d_%d_%d_%d_%d.fig', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), pArrive2(j1), pEnter2(j2), nPackets2(j3));
+                            fileName = sprintf('./../results/fig-simulation_random_download-interarival-%d_%d_%d_%d_%d_%d_%d.fig', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), pArrive2(j1), pEnter2(j2), nPackets2(j3));
                             saveas(gcf,['.', filesep, fileName], 'fig');  % gca?
                         end
                     end
@@ -146,7 +146,7 @@ for i1 = 1:numArrive1
                             ylabel('Throughput');
                             legend('random throughput', 'download throughput', 'average throughput');
 
-                            fileName = sprintf('fig-simulation_random_download-parrival-%d_%d_%d_%d_%d_%d_%d.fig', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), pEnter2(j2), nPackets2(j3), nInterarrival2(j4));
+                            fileName = sprintf('./../results/fig-simulation_random_download-parrival-%d_%d_%d_%d_%d_%d_%d.fig', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), pEnter2(j2), nPackets2(j3), nInterarrival2(j4));
                             saveas(gcf,['.', filesep, fileName], 'fig');  % gca?
                         end
                     end
@@ -178,7 +178,7 @@ for i1 = 1:numArrive1
                             ylabel('Throughput');
                             legend('random throughput', 'download throughput', 'average throughput');
 
-                            fileName = sprintf('fig-simulation_random_download-penter-%d_%d_%d_%d_%d_%d_%d.fig', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), pArrive2(j1), nPackets2(j3), nInterarrival2(j4));
+                            fileName = sprintf('./../results/fig-simulation_random_download-penter-%d_%d_%d_%d_%d_%d_%d.fig', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), pArrive2(j1), nPackets2(j3), nInterarrival2(j4));
                             saveas(gcf,['.', filesep, fileName], 'fig');  % gca?
                         end
                     end
@@ -210,7 +210,7 @@ for i1 = 1:numArrive1
                             ylabel('Throughput');
                             legend('random throughput', 'download throughput', 'average throughput');
 
-                            fileName = sprintf('fig-simulation_random_download-maxpackets-%d_%d_%d_%d_%d_%d_%d.fig', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), pArrive2(j1), pEnter2(j2), nInterarrival2(j4));
+                            fileName = sprintf('./../results/fig-simulation_random_download-maxpackets-%d_%d_%d_%d_%d_%d_%d.fig', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), pArrive2(j1), pEnter2(j2), nInterarrival2(j4));
                             saveas(gcf,['.', filesep, fileName], 'fig');  % gca?
                         end
                     end

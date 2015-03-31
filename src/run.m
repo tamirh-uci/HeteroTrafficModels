@@ -1,3 +1,5 @@
+run_set_path
+
 simulation_random_web
 simulation_random_download
 simulation_random_multimedia

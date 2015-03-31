@@ -44,11 +44,11 @@ classdef simulation_single_node < handle
     methods (Static)
         function [fname, fncsv] = fnames(name, pSuccess, pArrive, pEnter, nMaxPackets, nInterarrival, bps, payloadSize)
             if (bps > 0)
-                fname = sprintf('./results/simulation_single_node_%s-s%.2f-b%.2f-p%.2f.log', name, pSuccess, bps, payloadSize);
-                fncsv = sprintf('./results/simulation_single_node_%s-s%.2f-b%.2f-p%.2f.csv', name, pSuccess, bps, payloadSize);
+                fname = sprintf('./../results/simulation_single_node_%s-s%.2f-b%.2f-p%.2f.log', name, pSuccess, bps, payloadSize);
+                fncsv = sprintf('./../results/simulation_single_node_%s-s%.2f-b%.2f-p%.2f.csv', name, pSuccess, bps, payloadSize);
             else
-                fname = sprintf('./results/simulation_single_node_%s-s%.2f-a%.2f-e%.2f-m%.2f-i%.2f.log', name, pSuccess, pArrive, pEnter, nMaxPackets, nInterarrival);
-                fncsv = sprintf('./results/simulation_single_node_%s-s%.2f-a%.2f-e%.2f-m%.2f-i%.2f.csv', name, pSuccess, pArrive, pEnter, nMaxPackets, nInterarrival);
+                fname = sprintf('./../results/simulation_single_node_%s-s%.2f-a%.2f-e%.2f-m%.2f-i%.2f.log', name, pSuccess, pArrive, pEnter, nMaxPackets, nInterarrival);
+                fncsv = sprintf('./../results/simulation_single_node_%s-s%.2f-a%.2f-e%.2f-m%.2f-i%.2f.csv', name, pSuccess, pArrive, pEnter, nMaxPackets, nInterarrival);
             end
         end
     end
@@ -156,7 +156,7 @@ classdef simulation_single_node < handle
             legend('I-Frame', 'P-Frame', 'B-Frame', 'backoff');
             title(sprintf('Single multimedia node with pSuccess=%.2f, bps=%d', pSuccess, video_bps));
             
-            saveas(fig, sprintf('fig-singlenode_mm_sim%.2f.eps', pSuccess));
+            saveas(fig, sprintf('./../results/fig-singlenode_mm_sim%.2f.eps', pSuccess));
         end
         
         function run(this)

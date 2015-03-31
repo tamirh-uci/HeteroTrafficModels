@@ -6,8 +6,8 @@ pSuccess = 1.0;
 % Precompute variables for the DCF model
 [m, W] = dcf_matrix_collapsible.CalculateDimensions(Wmin, Wmax);
 
-[pArrive1, pEnter1, nPackets1, nInterarrival1] = create_random_parameters();
-[pArrive2, pEnter2, nPackets2, nInterarrival2] = create_web_traffic_parameters();
+[pArrive1, pEnter1, nPackets1, nInterarrival1] = create_web_traffic_parameters();
+[pArrive2, pEnter2, nPackets2, nInterarrival2] = create_file_download_parameters();
 
 [t1, numArrive1] = size(pArrive1);
 [t2, numEnter1] = size(pEnter1);
@@ -43,9 +43,9 @@ for i1 = 1:numArrive1
                                 simulator = dcf_simulator_oo(pSuccess, 1.0);
                                 
                                 randomNode = add_random_node(simulator, m, Wmin, 1, pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4));
-                                webNode = add_web_traffic_node(simulator, m, Wmin, 2, pArrive2(j1), pEnter2(j2), nPackets2(j3), nInterarrival2(j4));
+                                webNode = add_file_download_node(simulator, m, Wmin, 2, pArrive2(j1), pEnter2(j2), nPackets2(j3), nInterarrival2(j4));
                                 
-                                fName = sprintf('simulation_random_web-%d_%d_%d_%d_%d_%d_%d_%d.sim', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), pArrive2(j1), pEnter2(j2), nPackets2(j3), nInterarrival2(j4));
+                                fName = sprintf('./../results/simulation_web_download-%d_%d_%d_%d_%d_%d_%d_%d.sim', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), pArrive2(j1), pEnter2(j2), nPackets2(j3), nInterarrival2(j4));
                                 fprintf('\n------------\nrunning test: %s\n', fName);
                                 fid = fopen(fName, 'w');
                                 if (fid == -1)
@@ -53,9 +53,9 @@ for i1 = 1:numArrive1
                                     exit;
                                 end
                                 
-                                simulator.Setup(false);
-                                simulator.Steps(timeSteps, false);
-                                simulator.PrintResults(false);
+                                simulator.Setup(true);
+                                simulator.Steps(timeSteps, true);
+                                simulator.PrintResults(true);
 
                                 fprintf(fid, '%d,%d,%d\n', timeSteps, Wmin, Wmax);
                                 fprintf(fid, '%d,%d,%d\n', simulator.GetNode(1).CountSuccesses(), simulator.GetNode(1).CountFailures(), simulator.GetNode(1).CountWaits());
@@ -112,9 +112,9 @@ for i1 = 1:numArrive1
                             title(sprintf('Interarrival Variance'));
                             xlabel('Interarrival Length');
                             ylabel('Throughput');
-                            legend('random throughput', 'web node throughput', 'average throughput');
+                            legend('web throughput', 'download throughput', 'average throughput');
 
-                            fileName = sprintf('fig-simulation_random_web-interarival-%d_%d_%d_%d_%d_%d_%d.fig', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), pArrive2(j1), pEnter2(j2), nPackets2(j3));
+                            fileName = sprintf('./../results/fig-simulation_web_download-interarival-%d_%d_%d_%d_%d_%d_%d.fig', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), pArrive2(j1), pEnter2(j2), nPackets2(j3));
                             saveas(gcf,['.', filesep, fileName], 'fig');  % gca?
                         end
                     end
@@ -144,9 +144,9 @@ for i1 = 1:numArrive1
                             title(sprintf('pArrival Variance'));
                             xlabel('pArrival');
                             ylabel('Throughput');
-                            legend('random throughput', 'web node throughput', 'average throughput');
+                            legend('web throughput', 'download throughput', 'average throughput');
 
-                            fileName = sprintf('fig-simulation_random_web-parrival-%d_%d_%d_%d_%d_%d_%d.fig', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), pEnter2(j2), nPackets2(j3), nInterarrival2(j4));
+                            fileName = sprintf('./../results/fig-simulation_web_download-parrival-%d_%d_%d_%d_%d_%d_%d.fig', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), pEnter2(j2), nPackets2(j3), nInterarrival2(j4));
                             saveas(gcf,['.', filesep, fileName], 'fig');  % gca?
                         end
                     end
@@ -176,9 +176,9 @@ for i1 = 1:numArrive1
                             title(sprintf('pEnter Variance'));
                             xlabel('pEnter');
                             ylabel('Throughput');
-                            legend('random throughput', 'web node throughput', 'cumulative throughput');
+                            legend('web throughput', 'download throughput', 'average throughput');
 
-                            fileName = sprintf('fig-simulation_random_web-penter-%d_%d_%d_%d_%d_%d_%d.fig', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), pArrive2(j1), nPackets2(j3), nInterarrival2(j4));
+                            fileName = sprintf('./../results/fig-simulation_web_download-penter-%d_%d_%d_%d_%d_%d_%d.fig', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), pArrive2(j1), nPackets2(j3), nInterarrival2(j4));
                             saveas(gcf,['.', filesep, fileName], 'fig');  % gca?
                         end
                     end
@@ -208,9 +208,9 @@ for i1 = 1:numArrive1
                             title(sprintf('Max Packet Size Variance'));
                             xlabel('Max Packet Size');
                             ylabel('Throughput');
-                            legend('random throughput', 'web node throughput', 'average throughput');
+                            legend('web throughput', 'download throughput', 'average throughput');
 
-                            fileName = sprintf('fig-simulation_random_web-maxpackets-%d_%d_%d_%d_%d_%d_%d.fig', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), pArrive2(j1), pEnter2(j2), nInterarrival2(j4));
+                            fileName = sprintf('./../results/fig-simulation_web_download-maxpackets-%d_%d_%d_%d_%d_%d_%d.fig', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), pArrive2(j1), pEnter2(j2), nInterarrival2(j4));
                             saveas(gcf,['.', filesep, fileName], 'fig');  % gca?
                         end
                     end

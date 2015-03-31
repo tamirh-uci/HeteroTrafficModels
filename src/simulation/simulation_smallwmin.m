@@ -32,7 +32,7 @@ for i = 1:numberOfNodes
         numM= i - numNormals;
     end
     
-    fName = sprintf('%d_normal%d_media%d.sim', i, numN, numM);
+    fName = sprintf('./../results/%d_normal%d_media%d.sim', i, numN, numM);
     fprintf('\n------------\nrunning test: %s\n', fName);
     fid = fopen(fName, 'w');
     if (fid == -1)
@@ -71,7 +71,7 @@ title(sprintf('Small Backoffs'));
 xlabel('Number of Nodes');
 ylabel('Throughput Value');
 
-fileName = sprintf('normal-smallwmin-%d.fig', figureId);
+fileName = sprintf('./../results/normal-smallwmin-%d.fig', figureId);
 saveas(gcf,['.', filesep, fileName], 'fig');  % gca?
 
 

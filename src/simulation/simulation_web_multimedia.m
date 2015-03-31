@@ -6,7 +6,7 @@ pSuccess = 1.0;
 % Precompute variables for the DCF model
 [m, W] = dcf_matrix_collapsible.CalculateDimensions(Wmin, Wmax);
 
-[pArrive1, pEnter1, nPackets1, nInterarrival1] = create_file_download_parameters();
+[pArrive1, pEnter1, nPackets1, nInterarrival1] = create_web_traffic_parameters();
 [bps, payload] = create_multimedia_parameters();
 
 [t1, numArrive1] = size(pArrive1);
@@ -42,7 +42,7 @@ for i1 = 1:numArrive1
                         randomNode = add_random_node(simulator, m, Wmin, 1, pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4));
                         webNode = add_multimedia_node(simulator, m, Wmin, 2, bps(b), payload(p));
 
-                        fName = sprintf('simulation_download_multimedia-%d_%d_%d_%d_%d_%d.sim', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), bps(b), payload(p));
+                        fName = sprintf('./../results/simulation_web_multimedia-%d_%d_%d_%d_%d_%d.sim', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), bps(b), payload(p));
                         fprintf('\n------------\nrunning test: %s\n', fName);
                         fid = fopen(fName, 'w');
                         if (fid == -1)
@@ -105,9 +105,9 @@ for i1 = 1:numArrive1
                     title(sprintf('Payload Size Variance'));
                     xlabel('Payload Size (bits)');
                     ylabel('Throughput');
-                    legend('download throughput', 'multimedia throughput', 'average throughput');
+                    legend('web throughput', 'multimedia throughput', 'average throughput');
 
-                    fileName = sprintf('fig-simulation_download_multimedia-payload-%d_%d_%d_%d_%d.fig', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), bps(b));
+                    fileName = sprintf('./../results/fig-simulation_web_multimedia-payload-%d_%d_%d_%d_%d.fig', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), bps(b));
                     saveas(gcf,['.', filesep, fileName], 'fig');  % gca?
                 end
                 end
@@ -133,9 +133,9 @@ for i1 = 1:numArrive1
                     title(sprintf('BPS Variance'));
                     xlabel('BPS (bits / second)');
                     ylabel('Throughput');
-                    legend('download throughput', 'multimedia throughput', 'average throughput');
+                    legend('web throughput', 'multimedia throughput', 'average throughput');
 
-                    fileName = sprintf('fig-simulation_download_multimedia-bps-%d_%d_%d_%d_%d.fig', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), payload(p));
+                    fileName = sprintf('./../results/fig-simulation_web_multimedia-bps-%d_%d_%d_%d_%d.fig', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), payload(p));
                     saveas(gcf,['.', filesep, fileName], 'fig');  % gca?
                 end
                 end
