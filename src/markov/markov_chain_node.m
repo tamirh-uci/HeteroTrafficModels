@@ -37,6 +37,9 @@ classdef markov_chain_node < handle
         % Created after all steps taken
         % type: dcf_transition_type
         transitionHistory;
+        
+        % Number of completed steps taken and recorded
+        nStepsTaken;
     end
     
     methods
@@ -68,6 +71,7 @@ classdef markov_chain_node < handle
         function SetupSteps(this, nSteps)
             assert( size(this.indexHistory,2)==0 );
             this.indexHistory = zeros(1, nSteps);
+            this.nStepsTaken = 0;
         end
         
         % Advance the markov chain until we hit a given state
@@ -176,7 +180,8 @@ classdef markov_chain_node < handle
         end
         
         function Log(this)
-            this.indexHistory( 1 + size(this.indexHistory, 2) ) = this.currentStateIndex;
+            this.nStepsTaken = this.nStepsTaken + 1;
+            this.indexHistory( this.nStepsTaken ) = this.currentStateIndex;
         end
         
         function CalculateTransitionHistory(this)

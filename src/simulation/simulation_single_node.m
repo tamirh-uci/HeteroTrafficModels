@@ -9,7 +9,7 @@ classdef simulation_single_node < handle
         doRando = false;
         doVideo = true;
         
-        timeSteps = 2000;
+        timeSteps = 100;
         wMin = 2;
         wMax = 16;
         
@@ -19,8 +19,8 @@ classdef simulation_single_node < handle
         % FILE DOWNLOAD
         files_pArrive = 1.0;
         files_pEnter = 1.0;
-        files_nMaxPackets = 25;
-        files_nInterarrival = 25;
+        files_nMaxPackets = 5;
+        files_nInterarrival = 5;
 
         % WEB TRAFFIC
         %TODO: Fix postbackoff
@@ -131,7 +131,7 @@ classdef simulation_single_node < handle
             hist(txsHist==dcf_transition_type.TxFailure | txsHist==dcf_transition_type.Backoff) = 0;
         end
         
-        function plotVid(this, node, pSuccess, index)
+        function plotVid(this, node, pSuccess, video_bps, index)
             vidHist = node.secondaryChain.stateTypeHistory;
             txsHist = node.mainChain.transitionHistory;
             
@@ -173,10 +173,10 @@ classdef simulation_single_node < handle
             for pSuccess = this.pSuccessOptions
                 i = i + 1;
                 % Separate simulation for each node type
-                files_simulator = dcf_simulator_oo(pSuccess, 0.0);
-                webtx_simulator = dcf_simulator_oo(pSuccess, 0.0);
-                rando_simulator = dcf_simulator_oo(pSuccess, 0.0);
-                video_simulator = dcf_simulator_oo(pSuccess, 0.0);
+                files_simulator = dcf_simulator(pSuccess, 0.0);
+                webtx_simulator = dcf_simulator(pSuccess, 0.0);
+                rando_simulator = dcf_simulator(pSuccess, 0.0);
+                video_simulator = dcf_simulator(pSuccess, 0.0);
 
                 add_file_download_node( files_simulator, m, this.wMin, 1, this.files_pArrive, this.files_pEnter, this.files_nMaxPackets, this.files_nInterarrival);
                 add_web_traffic_node(   webtx_simulator, m, this.wMin, 2, this.webtx_pArrive, this.webtx_pEnter, this.webtx_nMaxPackets, this.webtx_nInterarrival);
@@ -204,7 +204,7 @@ classdef simulation_single_node < handle
 
                 % Plot the frame transmissions
                 fprintf('Plotting...\n');
-                this.plotVid(video_simulator.GetNode(1), pSuccess, i);
+                this.plotVid(video_simulator.GetNode(1), pSuccess, video_bps, i);
                 
                 fprintf('Done with pSuccess=%f + video_bps=%d\n', pSuccess, video_bps);
             end % for pSuccess

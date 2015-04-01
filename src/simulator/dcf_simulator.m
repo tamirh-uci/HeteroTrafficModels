@@ -1,4 +1,4 @@
-classdef dcf_simulator_oo < handle
+classdef dcf_simulator < handle
     %DCF Simulator using OO classes
     
     properties (SetAccess = protected)
@@ -21,7 +21,7 @@ classdef dcf_simulator_oo < handle
     
     methods
         % Constructor
-        function obj = dcf_simulator_oo(pSuccessSingleTransmitIn, pSuccessMultiTransmitIn)
+        function obj = dcf_simulator(pSuccessSingleTransmitIn, pSuccessMultiTransmitIn)
             obj = obj@handle();
             obj.pSuccessSingleTransmit = pSuccessSingleTransmitIn;
             obj.pSuccessMultiTransmit = pSuccessMultiTransmitIn;
@@ -44,35 +44,37 @@ classdef dcf_simulator_oo < handle
             
             % Setup node data
             for i=1:nNodes
-                this.nodes{i}.Setup(bVerbose);
-            end
-            
-            % The initial states have been chosen, now we need to treat
-            % that as a step for logging/etc
-            for i=1:nNodes
                 node = this.nodes{i};
-                node.PostStep();
+                node.Setup(bVerbose);
             end
         end
         
         % Simulate multipler timer transitions for all nodes
-        function Steps(this, nSteps, bVerbose)
+        function Steps(this, nStepsTotal, bVerbose)
+            if (this.nSteps == 0)
+                nNodes = size(this.nodes, 2);
+                for i=1:nNodes
+                    node = this.nodes{i};
+                    node.SetupSteps(nStepsTotal);
+                end
+            end
+            
             if (bVerbose)
                 % Percentage indicating progress
                 progressDiv = 1.0 / 25;
                 progressStep = progressDiv;
                 
-                for i=1:nSteps
+                for i=1:nStepsTotal
                     this.Step();
                     
-                    progress = i/nSteps;
+                    progress = i/nStepsTotal;
                     if (progress > progressStep)
                         progressStep = progressStep + progressDiv;
                         fprintf('Progress: %.1f%%\n', 100*progress);
                     end
                 end
             else
-                for i=1:nSteps
+                for i=1:nStepsTotal
                     this.Step();
                 end
             end

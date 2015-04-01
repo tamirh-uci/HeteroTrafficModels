@@ -40,7 +40,7 @@ for i1 = 1:numArrive1
                         for j3 = numPackets2 
                             for j4 = numInterarrival2
                                 
-                                simulator = dcf_simulator_oo(pSuccess, 1.0);
+                                simulator = dcf_simulator(pSuccess, 1.0);
                                 
                                 randomNode = add_random_node(simulator, m, Wmin, 1, pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4));
                                 webNode = add_web_traffic_node(simulator, m, Wmin, 2, pArrive2(j1), pEnter2(j2), nPackets2(j3), nInterarrival2(j4));

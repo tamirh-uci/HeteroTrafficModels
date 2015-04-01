@@ -101,6 +101,14 @@ classdef dcf_sim_node < handle
             this.mainChain.Step(this.piMultiTransmit, true);
         end
         
+        function SetupSteps(this, nStepsTotal)
+            this.mainChain.SetupSteps(nStepsTotal);
+            
+            if (~isempty(this.secondaryChain))
+                this.secondaryChain.SetupSteps(nStepsTotal);
+            end
+        end
+        
         % After we know what state we've moved to, figure out if we have
         % anything else to do. If we're transmitting, we may need to
         % determine what exactly it is we're transmitting
@@ -110,11 +118,12 @@ classdef dcf_sim_node < handle
                 if (this.IsTransmitting())
                     this.secondaryChain.StepUntil(this.piSecondary, this.secondaryEndStates);
                 end
+                
+                this.secondaryChain.Log();
             end
             
             % Keep track of every state transition
             this.mainChain.Log();
-            this.secondaryChain.Log();
         end
         
         % We need to look for packetsize chains which failed
@@ -122,7 +131,10 @@ classdef dcf_sim_node < handle
         % chain
         function PostSimulationProcessing(this, bDoPacketchainBacktrack, bVerbose)
             this.mainChain.PostSimulation(bDoPacketchainBacktrack, bVerbose);
-            this.secondaryChain.PostSimulation(false, bVerbose);
+            
+            if (~isempty(this.secondaryChain))
+                this.secondaryChain.PostSimulation(false, bVerbose);
+            end
         end
         
         % An entire packet successfully transmitted
