@@ -4,7 +4,7 @@ classdef weighted_sample < handle
     
     properties
         %original values
-        pi;
+        %pi;
         
         % Cumulative probabilities (slower than the direct index)
         %piCumulative;
@@ -19,7 +19,7 @@ classdef weighted_sample < handle
             precision = 10000;
             
             obj = obj@handle();
-            obj.pi = piIn;
+            %obj.pi = piIn;
             %obj.piCumulative = cumsum(piIn)/sum(piIn);
             obj.piIndexer = zeros(1,precision);
             obj.piPrecision = precision;

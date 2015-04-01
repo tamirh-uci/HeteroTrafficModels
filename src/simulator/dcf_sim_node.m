@@ -19,6 +19,7 @@ classdef dcf_sim_node < handle
         secChainBuilder@markov_video_frames;
         secChain@markov_chain;
         
+        % Secondary chain which activates only between the endstates
         piSecondary;
         secondaryEndStates;
         
@@ -41,6 +42,18 @@ classdef dcf_sim_node < handle
         
         % Array of states which we should never see
         txInvalidTypes@dcf_transition_type;
+    end
+    
+    methods (Static)
+        function pi = makepi(hist, chain)
+            [rawPI, hist.txTypes, hist.stateTypes] = chain.TransitionTable();
+            
+            nStates = size(rawPI, 2);
+            pi = cell(1, nStates);
+            for i = 1:nStates
+                pi{i} = weighted_sample( rawPI(i,:) );
+            end
+        end
     end
     
     methods
@@ -72,30 +85,16 @@ classdef dcf_sim_node < handle
         
         function Setup(this, bVerbose)
             this.dcfChainSingleTx = this.dcfChainBuilder.CreateMarkovChain(this.pSuccessSingleTransmit, false, bVerbose);
-            [pi, this.dcfHist.txTypes, this.dcfHist.stateTypes] = this.dcfChainSingleTx.TransitionTable();
-            
-            this.piSingleTransmit = cell(1,size(pi,2));
-            for i=1:size(pi,2)
-                this.piSingleTransmit{i} = weighted_sample(pi(i,:));
-            end
+            this.piSingleTransmit = dcf_sim_node.makepi(this.dcfHist, this.dcfChainSingleTx);
             
             this.dcfChainMultiTx = this.dcfChainBuilder.CreateMarkovChain(this.pSuccessMultiTransmit, true, bVerbose);
-            [pi, ~, ~] = this.dcfChainMultiTx.TransitionTable();
-            this.piMultiTransmit = cell(1,size(pi,2));
-            for i=1:size(pi,2)
-                this.piMultiTransmit{i} = weighted_sample(pi(i,:));
-            end
+            this.piMultiTransmit = dcf_sim_node.makepi(this.dcfHist, this.dcfChainMultiTx);
             
             this.dcfHist.Setup(this.dcfChainSingleTx, this.piSingleTransmit, 0);
             
             if (this.HasSecondary())
                 this.secChain = this.secChainBuilder.CreateMarkovChain(false);
-                [pi, this.secHist.txTypes, this.secHist.stateTypes] = this.secChain.TransitionTable();
-                this.piSecondary = cell(1,size(pi,2));
-                for i=1:size(pi,2)
-                    this.piSecondary{i} = weighted_sample(pi(i,:));
-                end
-                
+                this.piSecondary = dcf_sim_node.makepi(this.secHist, this.secChain);                
                 this.secHist.Setup(this.secChain, this.piSecondary, 1);
             end
         end
