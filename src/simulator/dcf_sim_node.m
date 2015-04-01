@@ -62,23 +62,29 @@ classdef dcf_sim_node < handle
         end
         
         function Setup(this, bVerbose)
-            %name = this.name
-
             this.markovSingleTransmit = this.mainChain.chain.CreateMarkovChain(this.pSuccessSingleTransmit, false, bVerbose);
-            [this.piSingleTransmit, this.mainChain.txTypes, this.mainChain.stateTypes] = this.markovSingleTransmit.TransitionTable();
-            %successTable = this.piSingleTransmit
-            %txtypes = this.mainChain.txTypes
-            %statetypes = this.mainChain.stateTypes
-            fprintf('\n-----------\n');
+            [pi, this.mainChain.txTypes, this.mainChain.stateTypes] = this.markovSingleTransmit.TransitionTable();
+            this.piSingleTransmit = cell(1,size(pi,2));
+            for i=1:size(pi,2)
+                this.piSingleTransmit{i} = weighted_sample(pi(i,:));
+            end
+            
             this.markovMultiTransmit = this.mainChain.chain.CreateMarkovChain(this.pSuccessMultiTransmit, true, bVerbose);
-            [this.piMultiTransmit, ~, ~] = this.markovMultiTransmit.TransitionTable();
-            %failureTable = this.piMultiTransmit
+            [pi, ~, ~] = this.markovMultiTransmit.TransitionTable();
+            this.piMultiTransmit = cell(1,size(pi,2));
+            for i=1:size(pi,2)
+                this.piMultiTransmit{i} = weighted_sample(pi(i,:));
+            end
             
             this.mainChain.Setup(this.markovSingleTransmit, this.piSingleTransmit, 0);
             
             if (~isempty(this.secondaryChain))
                 this.markovSecondary = this.secondaryChain.chain.CreateMarkovChain(false);
-                [this.piSecondary, this.secondaryChain.txTypes, this.secondaryChain.stateTypes] = this.markovSecondary.TransitionTable();
+                [pi, this.secondaryChain.txTypes, this.secondaryChain.stateTypes] = this.markovSecondary.TransitionTable();
+                this.piSecondary = cell(1,size(pi,2));
+                for i=1:size(pi,2)
+                    this.piSecondary{i} = weighted_sample(pi(i,:));
+                end
                 
                 this.secondaryChain.Setup(this.markovSecondary, this.piSecondary, 1);
             end

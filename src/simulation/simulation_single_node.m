@@ -9,7 +9,7 @@ classdef simulation_single_node < handle
         doRando = false;
         doVideo = true;
         
-        timeSteps = 100;
+        timeSteps = 10000;
         wMin = 2;
         wMax = 16;
         
@@ -19,8 +19,8 @@ classdef simulation_single_node < handle
         % FILE DOWNLOAD
         files_pArrive = 1.0;
         files_pEnter = 1.0;
-        files_nMaxPackets = 5;
-        files_nInterarrival = 5;
+        files_nMaxPackets = 2;
+        files_nInterarrival = 1;
 
         % WEB TRAFFIC
         %TODO: Fix postbackoff
@@ -37,7 +37,7 @@ classdef simulation_single_node < handle
         rando_nInterarrival = 0;
 
         % MULTIMEDIA STREAMING
-        video_bps_options = 1000000 * [2, 4, 8, 16, 32]; % 4MBits/second
+        video_bps_options = 1000000 * [4]; % 4MBits/second
         video_payloadSize = 1500*8;
     end
     

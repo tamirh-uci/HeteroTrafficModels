@@ -95,19 +95,19 @@ classdef markov_chain_node < handle
         % bPrevAsCurrent=true : travel from previous state
         % bPrevAsCurrent=false: travel from current state (normal)
         function Step(this, pi, bPrevAsCurrent)
-            assert(size(pi,1)==size(this.txTypes,1));
             assert(size(pi,2)==size(this.txTypes,2));
             
             % find the probability to go to all other states from this one
             if (bPrevAsCurrent)
-                pCur = pi(this.prevStateIndex, :);
+                pCur = pi{this.prevStateIndex};
             else
                 this.prevStateIndex = this.currentStateIndex;
-                pCur = pi(this.currentStateIndex, :);
+                pCur = pi{this.currentStateIndex};
             end
             
             % choose one of the states randomly based on weights
-            this.currentStateIndex = randsample(this.sampleIndices, 1, true, pCur);
+            this.currentStateIndex = pCur.sample();
+            %this.currentStateIndex = randsample(this.sampleIndices, 1, true, pCur);
         end
         
         function PostSimulation(this, bDoPacketchainBacktrack, bVerbose)
