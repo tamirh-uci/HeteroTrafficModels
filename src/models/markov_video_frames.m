@@ -248,6 +248,12 @@ classdef markov_video_frames < handle
                 chain.SetP( src, dst, pLarge, txType );
             end
         end
+        
+        function fName = MakeCacheFilename(this)
+            x = ['mpeg4_' num2str(this.gopAnchorFrameDistance) num2str(this.gopFullFrameDistance) ];
+            y = [ num2str(this.bps) num2str(this.fps) num2str(this.payloadSize) ];
+            fName = [x y];
+        end
     end % methods
     
     % GOP characteristics
