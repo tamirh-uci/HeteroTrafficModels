@@ -1,10 +1,7 @@
-classdef markov_chain_node < handle
-    %MARKOV_CHAIN_NODE Keep track of position and history of markov chain
+classdef markov_history < handle
+    %MARKOV_HISTORY Keep track of position and history of markov chain
     
     properties
-        % The markov chain itself
-        chain;
-        
         % List of all possible state indices
         sampleIndices;
 
@@ -43,9 +40,8 @@ classdef markov_chain_node < handle
     end
     
     methods
-        function obj = markov_chain_node(chainIn)
+        function obj = markov_history()
             obj = obj@handle;
-            obj.chain = chainIn;
         end
         
         function tx = CurrentTransition(this)
@@ -222,4 +218,3 @@ classdef markov_chain_node < handle
         end
     end
 end
-

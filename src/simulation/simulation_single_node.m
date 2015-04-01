@@ -91,8 +91,8 @@ classdef simulation_single_node < handle
             end
             
             node = sim.GetNode(1);
-            markov = node.mainChain;
-            second = node.secondaryChain;
+            dcfHist = node.dcfHist;
+            secHist = node.secHist;
             
             % Dump the basic summary data
             success = node.CountSuccesses();
@@ -105,14 +105,14 @@ classdef simulation_single_node < handle
             if (bps == 0)
                 fprintf(fid, '%s,%s,%s\n', 'state_index', 'state_type', 'transition_type');
                 for i=1:this.timeSteps
-                    fprintf(fid, '%d,%d,%d\n', markov.indexHistory(i), markov.stateTypeHistory(i), markov.transitionHistory(i));
-                    fprintf(csv, '%d,%d,%d\n', markov.indexHistory(i), markov.stateTypeHistory(i), markov.transitionHistory(i));
+                    fprintf(fid, '%d,%d,%d\n', dcfHist.indexHistory(i), dcfHist.stateTypeHistory(i), dcfHist.transitionHistory(i));
+                    fprintf(csv, '%d,%d,%d\n', dcfHist.indexHistory(i), dcfHist.stateTypeHistory(i), dcfHist.transitionHistory(i));
                 end
             else
                 fprintf(fid, '%s,%s,%s,%s\n', 'state_index', 'state_type', 'transition_type', 'frame_type');
                 for i=1:this.timeSteps
-                    fprintf(fid, '%d,%d,%d\n', markov.indexHistory(i), markov.stateTypeHistory(i), markov.transitionHistory(i), second.stateTypeHistory(i));
-                    fprintf(csv, '%d,%d,%d\n', markov.indexHistory(i), markov.stateTypeHistory(i), markov.transitionHistory(i), second.stateTypeHistory(i));
+                    fprintf(fid, '%d,%d,%d\n', dcfHist.indexHistory(i), dcfHist.stateTypeHistory(i), dcfHist.transitionHistory(i), secHist.stateTypeHistory(i));
+                    fprintf(csv, '%d,%d,%d\n', dcfHist.indexHistory(i), dcfHist.stateTypeHistory(i), dcfHist.transitionHistory(i), secHist.stateTypeHistory(i));
                 end
             end
             
@@ -132,8 +132,8 @@ classdef simulation_single_node < handle
         end
         
         function plotVid(this, node, pSuccess, video_bps, index)
-            vidHist = node.secondaryChain.stateTypeHistory;
-            txsHist = node.mainChain.transitionHistory;
+            vidHist = node.secHist.stateTypeHistory;
+            txsHist = node.dcfHist.transitionHistory;
             
             % Separate out the data into individual frame parts
             iHist = this.subplotVid(vidHist, txsHist, 0.95, 0.95, dcf_state_type.IFrameNew, dcf_state_type.IFrameContinue);
