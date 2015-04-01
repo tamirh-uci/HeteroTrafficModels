@@ -1,5 +1,5 @@
 classdef dcf_matrix_collapsible < handle
-    %DCF_MATRIX_COLLAPSIBLE Markov chain for DCF backoff simulation
+    %DCF_MATRIX_COLLAPSIBLE Markov chain builder for DCF backoff simulation
     
     methods (Static)
         function key = Dim(type, indices)

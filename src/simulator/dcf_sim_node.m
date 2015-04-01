@@ -9,28 +9,27 @@ classdef dcf_sim_node < handle
         
         % Main DCF chain which determines when a transmit occurs
         dcfHist@markov_history;
-        dcfChain@dcf_matrix_collapsible;
+        dcfChainBuilder@dcf_matrix_collapsible;
+        dcfChainSingleTx@markov_chain;
+        dcfChainMultiTx@markov_chain;
         
         % Secondary Markov Chain which determines what kind of transmit
         % Advances to this chain only occur on transmission
         secHist@markov_history;
-        secChain@markov_video_frames;
+        secChainBuilder@markov_video_frames;
+        secChain@markov_chain;
         
-        markovSecondary;
         piSecondary;
         secondaryEndStates;
         
         % Successful transmission: when no other node is transmitting at the same time
         pSuccessSingleTransmit;
         piSingleTransmit;
-        markovSingleTransmit;
         
         % Failed transmission: when at least one other node is transmitting at the same time
         pSuccessMultiTransmit;
         piMultiTransmit;
-        markovMultiTransmit;
 
-        
         % Array of states which we consider to be successful transmissions
         txSuccessTypes@dcf_transition_type;
         
@@ -45,18 +44,18 @@ classdef dcf_sim_node < handle
     end
     
     methods
-        function obj = dcf_sim_node(nameIn, dcfChainIn, secondaryChainIn, pSuccessSingleTransmitIn, pSuccessMultiTransmitIn)
+        function obj = dcf_sim_node(nameIn, dcfChainBuilderIn, secondaryChainBuilderIn, pSuccessSingleTransmitIn, pSuccessMultiTransmitIn)
             obj = obj@handle();
             obj.name = nameIn;
             
-            obj.dcfChain = dcfChainIn;
+            obj.dcfChainBuilder = dcfChainBuilderIn;
             obj.dcfHist = markov_history();
             
             obj.pSuccessSingleTransmit = pSuccessSingleTransmitIn;
             obj.pSuccessMultiTransmit = pSuccessMultiTransmitIn;
             
-            if (~isempty(secondaryChainIn))
-                obj.secChain = secondaryChainIn;
+            if (~isempty(secondaryChainBuilderIn))
+                obj.secChainBuilder = secondaryChainBuilderIn;
                 obj.secHist = markov_history();
                 obj.secondaryEndStates = [dcf_transition_type.TxIFrame, dcf_transition_type.TxBFrame, dcf_transition_type.TxPFrame];
             end
@@ -67,32 +66,37 @@ classdef dcf_sim_node < handle
             obj.txInvalidTypes = [dcf_transition_type.Null, dcf_transition_type.Collapsible];
         end
         
+        function b = HasSecondary(this)
+            b = ~isempty(this.secChainBuilder);
+        end
+        
         function Setup(this, bVerbose)
-            this.markovSingleTransmit = this.dcfChain.CreateMarkovChain(this.pSuccessSingleTransmit, false, bVerbose);
-            [pi, this.dcfHist.txTypes, this.dcfHist.stateTypes] = this.markovSingleTransmit.TransitionTable();
+            this.dcfChainSingleTx = this.dcfChainBuilder.CreateMarkovChain(this.pSuccessSingleTransmit, false, bVerbose);
+            [pi, this.dcfHist.txTypes, this.dcfHist.stateTypes] = this.dcfChainSingleTx.TransitionTable();
+            
             this.piSingleTransmit = cell(1,size(pi,2));
             for i=1:size(pi,2)
                 this.piSingleTransmit{i} = weighted_sample(pi(i,:));
             end
             
-            this.markovMultiTransmit = this.dcfChain.CreateMarkovChain(this.pSuccessMultiTransmit, true, bVerbose);
-            [pi, ~, ~] = this.markovMultiTransmit.TransitionTable();
+            this.dcfChainMultiTx = this.dcfChainBuilder.CreateMarkovChain(this.pSuccessMultiTransmit, true, bVerbose);
+            [pi, ~, ~] = this.dcfChainMultiTx.TransitionTable();
             this.piMultiTransmit = cell(1,size(pi,2));
             for i=1:size(pi,2)
                 this.piMultiTransmit{i} = weighted_sample(pi(i,:));
             end
             
-            this.dcfHist.Setup(this.markovSingleTransmit, this.piSingleTransmit, 0);
+            this.dcfHist.Setup(this.dcfChainSingleTx, this.piSingleTransmit, 0);
             
-            if (~isempty(this.secChain))
-                this.markovSecondary = this.secChain.CreateMarkovChain(false);
-                [pi, this.secHist.txTypes, this.secHist.stateTypes] = this.markovSecondary.TransitionTable();
+            if (this.HasSecondary())
+                this.secChain = this.secChainBuilder.CreateMarkovChain(false);
+                [pi, this.secHist.txTypes, this.secHist.stateTypes] = this.secChain.TransitionTable();
                 this.piSecondary = cell(1,size(pi,2));
                 for i=1:size(pi,2)
                     this.piSecondary{i} = weighted_sample(pi(i,:));
                 end
                 
-                this.secHist.Setup(this.markovSecondary, this.piSecondary, 1);
+                this.secHist.Setup(this.secChain, this.piSecondary, 1);
             end
         end
         
@@ -116,7 +120,7 @@ classdef dcf_sim_node < handle
         function SetupSteps(this, nStepsTotal)
             this.dcfHist.SetupSteps(nStepsTotal);
             
-            if (~isempty(this.secChain))
+            if (this.HasSecondary())
                 this.secHist.SetupSteps(nStepsTotal);
             end
         end
@@ -125,7 +129,7 @@ classdef dcf_sim_node < handle
         % anything else to do. If we're transmitting, we may need to
         % determine what exactly it is we're transmitting
         function PostStep(this)
-            if (~isempty(this.secHist))
+            if (this.HasSecondary())
                 % Step the secondary chain to get new frame type
                 if (this.IsTransmitting())
                     this.secHist.StepUntil(this.piSecondary, this.secondaryEndStates);
@@ -144,7 +148,7 @@ classdef dcf_sim_node < handle
         function PostSimulationProcessing(this, bDoPacketchainBacktrack, bVerbose)
             this.dcfHist.PostSimulation(bDoPacketchainBacktrack, bVerbose);
             
-            if (~isempty(this.secChain))
+            if (this.HasSecondary())
                 this.secHist.PostSimulation(false, bVerbose);
             end
         end
