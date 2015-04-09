@@ -27,14 +27,14 @@ classdef dcf_simulator < handle
             obj.pSuccessMultiTransmit = pSuccessMultiTransmitIn;
         end
         
-        function add_dcf_model(this, name, dcf_model)
+        function add_plain_node(this, name, dcf_model)
             nNodes = size(this.nodes, 2);
             this.nodes{nNodes+1} = dcf_sim_node(name, dcf_model, [], this.pSuccessSingleTransmit, this.pSuccessMultiTransmit);
         end
         
-        function add_multimedia_matrix(this, name, dcfmatrix, multimediamodel)
+        function add_video_node(this, name, dcf_model, video_model)
             nNodes = size(this.nodes, 2);
-            this.nodes{nNodes+1} = dcf_sim_node(name, dcfmatrix, multimediamodel, this.pSuccessSingleTransmit, this.pSuccessMultiTransmit);
+            this.nodes{nNodes+1} = dcf_sim_node(name, dcf_model, video_model, this.pSuccessSingleTransmit, this.pSuccessMultiTransmit);
         end
         
         % Initialize the object and ready it for calls to StepSimulate

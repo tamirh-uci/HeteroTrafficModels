@@ -14,7 +14,7 @@ dcf_model.pEnterInterarrival = pEnter;
 dcf_model.pRawArrive = pArrive;
 
 nodeName = sprintf('node%d', nodeNumber);
-simulator.add_dcf_model(nodeName, dcf_model);
+simulator.add_plain_node(nodeName, dcf_model);
 
 end
 

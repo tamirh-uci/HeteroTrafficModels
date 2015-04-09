@@ -1,5 +1,5 @@
-classdef markov_video_frames < handle
-    %MARKOV_VIDEO_FRAMES determine the frame type of a video transmission
+classdef mpeg4_frame_model < handle
+    %MPEG4_FRAME_MODEL determine the frame type of a video transmission
     
     methods (Static)
         function key = Dim(type, indices)
@@ -49,12 +49,12 @@ classdef markov_video_frames < handle
         % this frame has finished sending
         % indices = [gopIndex, packetCountdown]
         function key = FrameState(indices, type)
-            key = markov_video_frames.Dim(type, indices);
+            key = mpeg4_frame_model.Dim(type, indices);
         end
     end % methods (Static)
     
     methods
-        function obj = markov_video_frames()
+        function obj = mpeg4_frame_model()
             obj = obj@handle;
         end
         
@@ -114,7 +114,7 @@ classdef markov_video_frames < handle
         end
         
         function type = FrameType(this, gopIndex, countdownTimer)
-            type = markov_video_frames.GOPFrameType(gopIndex, countdownTimer, this.gopAnchorFrameDistance, this.iPktMinCount, this.bPktMinCount, this.pPktMinCount);
+            type = mpeg4_frame_model.GOPFrameType(gopIndex, countdownTimer, this.gopAnchorFrameDistance, this.iPktMinCount, this.bPktMinCount, this.pPktMinCount);
         end
         
         function GenerateStates(this, chain, verbose)
@@ -123,9 +123,9 @@ classdef markov_video_frames < handle
             % Single i frame will lead the GOP
             for i = this.iPktMinCount:this.iPktMaxCount
                 type = this.FrameType(gopIndex, i);
-                assert( markov_video_frames.IsIFrame(type) );
+                assert( mpeg4_frame_model.IsIFrame(type) );
                 
-                key = markov_video_frames.FrameState([gopIndex, i], type);
+                key = mpeg4_frame_model.FrameState([gopIndex, i], type);
                 chain.NewState( dcf_state(key, type) );
             end
             if (verbose)
@@ -139,9 +139,9 @@ classdef markov_video_frames < handle
                 for bCount = 1:this.nBPerGroup
                     for i = this.bPktMinCount:this.bPktMaxCount
                         type = this.FrameType(gopIndex, i);
-                        assert( markov_video_frames.IsBFrame(type) );
+                        assert( mpeg4_frame_model.IsBFrame(type) );
 
-                        key = markov_video_frames.FrameState([gopIndex, i], type);
+                        key = mpeg4_frame_model.FrameState([gopIndex, i], type);
                         chain.NewState( dcf_state(key, type) );
                     end
                     if (verbose)
@@ -154,9 +154,9 @@ classdef markov_video_frames < handle
                 if (group < this.nGroups)
                     for i = this.pPktMinCount:this.pPktMaxCount
                         type = this.FrameType(gopIndex, i);
-                        assert( markov_video_frames.IsPFrame(type) );
+                        assert( mpeg4_frame_model.IsPFrame(type) );
 
-                        key = markov_video_frames.FrameState([gopIndex, i], type);
+                        key = mpeg4_frame_model.FrameState([gopIndex, i], type);
                         chain.NewState( dcf_state(key, type) );
                     end
                     if (verbose)
@@ -180,15 +180,15 @@ classdef markov_video_frames < handle
                 
                 srcType = this.FrameType(gopIndex, 1);
                 src = this.FrameState([gopIndex, 1], srcType);
-                if (markov_video_frames.IsIFrame(srcType))
+                if (mpeg4_frame_model.IsIFrame(srcType))
                     srcMin = this.iPktMinCount;
                     srcMax = this.iPktMaxCount;
                     txType = dcf_transition_type.TxIFrame;
-                elseif (markov_video_frames.IsBFrame(srcType))
+                elseif (mpeg4_frame_model.IsBFrame(srcType))
                     srcMin = this.bPktMinCount;
                     srcMax = this.bPktMaxCount;
                     txType = dcf_transition_type.TxBFrame;
-                elseif (markov_video_frames.IsPFrame(srcType))
+                elseif (mpeg4_frame_model.IsPFrame(srcType))
                     srcMin = this.pPktMinCount;
                     srcMax = this.pPktMaxCount;
                     txType = dcf_transition_type.TxPFrame;
@@ -197,17 +197,17 @@ classdef markov_video_frames < handle
                 % Distribute "evenly" to the next frame
                 % Source is the end of the timer, so we go to the next
                 dstType = this.FrameType(nextGopIndex, 1);
-                if (markov_video_frames.IsIFrame(dstType))
+                if (mpeg4_frame_model.IsIFrame(dstType))
                     min = this.iPktMinCount;
                     med = this.iPktAvgCount;
                     max = this.iPktMaxCount;
                     this.Distribute(chain, src, txType, nextGopIndex, min, med, max, this.iAvgWeight, this.iSmallWeight, this.iLargeWeight);
-                elseif (markov_video_frames.IsBFrame(dstType))
+                elseif (mpeg4_frame_model.IsBFrame(dstType))
                     min = this.bPktMinCount;
                     med = this.bPktAvgCount;
                     max = this.bPktMaxCount;
                     this.Distribute(chain, src, txType, nextGopIndex, min, med, max, this.bAvgWeight, this.bSmallWeight, this.bLargeWeight);
-                elseif (markov_video_frames.IsPFrame(dstType))
+                elseif (mpeg4_frame_model.IsPFrame(dstType))
                     min = this.pPktMinCount;
                     med = this.pPktAvgCount;
                     max = this.pPktMaxCount;
@@ -216,8 +216,8 @@ classdef markov_video_frames < handle
                 
                 % Generate the packet timer chain
                 for i = (srcMin+1):srcMax
-                    src = markov_video_frames.FrameState([gopIndex, i], this.FrameType(gopIndex, i));
-                    dst = markov_video_frames.FrameState([gopIndex, i-1], this.FrameType(gopIndex, i-1));
+                    src = mpeg4_frame_model.FrameState([gopIndex, i], this.FrameType(gopIndex, i));
+                    dst = mpeg4_frame_model.FrameState([gopIndex, i-1], this.FrameType(gopIndex, i-1));
                     chain.SetP( src, dst, 1.0, txType );
                 end
             end
@@ -227,7 +227,7 @@ classdef markov_video_frames < handle
             % chance to go directly to the avg weight packet
             %fprintf('Trying to make [%d, %d]\n', nextGopIndex, med);
             dstType = this.FrameType(nextGopIndex, med);
-            dst = markov_video_frames.FrameState([nextGopIndex, med], dstType);
+            dst = mpeg4_frame_model.FrameState([nextGopIndex, med], dstType);
             chain.SetP( src, dst, avgWeight, txType );
             
             % evenly distribute over the smalller values
@@ -235,7 +235,7 @@ classdef markov_video_frames < handle
             pSmall = smallWeight / nSmall;
             for i = min:(med-1)
                 dstType = this.FrameType(nextGopIndex, i);
-                dst = markov_video_frames.FrameState([nextGopIndex, i], dstType);
+                dst = mpeg4_frame_model.FrameState([nextGopIndex, i], dstType);
                 chain.SetP( src, dst, pSmall, txType );
             end
             
@@ -244,7 +244,7 @@ classdef markov_video_frames < handle
             pLarge = largeWeight / nLarge;
             for i = (med+1):max
                 dstType = this.FrameType(nextGopIndex, i);
-                dst = markov_video_frames.FrameState([nextGopIndex, i], dstType);
+                dst = mpeg4_frame_model.FrameState([nextGopIndex, i], dstType);
                 chain.SetP( src, dst, pLarge, txType );
             end
         end

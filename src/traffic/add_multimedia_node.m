@@ -1,4 +1,4 @@
-function [ dcf_model, media_matrix ] = add_multimedia_node( simulator, m, Wmin, nodeNumber, bps, payloadSize )
+function [ dcf_model, video_model ] = add_multimedia_node( simulator, m, Wmin, nodeNumber, bps, payloadSize )
 
 dcf_model = dcf_markov_model();
 dcf_model.m = m;
@@ -10,14 +10,13 @@ dcf_model.pEnterInterarrival = 1.0;
 dcf_model.bFixedInterarrivalChain = true;
 dcf_model.CalculateInterarrival(phys80211_type.B, bps, payloadSize);
 
-media_matrix = markov_video_frames();
-media_matrix.gopAnchorFrameDistance = 3;
-media_matrix.gopFullFrameDistance = 12;
-media_matrix.bps = bps; 
-media_matrix.payloadSize = payloadSize;
+video_model = mpeg4_frame_model();
+video_model.gopAnchorFrameDistance = 3;
+video_model.gopFullFrameDistance = 12;
+video_model.bps = bps; 
+video_model.payloadSize = payloadSize;
 
 nodeName = sprintf('media-node%d', nodeNumber);
-simulator.add_multimedia_matrix(nodeName, dcf_model, media_matrix);
+simulator.add_video_node(nodeName, dcf_model, video_model);
 
 end
-

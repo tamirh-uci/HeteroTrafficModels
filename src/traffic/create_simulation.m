@@ -20,7 +20,7 @@ simulator = dcf_simulator_oo(pSuccess, 0.0);
 
 for i = 1:numNormals
     nodeName = sprintf('node%d', i);
-    simulator.add_dcf_model(nodeName, dcf_model);
+    simulator.add_plain_node(nodeName, dcf_model);
 end
 
 % modify dcf matrix for media settings
@@ -37,14 +37,14 @@ dcf_model.bFixedInterarrivalChain = true;
 dcf_model.CalculateInterarrival(phys80211_type.B, bps, payloadSize);
 
 for i = 1:numMedias
-	media_matrix = markov_video_frames();
-	media_matrix.gopAnchorFrameDistance = 3;
-	media_matrix.gopFullFrameDistance = 12;
-    media_matrix.bps = bps; % 4MBits/second
-    media_matrix.payloadSize = payloadSize;
+	video_model = mpeg4_frame_model();
+	video_model.gopAnchorFrameDistance = 3;
+	video_model.gopFullFrameDistance = 12;
+    video_model.bps = bps; % 4MBits/second
+    video_model.payloadSize = payloadSize;
     
     nodeName = sprintf('media-node%d', i);
-    simulator.add_multimedia_matrix(nodeName, dcf_model, media_matrix);
+    simulator.add_multivideo_model(nodeName, dcf_model, video_model);
 end
 
 simulator.Setup(bVerbose);

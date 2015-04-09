@@ -17,8 +17,9 @@ classdef dcf_sim_node < handle
         
         % Secondary Markov Chain which determines what kind of transmit
         % Advances to this chain only occur on transmission
+        % Interface is fairly generic, doesn't have to be mpeg4
         secHist@markov_history;
-        secChainBuilder@markov_video_frames;
+        secChainBuilder@mpeg4_frame_model;
         secChain@markov_chain;
         
         % Secondary chain which activates only between the endstates
