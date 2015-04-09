@@ -27,9 +27,9 @@ classdef dcf_simulator < handle
             obj.pSuccessMultiTransmit = pSuccessMultiTransmitIn;
         end
         
-        function add_dcf_matrix(this, name, dcfmatrix)
+        function add_dcf_model(this, name, dcf_model)
             nNodes = size(this.nodes, 2);
-            this.nodes{nNodes+1} = dcf_sim_node(name, dcfmatrix, [], this.pSuccessSingleTransmit, this.pSuccessMultiTransmit);
+            this.nodes{nNodes+1} = dcf_sim_node(name, dcf_model, [], this.pSuccessSingleTransmit, this.pSuccessMultiTransmit);
         end
         
         function add_multimedia_matrix(this, name, dcfmatrix, multimediamodel)

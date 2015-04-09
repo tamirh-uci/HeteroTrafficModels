@@ -11,7 +11,7 @@ classdef dcf_sim_node < handle
         
         % Main DCF chain which determines when a transmit occurs
         dcfHist@markov_history;
-        dcfChainBuilder@dcf_matrix_collapsible;
+        dcfChainBuilder@dcf_markov_model;
         dcfChainSingleTx@markov_chain;
         dcfChainMultiTx@markov_chain;
         

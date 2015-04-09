@@ -8,19 +8,19 @@ for i = 1:(m+1)
 end
 
 % Populate the nodes in the simulator
-dcf_matrix = dcf_matrix_collapsible();
-dcf_matrix.m = m;
-dcf_matrix.wMin = Wmin;
-dcf_matrix.nPkt = nMaxPackets;
-dcf_matrix.nInterarrival = nInterarrival;
-dcf_matrix.pEnterInterarrival = pEnter;
-dcf_matrix.pRawArrive = pArrive;
+dcf_model = dcf_markov_model();
+dcf_model.m = m;
+dcf_model.wMin = Wmin;
+dcf_model.nPkt = nMaxPackets;
+dcf_model.nInterarrival = nInterarrival;
+dcf_model.pEnterInterarrival = pEnter;
+dcf_model.pRawArrive = pArrive;
 
 simulator = dcf_simulator_oo(pSuccess, 0.0);
 
 for i = 1:numNormals
     nodeName = sprintf('node%d', i);
-    simulator.add_dcf_matrix(nodeName, dcf_matrix);
+    simulator.add_dcf_model(nodeName, dcf_model);
 end
 
 % modify dcf matrix for media settings
@@ -28,13 +28,13 @@ bps = 4 * 1000000; % 4MBits/second
 payloadSize = 1500*8;
     
 % We always have fixed packetsize of 1 payload
-dcf_matrix.bFixedPacketchain = true;
-dcf_matrix.nPkt = 1;
+dcf_model.bFixedPacketchain = true;
+dcf_model.nPkt = 1;
 
 % We want to estimate the desired video BPS
-dcf_matrix.pEnterInterarrival = 1.0;
-dcf_matrix.bFixedInterarrivalChain = true;
-dcf_matrix.CalculateInterarrival(phys80211_type.B, bps, payloadSize);
+dcf_model.pEnterInterarrival = 1.0;
+dcf_model.bFixedInterarrivalChain = true;
+dcf_model.CalculateInterarrival(phys80211_type.B, bps, payloadSize);
 
 for i = 1:numMedias
 	media_matrix = markov_video_frames();
@@ -44,7 +44,7 @@ for i = 1:numMedias
     media_matrix.payloadSize = payloadSize;
     
     nodeName = sprintf('media-node%d', i);
-    simulator.add_multimedia_matrix(nodeName, dcf_matrix, media_matrix);
+    simulator.add_multimedia_matrix(nodeName, dcf_model, media_matrix);
 end
 
 simulator.Setup(bVerbose);

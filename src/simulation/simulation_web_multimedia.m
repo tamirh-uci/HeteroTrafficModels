@@ -4,7 +4,7 @@ Wmax = 16;
 pSuccess = 1.0;
 
 % Precompute variables for the DCF model
-[m, W] = dcf_matrix_collapsible.CalculateDimensions(Wmin, Wmax);
+[m, W] = dcf_markov_model.CalculateDimensions(Wmin, Wmax);
 
 [pArrive1, pEnter1, nPackets1, nInterarrival1] = create_web_traffic_parameters();
 [bps, payload] = create_multimedia_parameters();

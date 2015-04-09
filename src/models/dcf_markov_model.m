@@ -1,5 +1,5 @@
-classdef dcf_matrix_collapsible < handle
-    %DCF_MATRIX_COLLAPSIBLE Markov chain builder for DCF backoff simulation
+classdef dcf_markov_model < handle
+    %DCF_MARKOV_MODEL Markov chain builder for DCF backoff simulation
     
     methods (Static)
         function key = Dim(type, indices)
@@ -20,7 +20,7 @@ classdef dcf_matrix_collapsible < handle
         % transmitted a packet and need to know if you have another one
         % (and what size) you will attempt next
         function key = SuccessState()
-            key = dcf_matrix_collapsible.Dim(dcf_state_type.CollapsibleSuccess, 0);
+            key = dcf_markov_model.Dim(dcf_state_type.CollapsibleSuccess, 0);
         end
         
         % the fail state for each stage goes to all of the backoff options
@@ -28,21 +28,21 @@ classdef dcf_matrix_collapsible < handle
         % indices = [stage, packetsize]
         function key = FailState(indices)
             assert( size(indices,1)==1 && size(indices,2)==2 );
-            key = dcf_matrix_collapsible.Dim(dcf_state_type.CollapsibleFailure, indices);
+            key = dcf_markov_model.Dim(dcf_state_type.CollapsibleFailure, indices);
         end
         
         % initial transmit will distribute between stage 1 and postbackoff
         % indices = [packetsize]
         function key = InitialTransmitAttemptState(indices)
             assert( size(indices,1)==1 && size(indices,2)==1 );
-            key = dcf_matrix_collapsible.Dim(dcf_state_type.CollapsibleInitialTransmit, indices);
+            key = dcf_markov_model.Dim(dcf_state_type.CollapsibleInitialTransmit, indices);
         end
         
         % packetsize attempt means there was a packet in the buffer,
         % calculate the size of the packet
         % there is only 1 packetsize calculation (for stage 1)
         function key = PacketsizeCalculateAttemptState()
-            key = dcf_matrix_collapsible.Dim(dcf_state_type.CollapsiblePacketSize, 0);
+            key = dcf_markov_model.Dim(dcf_state_type.CollapsiblePacketSize, 0);
         end
         
         % each stage has a number of backoff states, which count down until
@@ -50,7 +50,7 @@ classdef dcf_matrix_collapsible < handle
         % indices = [stage, packetsize, backoffTimer]
         function key = BackoffState(indices)
             assert( size(indices,1)==1 && size(indices,2)==3 );
-            key = dcf_matrix_collapsible.Dim(dcf_state_type.Backoff, indices);
+            key = dcf_markov_model.Dim(dcf_state_type.Backoff, indices);
         end
         
         % simulate the correct size of packet for the length we have chosen
@@ -59,9 +59,9 @@ classdef dcf_matrix_collapsible < handle
         function key = PacketsizeChainState(indices)
             assert( size(indices,1)==1 && ( size(indices,2)==3 ) );
             if ( indices(1,3) == 1 )
-                key = dcf_matrix_collapsible.Dim(dcf_state_type.Transmit, indices);
+                key = dcf_markov_model.Dim(dcf_state_type.Transmit, indices);
             else
-                key = dcf_matrix_collapsible.Dim(dcf_state_type.PacketSize, indices);
+                key = dcf_markov_model.Dim(dcf_state_type.PacketSize, indices);
             end
         end
         
@@ -69,41 +69,41 @@ classdef dcf_matrix_collapsible < handle
         % indices = [stage, packetsize]
         function key = PacketsizeChainBeginState(indices)
             assert( size(indices,1)==1 && ( size(indices,2)==2 ) );
-            key = dcf_matrix_collapsible.PacketsizeChainState([ indices(1,1), indices(1,2), indices(1,2) ]);
+            key = dcf_markov_model.PacketsizeChainState([ indices(1,1), indices(1,2), indices(1,2) ]);
         end
         
         % Where to hop into packetsize chain if you want it over
         % indices = [stage, packetsize]
         function key = PacketsizeChainEndState(indices)
             assert( size(indices,1)==1 && ( size(indices,2)==2 ) );
-            key = dcf_matrix_collapsible.PacketsizeChainState([ indices(1,1), indices(1,2), 1 ]);
+            key = dcf_markov_model.PacketsizeChainState([ indices(1,1), indices(1,2), 1 ]);
         end
         
         % Determine outcome of a transmission, if it fails go to next stage
         % indices = [stage, packetsize]
         function key = TransmitAttemptState(indices)
             assert( size(indices,1)==1 && size(indices,2)==2 );
-            key = dcf_matrix_collapsible.Dim(dcf_state_type.CollapsibleTransmit, indices);
+            key = dcf_markov_model.Dim(dcf_state_type.CollapsibleTransmit, indices);
         end
         
         % Distribute with even weight to backoff/transmit states in stage
         % indices = [stage, packetsize]
         function key = DistributionState(indices)
             assert( size(indices,1)==1 && size(indices,2)==2 );
-            key = dcf_matrix_collapsible.Dim(dcf_state_type.CollapsibleDistribute, indices);
+            key = dcf_markov_model.Dim(dcf_state_type.CollapsibleDistribute, indices);
         end
         
         % calculate how long to wait until a new packet arrives in buffer
         % indices = [interarrivalTimer]
         function key = InterarrivalState(indices)
             assert( size(indices,1)==1 && size(indices,2)==1 );
-            key = dcf_matrix_collapsible.Dim(dcf_state_type.Interarrival, indices);
+            key = dcf_markov_model.Dim(dcf_state_type.Interarrival, indices);
         end
         
         % indices = [packetsize, postbackoffLength]
         function key = PostbackoffState(indices)
             assert( size(indices,1)==1 && size(indices,2)==2 );
-            key = dcf_matrix_collapsible.Dim(dcf_state_type.Postbackoff, indices);
+            key = dcf_markov_model.Dim(dcf_state_type.Postbackoff, indices);
         end
         
         % maps the new state types back onto the old simplified version
@@ -113,16 +113,16 @@ classdef dcf_matrix_collapsible < handle
             if ( indices(1,3) == 1 )
                 % backoff timer = 1 is now mapped to starting the
                 % packetsize chain
-                key = dcf_matrix_collapsible.PacketsizeChainBeginState([ indices(1,1), indices(1,2) ]);
+                key = dcf_markov_model.PacketsizeChainBeginState([ indices(1,1), indices(1,2) ]);
             else
                 % all other are just backoff states, index fixed
-                key = dcf_matrix_collapsible.BackoffState([ indices(1,1), indices(1,2), indices(1,3)-1 ]);
+                key = dcf_markov_model.BackoffState([ indices(1,1), indices(1,2), indices(1,3)-1 ]);
             end
         end
     end % methods (Static)
     
     methods
-        function obj = dcf_matrix_collapsible()
+        function obj = dcf_markov_model()
             obj = obj@handle;
         end
         

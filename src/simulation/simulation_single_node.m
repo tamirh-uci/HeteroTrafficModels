@@ -163,7 +163,7 @@ classdef simulation_single_node < handle
             %t = 0:this.timeSteps;
             %colors = { [0, 1, 1], [1, 0, 0], [0, 1, 0], [0.5, 1, 0], [0.5, 0, 1], [1, 0.5, 0], [1, 0, 1] };
             
-            [m, ~] = dcf_matrix_collapsible.CalculateDimensions(this.wMin, this.wMax);
+            [m, ~] = dcf_markov_model.CalculateDimensions(this.wMin, this.wMax);
 
             %cols = 2;
             %rows = size(this.pSuccessOptions, 2) / cols;
