@@ -7,16 +7,18 @@ classdef video_util < handle
         DEFAULT_FILE = 'serenity_hd_dvd_trailer.mp4';
         DEFAULT_START_FRAME = 100;
         DEFAULT_NFRAMES = 150;
+        DEFAULT_QP = 27;
+        DEFAULT_BLOCK_SIZE = 16;
     end
     
     methods (Static)
-        function [fNameOrig, fNameSrcU, fNameSrcC, fNameDstU] = subFilenames(folder, fNameIn, frameStart, nFrames)
+        function [fNameOrig, fNameSrcU, fNameSrcC, fNameDstC] = subFilenames(folder, fNameIn, frameStart, nFrames)
             fNameOrig = [folder fNameIn];
             
             subsection = ['.' num2str(frameStart) '-' num2str(nFrames)];
             fNameSrcU = [folder 'src_u_' fNameIn subsection '.avi'];
             fNameSrcC = [folder 'src_c_' fNameIn subsection '.mp4'];
-            fNameDstU = [folder 'dst_u_' fNameIn subsection '.avi'];
+            fNameDstC = [folder 'dst_c_' fNameIn subsection '.mp4'];
         end
         
         % Take input video and extract subset of frames and reencode
@@ -49,21 +51,14 @@ classdef video_util < handle
             end
         end
         
-        % Take uncompressed video as input, packet mangle it, and output to
-        % an uncompressed file
-        function mangle(fNameSrc, fNameDst, nFrames)
-            fprintf('Reading video to mangle: %s\n', fNameSrc);
-            [vidDataSrc, vidHeight, vidWidth] = video_util.reader(fNameSrc, 1, nFrames);
+        % Mangle frames listed in badFrames
+        % Input and output will be MPEG4 compressed data streams
+        function mangle(fNameSrcC, fNameDstC, nFrames, ~)
+            % TODO: Do mangle here
             
-            fprintf('Mangling %dx%d (%d) %s\n', vidWidth, vidHeight, nFrames, fNameSrc);
-            
-            % bump up green to max for second half of video
-            for i=nFrames/2:nFrames
-                vidDataSrc(i).cdata(:,:,2) = 255;
-            end
-            
-            fprintf('Writing mangled video: %s\n', fNameDst);
-            video_util.writer(vidDataSrc, VideoWriter(fNameDst, 'Uncompressed AVI'));
+            % This just re-encodes
+            [vidData, ~, ~] = video_util.reader(fNameSrcC, 1, nFrames);
+            video_util.writer(vidData, VideoWriter(fNameDstC, 'MPEG-4'));
         end
         
         function [peaksnr, snr] = psnr(vidDataSrc, vidDataDst, nFrames)
@@ -113,7 +108,6 @@ classdef video_util < handle
         
         function writer(vidData, vidObj)
             nFrames = size(vidData, 2);
-            
             open(vidObj);
             
             % Dump frame data into video
@@ -133,17 +127,19 @@ classdef video_util < handle
         function test(this)
             frameStart = this.DEFAULT_START_FRAME;
             nFrames = this.DEFAULT_NFRAMES;
-            [fNameOrig, fNameSrcU, fNameSrcC, fNameDstU] = video_util.subFilenames(this.DEFAULT_FOLDER, this.DEFAULT_FILE, frameStart, nFrames);
+            [fNameOrig, fNameSrcU, fNameSrcC, fNameDstC] = video_util.subFilenames(this.DEFAULT_FOLDER, this.DEFAULT_FILE, frameStart, nFrames);
             
             fprintf('\n=============PREP INPUT==============\n');
             video_util.prepInput(fNameOrig, fNameSrcU, fNameSrcC, frameStart, nFrames);
             
             fprintf('\n===============MANGLE================\n');
-            video_util.mangle(fNameSrcU, fNameDstU, nFrames);
+            badFrames = nFrames/2 : nFrames;
+            video_util.mangle(fNameSrcC, fNameDstC, nFrames, badFrames);
             
             fprintf('\n=============TEST DIFF===============\n');
-            [psnrC, snrC] = video_util.test_diff(fNameSrcU, fNameSrcC, nFrames);
-            [psnrM, snrM] = video_util.test_diff(fNameSrcU, fNameDstU, nFrames);
+            [psnrUtoC, snrUtoC] = video_util.test_diff(fNameSrcU, fNameSrcC, nFrames);
+            [psnrUtoMC, snrUtoMC] = video_util.test_diff(fNameSrcU, fNameDstC, nFrames);
+            [psnrCtoMC, snrCtoMC] = video_util.test_diff(fNameSrcC, fNameDstC, nFrames);
             
             % plot stuff
             fprintf('Plotting...');
@@ -151,24 +147,26 @@ classdef video_util < handle
             
             % Peak SNR Plot
             subplot(2,1,1);
-            plot(psnrM, 'r');
+            plot(psnrUtoC, 'r');
             hold on;
-            plot(psnrC, 'm');
+            plot(psnrUtoMC, 'b');
+            plot(psnrCtoMC, 'c');
             hold off;
             xlabel('Frame');
             ylabel('Peak SNR');
-            legend('mangled raw avi', 'unmangled mpeg4');
+            legend('compression', 'from uncompressed to mangled', 'from compressed to mangled');
             
             subplot(2,1,2);
-            plot(snrM, 'r');
+            plot(snrUtoC, 'r');
             hold on;
-            plot(snrC, 'm');
+            plot(snrUtoMC, 'b');
+            plot(snrCtoMC, 'c');
             hold off;
             xlabel('Frame');
             ylabel('SNR');
-            legend('mangled raw avi', 'unmangled mpeg4');
+            legend('compression', 'from uncompressed to mangled', 'from compressed to mangled');
 
-            fprintf('\n');
+            fprintf('\nDone!\n');
         end
     end
 end

@@ -4,4 +4,3 @@ addpath( fullfile(pwd,'simulation') );
 addpath( fullfile(pwd,'simulator') );
 addpath( fullfile(pwd,'traffic') ); 
 addpath( fullfile(pwd,'utility') ); 
-addpath( fullfile(pwd,'H264_v1') ); 
