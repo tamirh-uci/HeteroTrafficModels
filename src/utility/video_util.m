@@ -5,13 +5,15 @@ classdef video_util < handle
         % http://www.h264info.com/clips.html
         DEFAULT_FOLDER = 'C:\Users\rawkuts\Downloads\';
         DEFAULT_FILE = 'serenity_hd_dvd_trailer.mp4';
-        DEFAULT_START_FRAME = 100;
-        DEFAULT_NFRAMES = 150;
-        DEFAULT_QP = 27;
-        DEFAULT_BLOCK_SIZE = 16;
+        DEFAULT_START_FRAME = 150;
+        DEFAULT_NFRAMES = 200;
     end
     
     methods (Static)
+        function ffmpeg = ffmpeg_exe()
+            ffmpeg = 'E:\Downloads\ffmpeg-20150414-git-013498b-win64-static\bin\ffmpeg.exe';
+        end
+        
         function [fNameOrig, fNameSrcU, fNameSrcC, fNameDstC] = subFilenames(folder, fNameIn, frameStart, nFrames)
             fNameOrig = [folder fNameIn];
             
@@ -43,25 +45,47 @@ classdef video_util < handle
                 fprintf('Uncompressed version of %s already exists, skipping\n', fNameOrig);
             end
             
+            % Compress from the uncompressed source
             if (exist(fNameSrcC, 'file') ~= 2)
-                fprintf('Generating compressed version of %s\n', fNameOrig);
-                video_util.extractFrames(fNameOrig, fNameSrcC, 'MPEG-4', frameStart, nFrames);
+                fprintf('Generating compressed version of %s\n', fNameSrcU);
+                video_util.extractFrames(fNameSrcU, fNameSrcC, 'MPEG-4', 1, nFrames);
             else
-                fprintf('Compressed version of %s already exists, skipping\n', fNameOrig);
+                fprintf('Compressed version of %s already exists, skipping\n', fNameSrcU);
             end
         end
         
         % Mangle frames listed in badFrames
         % Input and output will be MPEG4 compressed data streams
-        function mangle(fNameSrcC, fNameDstC, nFrames, ~)
-            % TODO: Do mangle here
+        function mangle(fNameSrcC, fNameDstC, ~, badPackets, packetSize)
+            copyfile(fNameSrcC, fNameDstC);
             
-            % This just re-encodes
-            [vidData, ~, ~] = video_util.reader(fNameSrcC, 1, nFrames);
-            video_util.writer(vidData, VideoWriter(fNameDstC, 'MPEG-4'));
+            % Overwrite packets with zeros
+            data = zeros(1, packetSize);
+            
+            % Open the destination as a byte stream
+            dstFile = fopen(fNameDstC, 'r+');
+            
+            for badPkt = badPackets
+                % Override each bad packet with 0's
+                offset = (badPkt-1)*packetSize;
+                fseek(dstFile, offset, 'bof');
+                fwrite(dstFile, data, 'uint8');
+            end
+            
+            fclose(dstFile);
         end
         
-        function [peaksnr, snr] = psnr(vidDataSrc, vidDataDst, nFrames)
+        function [peaksnr, snr] = psnr_pics(srcPrefix, dstPrefix, nFrames)
+            peaksnr = zeros(1, nFrames);
+            snr = zeros(1, nFrames);
+            for i=1:nFrames
+                src = imread( sprintf('%s_%08d.png', srcPrefix, i) );
+                dst = imread( sprintf('%s_%08d.png', dstPrefix, i) );
+                [peaksnr(i), snr(i)] = psnr(dst, src);
+            end
+        end
+        
+        function [peaksnr, snr] = psnr_vids(vidDataSrc, vidDataDst, nFrames)
             peaksnr = zeros(1, nFrames);
             snr = zeros(1, nFrames);
             for i=1:nFrames
@@ -71,21 +95,36 @@ classdef video_util < handle
             end
         end
         
+        function vid_to_pics(srcFile, outputPrefix)
+            exe = sprintf('%s -i %s -r 30 %s_%%08d.png', video_util.ffmpeg_exe(), srcFile, outputPrefix);
+            fprintf(' Running command: %s\n', exe);
+            system(exe);
+        end
+        
         % Test the difference between two video files
         function [peaksnr, snr] = test_diff(fNameSrc, fNameDst, nFrames)
             fprintf('Calculating PSNR of %s...\n', fNameDst);
             
-            [vidDataSrc, vidHeightSrc, vidWidthSrc] = video_util.reader(fNameSrc, 1, nFrames);
-            [vidDataDst, vidHeightDst, vidWidthDst] = video_util.reader(fNameDst, 1, nFrames);
+            % Dump temp files into a folder so we can delete it after
+            baseDir = fullfile(tempdir(), 'snr');
+            srcPrefix = fullfile(baseDir, 'src');
+            dstPrefix = fullfile(baseDir, 'dst');
+            mkdir(baseDir);
             
-            % Check some basic sizing values match up
-            assert(vidHeightSrc == vidHeightDst);
-            assert(vidWidthSrc == vidWidthDst);
-            assert(size(vidDataSrc, 2) == nFrames);
-            assert(size(vidDataDst, 2) == nFrames);
+            %[vidDataSrc, vidHeightSrc, vidWidthSrc] = video_util.reader(fNameSrc, 1, nFrames);
+            %[vidDataDst, vidHeightDst, vidWidthDst] = video_util.reader(fNameDst, 1, nFrames);
+            %[peaksnr, snr] = video_util.psnr(vidDataSrc, vidDataDst, nFrames);
             
-            % calculate differences between two videos
-            [peaksnr, snr] = video_util.psnr(vidDataSrc, vidDataDst, nFrames);
+            % Convert video files to frames of PNG for comparision
+            % We don't use built in matlab video reader because it crashes
+            % when it encounters bad frames
+            video_util.vid_to_pics(fNameSrc, srcPrefix);
+            video_util.vid_to_pics(fNameDst, dstPrefix);
+            
+            [peaksnr, snr] = video_util.psnr_pics(srcPrefix, dstPrefix, nFrames);
+            
+            % clean up our temp files
+            rmdir(baseDir, 's');
         end
         
         function [vidData, height, width] = reader(fName, frameStart, nFramesOut)
@@ -133,38 +172,74 @@ classdef video_util < handle
             video_util.prepInput(fNameOrig, fNameSrcU, fNameSrcC, frameStart, nFrames);
             
             fprintf('\n===============MANGLE================\n');
-            badFrames = nFrames/2 : nFrames;
-            video_util.mangle(fNameSrcC, fNameDstC, nFrames, badFrames);
+            badPackets = 1000:1001;
+            packetSize = 1316;
             
             fprintf('\n=============TEST DIFF===============\n');
-            [psnrUtoC, snrUtoC] = video_util.test_diff(fNameSrcU, fNameSrcC, nFrames);
-            [psnrUtoMC, snrUtoMC] = video_util.test_diff(fNameSrcU, fNameDstC, nFrames);
-            [psnrCtoMC, snrCtoMC] = video_util.test_diff(fNameSrcC, fNameDstC, nFrames);
             
-            % plot stuff
-            fprintf('Plotting...');
+            i = 0;
+            while (i<3000)
+                badPackets = i;
+                i = i + 257;
+            end
+            
+            badPackets = 100:100;
+            video_util.mangle(fNameSrcC, fNameDstC, nFrames, badPackets, packetSize);
+            %[psnrUtoCC1, snrUtoCC1] = video_util.test_diff(fNameSrcU, fNameSrcC, nFrames);
+            %[psnrUtoMC1, snrUtoMC1] = video_util.test_diff(fNameSrcU, fNameDstC, nFrames);
+            [psnrCtoMC1, snrCtoMC1] = video_util.test_diff(fNameSrcC, fNameDstC, nFrames);
+            
+            badPackets = 101:101;
+            video_util.mangle(fNameSrcC, fNameDstC, nFrames, badPackets, packetSize);
+            %[psnrUtoCC2, snrUtoCC2] = video_util.test_diff(fNameSrcU, fNameSrcC, nFrames);
+            %[psnrUtoMC2, snrUtoMC2] = video_util.test_diff(fNameSrcU, fNameDstC, nFrames);
+            [psnrCtoMC2, snrCtoMC2] = video_util.test_diff(fNameSrcC, fNameDstC, nFrames);
+            
+            badPackets = 102:102;
+            video_util.mangle(fNameSrcC, fNameDstC, nFrames, badPackets, packetSize);
+            %[psnrUtoCC3, snrUtoCC3] = video_util.test_diff(fNameSrcU, fNameSrcC, nFrames);
+            %[psnrUtoMC3, snrUtoMC3] = video_util.test_diff(fNameSrcU, fNameDstC, nFrames);
+            [psnrCtoMC3, snrCtoMC3] = video_util.test_diff(fNameSrcC, fNameDstC, nFrames);
+            
+            badPackets = 100:100;
+            video_util.mangle(fNameSrcC, fNameDstC, nFrames, badPackets, packetSize);
+            %[psnrUtoCC4, snrUtoCC4] = video_util.test_diff(fNameSrcU, fNameSrcC, nFrames);
+            %[psnrUtoMC4, snrUtoMC4] = video_util.test_diff(fNameSrcU, fNameDstC, nFrames);
+            [psnrCtoMC4, snrCtoMC4] = video_util.test_diff(fNameSrcC, fNameDstC, nFrames);
+            
             figure
+            fprintf('Plotting...');
             
             % Peak SNR Plot
             subplot(2,1,1);
-            plot(psnrUtoC, 'r');
             hold on;
-            plot(psnrUtoMC, 'b');
-            plot(psnrCtoMC, 'c');
+            plot(psnrCtoMC1, 'r');
+            plot(psnrCtoMC2, 'g');
+            plot(psnrCtoMC3, 'b');
+            plot(psnrCtoMC4, 'c');
+            %plot(psnrUtoC, 'r');
+            %plot(psnrUtoMC, 'b');
+            %plot(psnrCtoMC, 'c');
             hold off;
             xlabel('Frame');
             ylabel('Peak SNR');
-            legend('compression', 'from uncompressed to mangled', 'from compressed to mangled');
+            %legend('from uncompressed to compressed', 'from uncompressed to mangled', 'from compressed to mangled');
+            legend('1', '2', '3', '4');
             
             subplot(2,1,2);
-            plot(snrUtoC, 'r');
             hold on;
-            plot(snrUtoMC, 'b');
-            plot(snrCtoMC, 'c');
+            plot(snrCtoMC1, 'r');
+            plot(snrCtoMC2, 'g');
+            plot(snrCtoMC3, 'b');
+            plot(snrCtoMC4, 'c');
+            %plot(snrUtoC, 'r');
+            %plot(snrUtoMC, 'b');
+            %plot(snrCtoMC, 'c');
             hold off;
             xlabel('Frame');
             ylabel('SNR');
-            legend('compression', 'from uncompressed to mangled', 'from compressed to mangled');
+            %legend('from uncompressed to compressed', 'from uncompressed to mangled', 'from compressed to mangled');
+            legend('1', '2', '3', '4');
 
             fprintf('\nDone!\n');
         end
