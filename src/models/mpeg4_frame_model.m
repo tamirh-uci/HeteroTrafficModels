@@ -293,6 +293,9 @@ classdef mpeg4_frame_model < handle
         
         % the 802.11 datagram size we're working with in bits
         payloadSize = 1500*8;
+        
+        % phys80211 type
+        physical_type;
     end
     
     % Calculated GOP characteristics

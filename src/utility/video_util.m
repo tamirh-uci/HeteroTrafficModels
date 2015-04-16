@@ -11,7 +11,15 @@ classdef video_util < handle
     
     methods (Static)
         function ffmpeg = ffmpeg_exe()
-            ffmpeg = 'E:\Downloads\ffmpeg-20150414-git-013498b-win64-static\bin\ffmpeg.exe';
+            exe = 'E:\Downloads\ffmpeg-20150414-git-013498b-win64-static\bin\ffmpeg.exe';
+        end
+        
+        function xvid_encode()
+            exe = 'C:\Users\rawkuts\Downloads\xvidcore\build\win32\bin\xvid_encraw.exe';
+        end
+        
+        function xvid_decode()
+            exe = 'C:\Users\rawkuts\Downloads\xvidcore\build\win32\bin\xvid_decraw.exe';
         end
         
         function [fNameOrig, fNameSrcU, fNameSrcC, fNameDstC] = subFilenames(folder, fNameIn, frameStart, nFrames)
@@ -57,7 +65,7 @@ classdef video_util < handle
         % Mangle frames listed in badFrames
         % Input and output will be MPEG4 compressed data streams
         function mangle(fNameSrcC, fNameDstC, ~, badPackets, packetSize)
-            copyfile(fNameSrcC, fNameDstC);
+            copyfile(fNameSrcC, fNameDstC, 'f');
             
             % Overwrite packets with zeros
             data = zeros(1, packetSize);

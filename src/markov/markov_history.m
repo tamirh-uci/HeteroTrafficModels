@@ -35,6 +35,10 @@ classdef markov_history < handle
         % type: dcf_transition_type
         transitionHistory;
         
+        % History of how long each packet i took to successfully send
+        packetWaitHistory;
+        currentPacketIndex;
+        
         % Number of completed steps taken and recorded
         nStepsTaken;
     end
@@ -49,6 +53,9 @@ classdef markov_history < handle
         end
         
         function tx = CurrentTransition(this)
+            if (this.currentStateIndex == 0)
+                fprintf(':(\n');
+            end
             tx = this.txTypes(this.prevStateIndex, this.currentStateIndex);
         end
         
@@ -71,6 +78,9 @@ classdef markov_history < handle
         function SetupSteps(this, nSteps)
             assert( size(this.indexHistory,2)==0 );
             this.indexHistory = zeros(1, nSteps);
+            this.packetWaitHistory = -1 .* ones(1, nSteps);
+            
+            this.currentPacketIndex = 1;
             this.nStepsTaken = 0;
         end
         
@@ -179,9 +189,14 @@ classdef markov_history < handle
             end
         end
         
-        function Log(this)
-            this.nStepsTaken = this.nStepsTaken + 1;
+        function Log(this, isTransmitting)
+            this.nStepsTaken = 1 + this.nStepsTaken;
             this.indexHistory( this.nStepsTaken ) = this.currentStateIndex;
+            
+            this.packetWaitHistory( this.currentPacketIndex ) = 1 + this.packetWaitHistory( this.currentPacketIndex );
+            if (isTransmitting)
+                this.currentPacketIndex = 1 + this.currentPacketIndex;
+            end
         end
         
         function CalculateTransitionHistory(this)

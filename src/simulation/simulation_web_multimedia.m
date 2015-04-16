@@ -2,6 +2,7 @@ timeSteps = 10000;
 Wmin = 2;
 Wmax = 16;
 pSuccess = 1.0;
+physical_type = phys80211_type.B;
 
 % Precompute variables for the DCF model
 [m, W] = dcf_markov_model.CalculateDimensions(Wmin, Wmax);
@@ -40,7 +41,7 @@ for i1 = 1:numArrive1
                         simulator = dcf_simulator(pSuccess, 1.0);
 
                         randomNode = add_random_node(simulator, m, Wmin, 1, pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4));
-                        webNode = add_multimedia_node(simulator, m, Wmin, 2, bps(b), payload(p));
+                        webNode = add_multimedia_node(simulator, m, Wmin, 2, bps(b), payload(p), physical_type);
 
                         fName = sprintf('./../results/simulation_web_multimedia-%d_%d_%d_%d_%d_%d.sim', pArrive1(i1), pEnter1(i2), nPackets1(i3), nInterarrival1(i4), bps(b), payload(p));
                         fprintf('\n------------\nrunning test: %s\n', fName);

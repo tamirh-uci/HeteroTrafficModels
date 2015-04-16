@@ -15,6 +15,10 @@ classdef dcf_simulator < handle
         % simulation nodes
         nodes;
         
+        % Boolean array which switches on/off depending on if a node is
+        % currently transmitting
+        transmittingNodes;
+        
         % Count number of steps taken
         nSteps;
     end %properties (SetAccess = protected)
@@ -96,30 +100,32 @@ classdef dcf_simulator < handle
             this.nSteps = this.nSteps + 1;
             
             % Step each node forward in time
-            nTransmitting = 0;
             for i=1:nNodes
                 node = this.nodes{i};
                 node.Step();
-                nTransmitting = nTransmitting + node.IsTransmitting();
+                this.transmittingNodes(i) = node.IsTransmitting();
             end
             
             % Handle multiple nodes trying to transmit at once
+            nTransmitting = sum(this.transmittingNodes);
             if (nTransmitting > 1)
-               for i=1:nNodes
+                % Force all of these into failure states by using the
+                % transition table for when there are 100% failures
+                for i = find(this.transmittingNodes)
                     node = this.nodes{i};
-                    % Force all of these into failure states by using the
-                    % transition table for when there are 100% failures
-                    if (node.IsTransmitting())
-                        node.ForceFailure();
-                    end
-               end
+                    node.ForceFailure();
+                    
+                    % TODO: Verify this works (when a double transmitting node
+                    % succeeds for instance            
+                    this.transmittingNodes(i) = node.IsTransmitting();
+                end
             end
             
             % Node may have some work to do after the finalized state has
             % been reached (logging, or transmission type steps)
             for i=1:nNodes
                 node = this.nodes{i};
-                node.PostStep();
+                node.PostStep(this.transmittingNodes(i));
             end
         end
         

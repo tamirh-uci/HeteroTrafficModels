@@ -12,6 +12,7 @@ classdef simulation_single_node < handle
         timeSteps = 10000;
         wMin = 2;
         wMax = 16;
+        physical_type = phys80211_type.B;
         
         %pSuccessOptions = [0.4, 0.6, 0.8, 1.0];
         pSuccessOptions = [1.0];
@@ -182,7 +183,7 @@ classdef simulation_single_node < handle
                 add_web_traffic_node(   webtx_simulator, m, this.wMin, 2, this.webtx_pArrive, this.webtx_pEnter, this.webtx_nMaxPackets, this.webtx_nInterarrival);
                 add_random_node(        rando_simulator, m, this.wMin, 3, this.rando_pArrive, this.rando_pEnter, this.rando_nMaxPackets, this.rando_nInterarrival);
                 
-                add_multimedia_node(    video_simulator, m, this.wMin, 4, video_bps, this.video_payloadSize);
+                add_multimedia_node(    video_simulator, m, this.wMin, 4, video_bps, this.video_payloadSize, this.physical_type);
                 add_file_download_node( video_simulator, m, this.wMin, 5, this.files_pArrive, this.files_pEnter, this.files_nMaxPackets, this.files_nInterarrival);
 
                 [files_fName, files_fNcsv] = simulation_single_node.fnames('files', pSuccess, this.files_pArrive, this.files_pEnter, this.files_nMaxPackets, this.files_nInterarrival, 0, 0);

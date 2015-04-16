@@ -149,7 +149,7 @@ classdef dcf_sim_node < handle
         end
         
         function ForceFailure(this)
-            assert(this.IsTransmitting());
+            %assert(this.IsTransmitting());
             
             % find next state knowing we previously thought we successfully
             % transmitted, but now we want to force a failed state
@@ -167,18 +167,18 @@ classdef dcf_sim_node < handle
         % After we know what state we've moved to, figure out if we have
         % anything else to do. If we're transmitting, we may need to
         % determine what exactly it is we're transmitting
-        function PostStep(this)
+        function PostStep(this, isTransmitting)            
             if (this.HasSecondary())
                 % Step the secondary chain to get new frame type
-                if (this.IsTransmitting())
+                if (isTransmitting)
                     this.secHist.StepUntil(this.piSecondary, this.secondaryEndStates);
                 end
                 
-                this.secHist.Log();
+                this.secHist.Log(isTransmitting);
             end
             
             % Keep track of every state transition
-            this.dcfHist.Log();
+            this.dcfHist.Log(isTransmitting);
         end
         
         % We need to look for packetsize chains which failed
