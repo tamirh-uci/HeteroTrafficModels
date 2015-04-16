@@ -9,10 +9,12 @@ classdef simulation_single_node < handle
         doRando = false;
         doVideo = true;
         
-        timeSteps = 10000;
+        timeSteps = 50;
         wMin = 2;
         wMax = 16;
         physical_type = phys80211_type.B;
+        physical_speed = 1.0;
+        physical_payload = 8*1500;
         
         %pSuccessOptions = [0.4, 0.6, 0.8, 1.0];
         pSuccessOptions = [1.0];
@@ -39,14 +41,14 @@ classdef simulation_single_node < handle
 
         % MULTIMEDIA STREAMING
         video_bps_options = 1000000 * [4]; % 4MBits/second
-        video_payloadSize = 1500*8;
+        
     end
     
     methods (Static)
-        function [fname, fncsv] = fnames(name, pSuccess, pArrive, pEnter, nMaxPackets, nInterarrival, bps, payloadSize)
+        function [fname, fncsv] = fnames(name, pSuccess, pArrive, pEnter, nMaxPackets, nInterarrival, bps)
             if (bps > 0)
-                fname = sprintf('./../results/simulation_single_node_%s-s%.2f-b%.2f-p%.2f.log', name, pSuccess, bps, payloadSize);
-                fncsv = sprintf('./../results/simulation_single_node_%s-s%.2f-b%.2f-p%.2f.csv', name, pSuccess, bps, payloadSize);
+                fname = sprintf('./../results/simulation_single_node_%s-s%.2f-b%.2f.log', name, pSuccess, bps);
+                fncsv = sprintf('./../results/simulation_single_node_%s-s%.2f-b%.2f.csv', name, pSuccess, bps);
             else
                 fname = sprintf('./../results/simulation_single_node_%s-s%.2f-a%.2f-e%.2f-m%.2f-i%.2f.log', name, pSuccess, pArrive, pEnter, nMaxPackets, nInterarrival);
                 fncsv = sprintf('./../results/simulation_single_node_%s-s%.2f-a%.2f-e%.2f-m%.2f-i%.2f.csv', name, pSuccess, pArrive, pEnter, nMaxPackets, nInterarrival);
@@ -173,23 +175,24 @@ classdef simulation_single_node < handle
             for video_bps = this.video_bps_options
             for pSuccess = this.pSuccessOptions
                 i = i + 1;
+                
                 % Separate simulation for each node type
-                files_simulator = dcf_simulator(pSuccess, 0.0);
-                webtx_simulator = dcf_simulator(pSuccess, 0.0);
-                rando_simulator = dcf_simulator(pSuccess, 0.0);
-                video_simulator = dcf_simulator(pSuccess, 0.0);
+                files_simulator = dcf_simulator(pSuccess, 0.0, this.physical_type, this.physical_payload, this.physical_speed);
+                webtx_simulator = dcf_simulator(pSuccess, 0.0, this.physical_type, this.physical_payload, this.physical_speed);
+                rando_simulator = dcf_simulator(pSuccess, 0.0, this.physical_type, this.physical_payload, this.physical_speed);
+                video_simulator = dcf_simulator(pSuccess, 0.0, this.physical_type, this.physical_payload, this.physical_speed);
 
                 add_file_download_node( files_simulator, m, this.wMin, 1, this.files_pArrive, this.files_pEnter, this.files_nMaxPackets, this.files_nInterarrival);
                 add_web_traffic_node(   webtx_simulator, m, this.wMin, 2, this.webtx_pArrive, this.webtx_pEnter, this.webtx_nMaxPackets, this.webtx_nInterarrival);
                 add_random_node(        rando_simulator, m, this.wMin, 3, this.rando_pArrive, this.rando_pEnter, this.rando_nMaxPackets, this.rando_nInterarrival);
                 
-                add_multimedia_node(    video_simulator, m, this.wMin, 4, video_bps, this.video_payloadSize, this.physical_type);
+                add_multimedia_node(    video_simulator, m, this.wMin, 4, video_bps);
                 add_file_download_node( video_simulator, m, this.wMin, 5, this.files_pArrive, this.files_pEnter, this.files_nMaxPackets, this.files_nInterarrival);
 
-                [files_fName, files_fNcsv] = simulation_single_node.fnames('files', pSuccess, this.files_pArrive, this.files_pEnter, this.files_nMaxPackets, this.files_nInterarrival, 0, 0);
-                [webtx_fName, webtx_fNcsv] = simulation_single_node.fnames('webtx', pSuccess, this.webtx_pArrive, this.webtx_pEnter, this.webtx_nMaxPackets, this.webtx_nInterarrival, 0, 0);
-                [rando_fName, rando_fNcsv] = simulation_single_node.fnames('rando', pSuccess, this.rando_pArrive, this.rando_pEnter, this.rando_nMaxPackets, this.rando_nInterarrival, 0, 0);
-                [video_fName, video_fNcsv] = simulation_single_node.fnames('video', pSuccess, 0, 0, 0, 0, video_bps, this.video_payloadSize);
+                [files_fName, files_fNcsv] = simulation_single_node.fnames('files', pSuccess, this.files_pArrive, this.files_pEnter, this.files_nMaxPackets, this.files_nInterarrival, 0);
+                [webtx_fName, webtx_fNcsv] = simulation_single_node.fnames('webtx', pSuccess, this.webtx_pArrive, this.webtx_pEnter, this.webtx_nMaxPackets, this.webtx_nInterarrival, 0);
+                [rando_fName, rando_fNcsv] = simulation_single_node.fnames('rando', pSuccess, this.rando_pArrive, this.rando_pEnter, this.rando_nMaxPackets, this.rando_nInterarrival, 0);
+                [video_fName, video_fNcsv] = simulation_single_node.fnames('video', pSuccess, 0, 0, 0, 0, video_bps);
                 
                 fprintf('Running simulations...\n');
                 this.runSim(this.doFiles, files_simulator, files_fName);

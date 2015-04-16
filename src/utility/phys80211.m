@@ -24,6 +24,7 @@ classdef phys80211 < handle
         % How long does it take for a full transmission send
         % payload = bits per data payload in a frame = 8*framesize
         % speed = [0,1] %capacity of max
+        % unit = (microseconds)
         function time = TransactionTime(type, payload, speed)
             % How long does the payload take in microseconds
             bps = phys80211.RawDatarate(type, speed);
@@ -38,6 +39,7 @@ classdef phys80211 < handle
         end
         
         % How long does a single backoff state take
+        % unit = (microseconds)
         function time = BackoffTime(type)
             time = phys80211.DIFS(type);
         end
@@ -83,6 +85,7 @@ classdef phys80211 < handle
         end
         
         % Time added by sending header bits overhead with each payload
+        % unit = (microseconds)
         function time = OverheadTime(type)
            switch(type)
                 case phys80211_type.FHSS
@@ -105,6 +108,7 @@ classdef phys80211 < handle
         end
         
         % time it takes for physical ACK
+        % unit = (microseconds)
         function ack = ACK(type)
             switch(type)
                 case phys80211_type.FHSS

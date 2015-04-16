@@ -21,14 +21,30 @@ classdef dcf_simulator < handle
         
         % Count number of steps taken
         nSteps;
+        
+        % How is our channel defined
+        physical_type;
+        physical_payload;
+        physical_speed;
+        
+        timePerStep;
     end %properties (SetAccess = protected)
     
     methods
         % Constructor
-        function obj = dcf_simulator(pSuccessSingleTransmitIn, pSuccessMultiTransmitIn)
+        function obj = dcf_simulator(pSuccessSingleTransmitIn, pSuccessMultiTransmitIn, physical_type_in, physical_payload_in, physical_speed_in)
             obj = obj@handle();
             obj.pSuccessSingleTransmit = pSuccessSingleTransmitIn;
             obj.pSuccessMultiTransmit = pSuccessMultiTransmitIn;
+            obj.physical_type = physical_type_in;
+            obj.physical_payload = physical_payload_in;
+            obj.physical_speed = physical_speed_in;
+            
+            if (pSuccessMultiTransmitIn > 0.5)
+                fprintf('Are you sure you wanted the chance of success with multiple nodes transmitting at the SAME TIME to be so high?\n');
+                fprintf('In other words, pSuccessMultiTransmit is the chance of SUCCESS with multiple transmits (usually its zero)\n');
+                assert(pSuccessMultiTransmitIn < 0.9);
+            end
         end
         
         function add_plain_node(this, name, dcf_model)
@@ -133,15 +149,27 @@ classdef dcf_simulator < handle
         function PrintResults(this, bVerbose)
             fprintf('===Node Results===\n');
             nNodes = size(this.nodes, 2);
-            s = 0;
-            f = 0;
+            totalSuccess = 0;
+            totalFail = 0;
+            totalPackets = 0;
+            totalPacketWaitHistory = [];
+            
             for i=1:nNodes
                 node = this.nodes{i};
+                nSuccess = node.CountSuccesses();
+                nFail = node.CountFailures();
+                
+                nPackets = node.dcfHist.currentPacketIndex;
+                waitHistory = node.dcfHist.packetWaitHistory(1:nPackets);
+                
                 fprintf(' +%s+\n', node.name);
-                this.PrintStats(node.CountSuccesses(), node.CountFailures());
+                this.PrintTransmitStats(nSuccess, nFail);
+                this.PrintPacketStats(nPackets, waitHistory);
 
-                s = s + node.CountSuccesses();
-                f = f + node.CountFailures();
+                totalSuccess = totalSuccess + nSuccess;
+                totalFail = totalFail + nFail;
+                totalPackets = totalPackets + nPackets;
+                totalPacketWaitHistory = [totalPacketWaitHistory waitHistory];
                 
                 fprintf('\n');
                 if (bVerbose)
@@ -150,19 +178,30 @@ classdef dcf_simulator < handle
                 end
             end
 
-            if (s ~= this.CountSuccesses()) 
-                disp('WHAT THE FUCK SUCCESSES')
-            end
-
-            if (f ~= this.CountFailures()) 
-                disp('WHAT THE FUCK FAILURES')
-            end
+            assert(totalSuccess == this.CountSuccesses());
+            assert(totalFail == this.CountFailures());
             
             fprintf('\n===Overall===\n');
-            this.PrintStats(this.CountSuccesses(), this.CountFailures());
+            this.PrintTransmitStats(this.CountSuccesses(), this.CountFailures());
+            this.PrintPacketStats(totalPackets, totalPacketWaitHistory);
         end
         
-        function PrintStats(this, successes, failures)
+        function PrintPacketStats(this, nPacketsSent, waitHistory)
+            txTimeUs = phys80211.TransactionTime(this.physical_type, this.physical_payload, this.physical_speed);
+            txTimeMs = txTimeUs / 1000;
+            
+            medianWait = median(waitHistory);
+            minWait = min(waitHistory);
+            maxWait = max(waitHistory);
+            avgWait = this.nSteps / nPacketsSent;
+            
+            fprintf('packets sent = %d\n', nPacketsSent);
+            fprintf('min/max wait = %.3fms/%.3fms (%d/%d)\n', txTimeMs*minWait, txTimeMs*maxWait, minWait, maxWait);
+            fprintf('median wait = %.3fms (%d)\n', txTimeMs*medianWait, medianWait);
+            fprintf('avg wait = %.3fms (%.3f)\n', txTimeMs*avgWait, avgWait);
+        end
+        
+        function PrintTransmitStats(this, successes, failures)
             successPercent = successes/(successes+failures);
             successTransmitTimePercent = successes/this.nSteps;
             

@@ -53,9 +53,6 @@ classdef markov_history < handle
         end
         
         function tx = CurrentTransition(this)
-            if (this.currentStateIndex == 0)
-                fprintf(':(\n');
-            end
             tx = this.txTypes(this.prevStateIndex, this.currentStateIndex);
         end
         
@@ -78,7 +75,7 @@ classdef markov_history < handle
         function SetupSteps(this, nSteps)
             assert( size(this.indexHistory,2)==0 );
             this.indexHistory = zeros(1, nSteps);
-            this.packetWaitHistory = -1 .* ones(1, nSteps);
+            this.packetWaitHistory = zeros(1, nSteps);
             
             this.currentPacketIndex = 1;
             this.nStepsTaken = 0;

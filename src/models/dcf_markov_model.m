@@ -491,9 +491,9 @@ classdef dcf_markov_model < handle
         
         % Calculate how long we need to wait between transmissions in order
         % to send the payload with a given bps at a given datarate
-        function CalculateInterarrival(this, type, desiredBps, payloadSizeBits)
+        function CalculateInterarrival(this, desiredBps, physical_type, physical_payload, physical_speed)
             % what rate would be be sending if we have 0 interarrival
-            maxDatarate = phys80211.EffectiveMaxDatarate(type, payloadSizeBits, 1.0, this.wMin);
+            maxDatarate = phys80211.EffectiveMaxDatarate(physical_type, physical_payload, physical_speed, this.wMin);
             
             % at what speed do we want to send to get our desired bps?
             percentTransmit = desiredBps / maxDatarate;

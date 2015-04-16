@@ -4,3 +4,4 @@ addpath( fullfile(pwd,'simulation') );
 addpath( fullfile(pwd,'simulator') );
 addpath( fullfile(pwd,'traffic') ); 
 addpath( fullfile(pwd,'utility') ); 
+fprintf('path set. thank you\n\n');

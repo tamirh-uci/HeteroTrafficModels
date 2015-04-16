@@ -96,9 +96,9 @@ classdef mpeg4_frame_model < handle
             this.pBps = this.bps * this.pPBit;
             this.bBps = this.bps * this.pBBit;
             
-            this.iPktAvgCount = ceil( (this.iBps / this.iFps) / this.payloadSize );
-            this.pPktAvgCount = ceil( (this.pBps / this.pFps) / this.payloadSize );
-            this.bPktAvgCount = ceil( (this.bBps / this.bFps) / this.payloadSize );
+            this.iPktAvgCount = ceil( (this.iBps / this.iFps) / this.physical_payload );
+            this.pPktAvgCount = ceil( (this.pBps / this.pFps) / this.physical_payload );
+            this.bPktAvgCount = ceil( (this.bBps / this.bFps) / this.physical_payload );
             
             this.iPktMinCount = 1;
             this.pPktMinCount = 1;
@@ -251,7 +251,7 @@ classdef mpeg4_frame_model < handle
         
         function fName = MakeCacheFilename(this)
             x = ['mpeg4_' num2str(this.gopAnchorFrameDistance) num2str(this.gopFullFrameDistance) ];
-            y = [ num2str(this.bps) num2str(this.fps) num2str(this.payloadSize) ];
+            y = [ num2str(this.bps) num2str(this.fps) num2str(this.physical_payload) ];
             fName = [x y];
         end
     end % methods
@@ -292,10 +292,13 @@ classdef mpeg4_frame_model < handle
         fps = 30;
         
         % the 802.11 datagram size we're working with in bits
-        payloadSize = 1500*8;
+        physical_payload = 1500*8;
         
         % phys80211 type
         physical_type;
+        
+        % [0,1] %capacity of max
+        physical_speed;
     end
     
     % Calculated GOP characteristics

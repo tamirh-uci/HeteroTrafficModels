@@ -10,6 +10,11 @@ nMaxPackets = 1;
 nInterarrival = 0;
 Wmin = 32;
 Wmax = 1024;
+physical_type = phys80211_type.B;
+physical_speed = 1.0;
+physical_payload = 8*1500;
+
+desired_video_bps = 4 * 1000000; % 4MBits/second
 
 verboseSetup = false;
 verboseExecute = false;
@@ -40,7 +45,7 @@ for i = 1:numberOfNodes
         exit;
     end
     
-    simulator = create_simulation(verboseSetup, numN, numM, pSuccess, pArrive, pEnter, Wmin, Wmax, nMaxPackets, nInterarrival);
+    simulator = create_simulation(verboseSetup, numN, numM, pSuccess, pArrive, pEnter, Wmin, Wmax, nMaxPackets, nInterarrival, desired_video_bps, physical_type, physical_payload, physical_speed);
     simulator.Steps(timeSteps, verboseExecute);
     simulator.PrintResults(verbosePrint);
 
@@ -73,5 +78,3 @@ ylabel('Throughput Value');
 
 fileName = sprintf('./../results/normal-largewmin-%d.fig', figureId);
 saveas(gcf,['.', filesep, fileName], 'fig');  % gca?
-
-
