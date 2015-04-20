@@ -26,8 +26,6 @@ classdef dcf_simulator < handle
         physical_type;
         physical_payload;
         physical_speed;
-        
-        timePerStep;
     end %properties (SetAccess = protected)
     
     methods
@@ -55,6 +53,17 @@ classdef dcf_simulator < handle
         function add_video_node(this, name, dcf_model, video_model)
             nNodes = size(this.nodes, 2);
             this.nodes{nNodes+1} = dcf_sim_node(name, dcf_model, video_model, this.pSuccessSingleTransmit, this.pSuccessMultiTransmit);
+        end
+        
+        function Reset(this)
+            nNodes = size(this.nodes, 2);
+            this.nSteps = 0;
+            
+            % Setup node data
+            for i=1:nNodes
+                node = this.nodes{i};
+                node.Reset();
+            end
         end
         
         % Initialize the object and ready it for calls to StepSimulate
@@ -209,6 +218,11 @@ classdef dcf_simulator < handle
             fprintf('transmit = %.3f%%\n', 100*successTransmitTimePercent);
         end
 
+        function DumpCSV(this, fName)
+            fprintf('Writing to CSV file: %s\n', fName);
+            %TODO: Write out all CSV data
+        end
+        
         function success = GetSuccess(this)
             success = this.CountSuccesses()/(this.CountSuccesses()+this.CountFailures());
         end

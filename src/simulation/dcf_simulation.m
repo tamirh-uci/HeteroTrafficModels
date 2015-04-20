@@ -12,9 +12,9 @@ classdef dcf_simulation < handle
         physical_speed = 1.0;
         physical_payload = 8*1500;
         
-        % the nodegen will create some number of variations on node
-        % specific configurations
-        nodegens = [];
+        % if true, delete previous run data. if false, skip simulation if
+        % previous run data already exists
+        cleanRun = false;
     end
     
     % Debug options
@@ -26,55 +26,127 @@ classdef dcf_simulation < handle
     end
     
     properties (SetAccess = protected)
+        % the nodegen will create some number of variations on node
+        % specific configurations
+        nodegens = {};
+        
+        nTimestepsSize;
+        pSingleSuccessSize;
+        pMultiSuccessSize;
+        physical_typeSize;
+        physical_speedSize;
+        physical_payloadSize;
+        nodegensSize;
+        
+        ngVariations;
+        ngSizes;
+        ngCurrIndices;
     end
     
     methods
         function obj = dcf_simulation()
             obj = obj@handle();
+            obj.nodegensSize = 0;
         end
         
-        function run(this)
-            nThisNTimesteps = size(this.nTimesteps, 2);
-            nThisPSingleSuccess = size(this.pSingleSuccess, 2);
-            nThisPMultiSuccess = size(this.pMultiSuccess, 2);
-            nThisPhysical_type = size(this.physical_type, 2);
-            nThisPhysical_speed = size(this.physical_speed, 2);
-            nThisPhysical_payload = size(this.physical_payload, 2);
+        function AddNodegen(this, nodegen)
+            this.nodegensSize = 1 + this.nodegensSize;
+            this.nodegens{ this.nodegensSize } = nodegen;
+        end
+        
+        function RemoveAllNodegens(this)
+            this.nodegens = {};
+            this.nodegensSize = 0;
+        end
+        
+        function nVariations = NumVariations(this)
+            this.nTimestepsSize = size(this.nTimesteps, 2);
+            this.pSingleSuccessSize = size(this.pSingleSuccess, 2);
+            this.pMultiSuccessSize = size(this.pMultiSuccess, 2);
+            this.physical_typeSize = size(this.physical_type, 2);
+            this.physical_speedSize = size(this.physical_speed, 2);
+            this.physical_payloadSize = size(this.physical_payload, 2);
             
-            nTotalNodgenOptions = 0;
-            for nodegen = this.nodegens
-                nTotalNodgenOptions = nTotalNodgenOptions + nodegen.NumVariations();
+            this.ngSizes = 1:this.nodegensSize;
+            this.ngCurrIndices = ones(1, size(this.nodegens, 2));
+            this.ngVariations = prod(this.ngSizes);
+            
+            nVariations = this.nTimestepsSize * this.pSingleSuccessSize * this.pMultiSuccessSize * this.physical_typeSize * this.physical_speedSize * this.physical_payloadSize * this.ngVariations;
+        end
+        
+        function Run(this)
+            this.nodegensSize = size(this.nodegens, 2);
+            for i = 1:this.nodegensSize;
+                nodegen = this.nodegens{i};
+                this.ngSizes(i) = nodegen.NumVariations();
             end
             
-            varIndex = 1;
-            nVariations = nThisNTimesteps * nThisPSingleSuccess * nThisPMultiSuccess * nThisWMin * nThisWMax * nThisPhysical_type * nThisPhysical_speed * nThisPhysical_payload * nTotalNodgenOptions;
-            for thisNTimesteps = this.nTimesteps
+            nVariations = 0;
+            nExpectedVariations = this.NumVariations();
+
+            % loop over all of our possible variables
             for thisPSingleSuccess = this.pSingleSuccess
             for thisPMultiSuccess = this.pMultiSuccess
             for thisPhysical_type = this.physical_type
             for thisPhysical_speed = this.physical_speed
             for thisPhysical_payload = this.physical_payload
-            for nodegen = nodegens
-                nodegenVariations = nodegen.NumVariations();
-                for i=1:nodegenVariations
-                    nodegenVar = nodegen.GetVariation(i);
+
+            % loop over every nodegen variation combination
+            i = 1;
+            while (i <= nExpectedVariations)
+                simulator = dcf_simulator(thisPSingleSuccess, thisPMultiSuccess, thisPhysical_type, thisPhysical_payload, thisPhysical_speed);
+                
+                this.AddNodes(simulator);
+                this.IncrementCartesianIndices();
+                
+                for thisNTimesteps = this.nTimesteps
+                    this.RunSimInstance(simulator, thisNTimesteps);
+                    simulator.Reset();
                     
-                    s = dcf_simulator(thisPSingleSuccess, thisPMultiSuccess, thisPhysical_type, thisPhysical_payload, thisPhysical_speed);
-                    nodegenVar.addNodes(s);
-                    this.runSim(thisNTimesteps);
-                    
-                    varIndex = 1 + varIndex;
-                end
-            end %nodegens
+                    i = i + 1;
+                    nVariations = 1 + nVariations;
+                end %nTimesteps
+            end
+
             end %physical_payload
             end %physical_speed
             end %physical_type
             end %pMultiSuccess
             end %pSingleSuccess
-            end %nTimesteps
+            
+            assert(nVariations==nExpectedVariations);
         end % run()
+
+        function AddNodes(this, simulator)
+            for i=1:this.nodegensSize
+                nodegen = this.nodegens{i};
+                nodegen.AddCurrentVariation(simulator);
+            end
+        end
         
-        function runSim(this, sim, thisNTimesteps)
+        function IncrementCartesianIndices(this)
+            % Increment index of rightmost index
+            this.ngCurrIndices(this.nodegensSize) = 1 + this.ngCurrIndices(this.nodegensSize);
+            nodegen = this.nodegens{this.nodegensSize};
+            nodegen.IncrementCartesianIndices();
+            
+            % Propegate any overflow from right to left
+            for i = this.nodegensSize:-1:2
+                if ( this.ngCurrIndices(i) >= this.ngSizes(i) )
+                    % Set the overflowed nodegen back to zero
+                    nodegen = this.nodegens{i};
+                    nodegen.Reset();
+                    this.ngCurrIndices(i) = 1;
+                    
+                    % Increment the next nodegen one now
+                    this.ngCurrIndices(i-1) = 1 + this.ngCurrIndices(i-1);
+                    nodegen = this.nodegens{i-1};
+                    nodegen.IncrementCartesianIndices();
+                end
+            end
+        end
+        
+        function RunSimInstance(this, sim, thisNTimesteps)
             sim.Setup(this.verboseSetup);
             sim.Steps(thisNTimesteps, this.verboseExecute);
             
@@ -83,6 +155,7 @@ classdef dcf_simulation < handle
             end
             
             % TODO: Dump results to CSV
+            sim.DumpCSV('foobar');
         end
     end
 end

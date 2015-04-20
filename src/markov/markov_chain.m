@@ -357,6 +357,7 @@ classdef markov_chain < handle
                     continue;
                 else
                     if ( abs(1-rowsum) > epsilonThreshold )
+                        fprintf('row probability did not sum to 1: %d = %f\n', i, rowsum);
                         valid = false;
                     end
                 end
@@ -376,6 +377,7 @@ classdef markov_chain < handle
                 % all row probabilities should sum to 1
                 rowsum = sum( pi(i,:) );
                 if ( abs(1-rowsum) > epsilonThreshold )
+                    fprintf('row probability did not sum to 1: %d = %f\n', i, rowsum);
                     valid = false;
                 end
             end

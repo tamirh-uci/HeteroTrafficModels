@@ -86,56 +86,29 @@ classdef dcf_sim_node < handle
             b = ~isempty(this.secChainBuilder);
         end
         
-        function fName = MakeCacheFilename(this)
-            pPart = [ num2str(this.pSuccessSingleTransmit) num2str(this.pSuccessMultiTransmit) ];
-            dcfPart = [this.dcfHist.MakeCacheFilename() this.dcfChainBuilder.MakeCacheFilename()];
-            
-            if(this.HasSecondary())
-                secPart = [this.secHist.MakeCacheFilename() this.secChainBuilder.MakeCacheFilename()];
-            else
-                secPart = 'nosec';
+        function Reset(this)
+            this.dcfHist = markov_history();
+            this.dcfHist.Setup(this.dcfChainSingleTx, this.piSingleTransmit, 0);
+
+            if (this.HasSecondary())
+                this.secHist = markov_history();
+                this.secHist.Setup(this.secChain, this.piSecondary, 1);
             end
-            
-            longName = [this.name pPart dcfPart secPart];
-            
-            % hash to get a reasonable sized string
-            hash = string2hash(longName);
-            fName = ['./../cache/' num2str(hash, '%X')];
-        end
-        
-        function setupComplete = SetupFromCache(this)
-            setupComplete = false;
-            
-            fName = this.MakeCacheFilename();
-            if (exist(fName, 'file') == 2)
-                % Do loading here
-                setupComplete = false;
-            end
-        end
-        
-        function SaveToCache(~)
-            %fName = this.MakeCacheFilename();
-            % Do saving here
         end
         
         function Setup(this, bVerbose)
-            % Attempt to load from cache, if it fails then compute chains
-            if (~this.SetupFromCache())
-                this.dcfChainSingleTx = this.dcfChainBuilder.CreateMarkovChain(this.pSuccessSingleTransmit, false, bVerbose);
-                this.piSingleTransmit = dcf_sim_node.makepi(this.dcfHist, this.dcfChainSingleTx);
+            this.dcfChainSingleTx = this.dcfChainBuilder.CreateMarkovChain(this.pSuccessSingleTransmit, false, bVerbose);
+            this.piSingleTransmit = dcf_sim_node.makepi(this.dcfHist, this.dcfChainSingleTx);
 
-                this.dcfChainMultiTx = this.dcfChainBuilder.CreateMarkovChain(this.pSuccessMultiTransmit, true, bVerbose);
-                this.piMultiTransmit = dcf_sim_node.makepi(this.dcfHist, this.dcfChainMultiTx);
+            this.dcfChainMultiTx = this.dcfChainBuilder.CreateMarkovChain(this.pSuccessMultiTransmit, true, bVerbose);
+            this.piMultiTransmit = dcf_sim_node.makepi(this.dcfHist, this.dcfChainMultiTx);
 
-                this.dcfHist.Setup(this.dcfChainSingleTx, this.piSingleTransmit, 0);
+            this.dcfHist.Setup(this.dcfChainSingleTx, this.piSingleTransmit, 0);
 
-                if (this.HasSecondary())
-                    this.secChain = this.secChainBuilder.CreateMarkovChain(false);
-                    this.piSecondary = dcf_sim_node.makepi(this.secHist, this.secChain);                
-                    this.secHist.Setup(this.secChain, this.piSecondary, 1);
-                end
-
-                this.SaveToCache();
+            if (this.HasSecondary())
+                this.secChain = this.secChainBuilder.CreateMarkovChain(false);
+                this.piSecondary = dcf_sim_node.makepi(this.secHist, this.secChain);                
+                this.secHist.Setup(this.secChain, this.piSecondary, 1);
             end
         end
         
