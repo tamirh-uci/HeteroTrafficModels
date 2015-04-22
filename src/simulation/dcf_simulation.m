@@ -169,10 +169,17 @@ classdef dcf_simulation < handle
         end
         
         function Run(this)
+            fprintf('Setting up simulation for: %s\n', this.name);
+            
+            time = tic();
+            totalTime = time;
             this.PreCalc();
             this.SetupCache();
+            elapsed = toc(time);
+            fprintf(' =Setup: %f seconds\n', elapsed);
             
             % loop over all of our possible variables
+            fprintf(' =Running %d variations\n', this.nExpectedVariations);
             for thisPSingleSuccess = this.pSingleSuccess
             for thisPMultiSuccess = this.pMultiSuccess
             for thisPhysical_type = this.physical_type
@@ -182,18 +189,21 @@ classdef dcf_simulation < handle
             % loop over every nodegen variation combination
             nVariations = 0;
             while (nVariations < this.nExpectedVariations)
+                time = tic();
                 simulator = dcf_simulator(thisPSingleSuccess, thisPMultiSuccess, thisPhysical_type, thisPhysical_payload, thisPhysical_speed);
-                
                 this.AddNodes(simulator);
                 this.IncrementCartesianIndices();
+                elapsed = toc(time);
+                fprintf('  +Generating new simulator: %f seconds\n', elapsed);
                 
                 for thisNTimesteps = this.nTimesteps
-                    fprintf('Running variation %d...\n', nVariations+1);
-                    
+                    time = tic();
                     this.RunSimInstance(simulator, thisNTimesteps, nVariations);
                     simulator.Reset();
-                    
                     nVariations = 1 + nVariations;
+                    elapsed = toc(time);
+                    
+                    fprintf('   -Running Variation %d of %d: %f seconds\n', nVariations, this.nExpectedVariations, elapsed);
                 end %nTimesteps
             end
 
@@ -202,6 +212,9 @@ classdef dcf_simulation < handle
             end %physical_type
             end %pMultiSuccess
             end %pSingleSuccess
+            
+            elapsed = toc(totalTime);
+            fprintf(' =Total execution (%s): %f seconds\n', this.name, elapsed);
         end % run()
 
         function AddNodes(this, simulator)
@@ -219,7 +232,7 @@ classdef dcf_simulation < handle
             
             % Propegate any overflow from right to left
             for i = this.nodegensSize:-1:2
-                if ( this.ngCurrIndices(i) >= this.ngSizes(i) )
+                if ( this.ngCurrIndices(i) > this.ngSizes(i) )
                     % Set the overflowed nodegen back to zero
                     nodegen = this.nodegens{i};
                     nodegen.Reset();

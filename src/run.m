@@ -1,26 +1,18 @@
 run_set_path
 
-tic
+datanode = nodegen_data_nodes();
+videonode = nodegen_mpeg4_nodes();
+videonode.bps = [ 1000000 5000000 ];
+
 sim1 = dcf_simulation('cachetest');
-sim1.nTimesteps = [100 2000];
-datanode1 = nodegen_data_nodes();
-videonode1 = nodegen_mpeg4_nodes();
-videonode1.bps = [ 1000000 5000000 ];
-
-sim1.cleanCache = true;
-sim1.AddNodegen( datanode1 );
-sim1.AddNodegen( videonode1 );
+sim1.nTimesteps = [100 200];
+sim1.cleanCache = false;
+sim1.AddNodegen( datanode );
+sim1.AddNodegen( videonode );
 sim1.Run();
-toc
 
-tic
-sim2 = dcf_simulation('cachetest');
-sim2.nTimesteps = [100 2000];
-datanode2 = nodegen_data_nodes();
-videonode2 = nodegen_mpeg4_nodes();
-videonode2.bps = [ 1000000 5000000 ];
-
-sim2.AddNodegen( datanode2 );
-sim2.AddNodegen( videonode2 );
-sim2.Run();
-toc
+%sim2 = dcf_simulation('cachetest');
+%sim2.nTimesteps = [100 200];
+%sim2.AddNodegen( datanode );
+%sim2.AddNodegen( videonode );
+%sim2.Run();
