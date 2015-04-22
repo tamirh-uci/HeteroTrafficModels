@@ -4,8 +4,6 @@ classdef dcf_sim_node < handle
     % generate traffic of a single type
     
     properties
-        VERSION = '1.0';
-        
         % Human readable identifier for this node, only used in print/debug
         name@char;
         
@@ -21,6 +19,7 @@ classdef dcf_sim_node < handle
         secHist@markov_history;
         secChainBuilder@mpeg4_frame_model;
         secChain@markov_chain;
+        hasSecondary;
         
         % Secondary chain which activates only between the endstates
         piSecondary;
@@ -66,14 +65,17 @@ classdef dcf_sim_node < handle
             
             obj.dcfChainBuilder = dcfChainBuilderIn;
             obj.dcfHist = markov_history();
+            obj.secHist = markov_history();
             
             obj.pSuccessSingleTransmit = pSuccessSingleTransmitIn;
             obj.pSuccessMultiTransmit = pSuccessMultiTransmitIn;
             
             if (~isempty(secondaryChainBuilderIn))
+                obj.hasSecondary = true;
                 obj.secChainBuilder = secondaryChainBuilderIn;
-                obj.secHist = markov_history();
                 obj.secondaryEndStates = [dcf_transition_type.TxIFrame, dcf_transition_type.TxBFrame, dcf_transition_type.TxPFrame];
+            else
+                obj.hasSecondary = false;
             end
             
             obj.txSuccessTypes = [dcf_transition_type.TxSuccess, dcf_transition_type.PacketSize, dcf_transition_type.TxIFrame, dcf_transition_type.TxBFrame, dcf_transition_type.TxPFrame];
@@ -82,21 +84,63 @@ classdef dcf_sim_node < handle
             obj.txInvalidTypes = [dcf_transition_type.Null, dcf_transition_type.Collapsible];
         end
         
-        function b = HasSecondary(this)
-            b = ~isempty(this.secChainBuilder);
-        end
-        
         function Reset(this)
             this.dcfHist = markov_history();
+            this.secHist = markov_history();
+            
             this.dcfHist.Setup(this.dcfChainSingleTx, this.piSingleTransmit, 0);
 
-            if (this.HasSecondary())
-                this.secHist = markov_history();
+            if (this.hasSecondary)
                 this.secHist.Setup(this.secChain, this.piSecondary, 1);
             end
         end
         
-        function Setup(this, bVerbose)
+        function Setup(this, cache, loadCache, saveCache, bVerbose)
+            isLoaded = false;
+            loadedFromCache = false;
+            
+            if (loadCache && exist(cache, 'file')==2)
+                isLoaded = this.SetupFromCache(cache, bVerbose);
+                loadedFromCache = isLoaded;
+            end
+            
+            if (~isLoaded)
+                this.SetupWithoutCache(bVerbose);
+            end
+            
+            if (saveCache && ~loadedFromCache)
+                this.SaveSetupCache(cache, bVerbose);
+            end
+        end
+        
+        function SaveSetupCache(this, cache, ~)
+            simnode = this;
+            assert( ~isempty(simnode) );
+            save(cache, 'simnode');
+        end
+        
+        function isLoaded = SetupFromCache(this, cache, ~)
+            isLoaded = true;
+            
+            try
+                load(cache, 'simnode');
+            catch err
+                err
+                isLoaded = false;
+            end
+            
+            if (isLoaded)
+                assert( strcmp(this.name, simnode.name) );
+
+                % copy over all of the values
+                p = properties(this);
+                for i = 1:length(p)
+                    this.(p{i}) = simnode.(p{i});
+                end
+            end
+        end
+        
+        function SetupWithoutCache(this, bVerbose)
             this.dcfChainSingleTx = this.dcfChainBuilder.CreateMarkovChain(this.pSuccessSingleTransmit, false, bVerbose);
             this.piSingleTransmit = dcf_sim_node.makepi(this.dcfHist, this.dcfChainSingleTx);
 
@@ -105,11 +149,37 @@ classdef dcf_sim_node < handle
 
             this.dcfHist.Setup(this.dcfChainSingleTx, this.piSingleTransmit, 0);
 
-            if (this.HasSecondary())
+            if (this.hasSecondary)
                 this.secChain = this.secChainBuilder.CreateMarkovChain(false);
                 this.piSecondary = dcf_sim_node.makepi(this.secHist, this.secChain);                
                 this.secHist.Setup(this.secChain, this.piSecondary, 1);
             end
+        end
+        
+        function isLoaded = StepsFromCache(this, cache)
+            try
+                load(cache, 'dcf', 'sec');
+                isLoaded = true;
+            catch err
+                err
+                isLoaded = false;
+                return;
+            end
+            
+            if (isLoaded)
+                this.dcfHist = dcf;
+                this.secHist = sec;
+            end
+        end
+        
+        function SaveStepsToCache(this, cache)
+            dcf = this.dcfHist;
+            sec = this.secHist;
+            
+            assert( ~isempty(dcf) );
+            assert( ~isempty(sec) );
+            
+            save(cache, 'dcf', 'sec');
         end
         
         function bTransmitting = IsTransmitting(this)
@@ -132,7 +202,7 @@ classdef dcf_sim_node < handle
         function SetupSteps(this, nStepsTotal)
             this.dcfHist.SetupSteps(nStepsTotal);
             
-            if (this.HasSecondary())
+            if (this.hasSecondary)
                 this.secHist.SetupSteps(nStepsTotal);
             end
         end
@@ -141,7 +211,7 @@ classdef dcf_sim_node < handle
         % anything else to do. If we're transmitting, we may need to
         % determine what exactly it is we're transmitting
         function PostStep(this, isTransmitting)            
-            if (this.HasSecondary())
+            if (this.hasSecondary)
                 % Step the secondary chain to get new frame type
                 if (isTransmitting)
                     this.secHist.StepUntil(this.piSecondary, this.secondaryEndStates);
@@ -160,7 +230,7 @@ classdef dcf_sim_node < handle
         function PostSimulationProcessing(this, bDoPacketchainBacktrack, bVerbose)
             this.dcfHist.PostSimulation(bDoPacketchainBacktrack, bVerbose);
             
-            if (this.HasSecondary())
+            if (this.hasSecondary)
                 this.secHist.PostSimulation(false, bVerbose);
             end
         end

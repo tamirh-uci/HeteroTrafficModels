@@ -12,9 +12,18 @@ classdef dcf_simulation < handle
         physical_speed = 1.0;
         physical_payload = 8*1500;
         
-        % if true, delete previous run data. if false, skip simulation if
-        % previous run data already exists
-        cleanRun = false;
+        name;
+        % if true, delete all previous run data for this setup
+        cleanCache = false;
+        
+        loadSetupCache = true;
+        loadStepsCache = true;
+        
+        saveSetupCache = true;
+        saveStepsCache = true;
+        
+        resultsFolder = './../results';
+        cacheBaseFolder = './../results/cache';
     end
     
     % Debug options
@@ -37,16 +46,20 @@ classdef dcf_simulation < handle
         physical_speedSize;
         physical_payloadSize;
         nodegensSize;
+        nExpectedVariations;
         
         ngVariations;
         ngSizes;
         ngCurrIndices;
+        
+        cacheFolder;
     end
     
     methods
-        function obj = dcf_simulation()
+        function obj = dcf_simulation(nameIn)
             obj = obj@handle();
             obj.nodegensSize = 0;
+            obj.name = nameIn;
         end
         
         function AddNodegen(this, nodegen)
@@ -74,16 +87,64 @@ classdef dcf_simulation < handle
             nVariations = this.nTimestepsSize * this.pSingleSuccessSize * this.pMultiSuccessSize * this.physical_typeSize * this.physical_speedSize * this.physical_payloadSize * this.ngVariations;
         end
         
-        function Run(this)
+        function uid = UID(this)
+            arrayStrings = sprintf(...
+                'DCF_SIMULATION:%s\n timesteps=%s\n pSingleSuccess=%s\n pMultiSuccess%s\n physicalType=%s\n physicalSpeed=%s\n physicalPayload=%s\n nNodegens=%d', ...
+                this.name, mat2str(this.nTimesteps), mat2str(this.pSingleSuccess), mat2str(this.pMultiSuccess),  mat2str(this.physical_type), mat2str(this.physical_speed), mat2str(this.physical_payload), this.nodegensSize);
+            
+            nodegenString = '';
+            for i=1:this.nodegensSize
+                nodegen = this.nodegens{i};
+                nodegenString = sprintf('%s NODEGEN #%d: %s', nodegenString, i, nodegen.UID());
+            end
+            
+            uid = sprintf('%s\n%s', arrayStrings, nodegenString);
+        end
+        
+        function PreCalc(this)
             this.nodegensSize = size(this.nodegens, 2);
+            
             for i = 1:this.nodegensSize;
                 nodegen = this.nodegens{i};
                 this.ngSizes(i) = nodegen.NumVariations();
             end
             
-            nVariations = 0;
-            nExpectedVariations = this.NumVariations();
-
+            this.nExpectedVariations = this.NumVariations();
+        end
+        
+        function SetupCache(this)
+            % setup folders
+            uid = this.UID();
+            hash = string2hash( uid, 2 );
+            this.cacheFolder = sprintf('%s%s%.16X-%.16X', this.cacheBaseFolder, filesep(), hash(1), hash(2));
+            
+            [~, ~, ~] = mkdir(this.resultsFolder);
+            [~, ~, ~] = mkdir(this.cacheBaseFolder);
+            [~, ~, ~] = mkdir(this.cacheFolder);
+            
+            % make sure we're dealing with the same cache
+            uidFileName = fullfile(this.cacheFolder, 'uid.mat');
+            if( exist(uidFileName, 'file')==2 )
+                fileUID = '';
+                load(uidFileName);
+                assert( strcmp(fileUID, uid) );
+            end
+            
+            if( this.cleanCache )
+                [~, ~, ~] = rmdir(this.cacheFolder, 's');
+                [~, ~, ~] = mkdir(this.cacheFolder);
+            end
+            
+            % matlab thinks fileUID is an unused variable, so 'use' it
+            fileUID = uid;
+            assert( size(fileUID,2) > 1 );
+            save(uidFileName, 'fileUID');
+        end
+        
+        function Run(this)
+            this.PreCalc();
+            this.SetupCache();
+            
             % loop over all of our possible variables
             for thisPSingleSuccess = this.pSingleSuccess
             for thisPMultiSuccess = this.pMultiSuccess
@@ -92,18 +153,17 @@ classdef dcf_simulation < handle
             for thisPhysical_payload = this.physical_payload
 
             % loop over every nodegen variation combination
-            i = 1;
-            while (i <= nExpectedVariations)
+            nVariations = 0;
+            while (nVariations < this.nExpectedVariations)
                 simulator = dcf_simulator(thisPSingleSuccess, thisPMultiSuccess, thisPhysical_type, thisPhysical_payload, thisPhysical_speed);
                 
                 this.AddNodes(simulator);
                 this.IncrementCartesianIndices();
                 
                 for thisNTimesteps = this.nTimesteps
-                    this.RunSimInstance(simulator, thisNTimesteps);
+                    this.RunSimInstance(simulator, thisNTimesteps, nVariations);
                     simulator.Reset();
                     
-                    i = i + 1;
                     nVariations = 1 + nVariations;
                 end %nTimesteps
             end
@@ -113,8 +173,6 @@ classdef dcf_simulation < handle
             end %physical_type
             end %pMultiSuccess
             end %pSingleSuccess
-            
-            assert(nVariations==nExpectedVariations);
         end % run()
 
         function AddNodes(this, simulator)
@@ -146,16 +204,18 @@ classdef dcf_simulation < handle
             end
         end
         
-        function RunSimInstance(this, sim, thisNTimesteps)
-            sim.Setup(this.verboseSetup);
-            sim.Steps(thisNTimesteps, this.verboseExecute);
+        function RunSimInstance(this, sim, thisNTimesteps, index)
+            setupCache = fullfile(this.cacheFolder, sprintf('%d%s', index, '.setup.mat'));
+            stepsCache = fullfile(this.cacheFolder, sprintf('%d%s', index, '.steps'));
+            
+            sim.Setup(setupCache, this.loadSetupCache, this.saveSetupCache, this.verboseSetup);
+            sim.Steps(thisNTimesteps, stepsCache, this.loadStepsCache, this.saveStepsCache, this.verboseExecute);
             
             if (this.printResults)
                 sim.PrintResults(this.verbosePrint);
             end
             
-            % TODO: Dump results to CSV
-            sim.DumpCSV('foobar');
+            % TODO: Plot Figures
         end
     end
 end

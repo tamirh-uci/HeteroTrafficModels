@@ -67,19 +67,19 @@ classdef dcf_simulator < handle
         end
         
         % Initialize the object and ready it for calls to StepSimulate
-        function Setup(this, bVerbose)
+        function Setup(this, cache, loadCache, saveCache, bVerbose)
             nNodes = size(this.nodes, 2);
             this.nSteps = 0;
             
             % Setup node data
             for i=1:nNodes
                 node = this.nodes{i};
-                node.Setup(bVerbose);
+                node.Setup(cache, loadCache, saveCache, bVerbose);
             end
         end
         
         % Simulate multipler timer transitions for all nodes
-        function Steps(this, nStepsTotal, bVerbose)
+        function Steps(this, nStepsTotal, cache, loadCache, saveCache, bVerbose)
             if (this.nSteps == 0)
                 nNodes = size(this.nodes, 2);
                 for i=1:nNodes
@@ -88,6 +88,82 @@ classdef dcf_simulator < handle
                 end
             end
             
+            isLoaded = false;
+            loadedFromCache = false;
+            if (loadCache)
+                isLoaded = this.StepsFromCache(cache, nStepsTotal);
+                loadedFromCache = isLoaded;
+            end
+            
+            if (~isLoaded)
+                this.StepsWithoutCache(nStepsTotal, bVerbose);
+            end
+            
+            if (saveCache && ~loadedFromCache)
+                this.SaveStepsToCache(cache, nStepsTotal);
+            end
+        end
+        
+        function PostSimulationProcessing(this, bVerbose)
+            nNodes = size(this.nodes, 2);
+            for i=1:nNodes
+                node = this.nodes{i};
+                node.PostSimulationProcessing(this.bDoPacketchainBacktrack, bVerbose);
+            end
+        end
+        
+        function nodecache = NodeCacheName(~, cache, steps, i)
+            nodecache = sprintf('%s.n%d_%d.mat', cache, i, steps);
+        end
+        
+        function isLoaded = StepsFromCache(this, cache, steps)
+            nNodes = size(this.nodes, 2);
+            nodecache = cell(1, nNodes);
+            isLoaded = false;
+
+            % Check if all node cache files exist
+            canLoad = true;
+            for i=1:nNodes
+                nodecache{i} = this.NodeCacheName(cache, steps, i);
+                if ( exist(nodecache{i}, 'file')~=2 )
+                    canLoad = false;
+                    break;
+                end
+            end
+            
+            % Attempt to load node cache files
+            nodesLoaded = 0;
+            if (canLoad)
+                for i=1:nNodes
+                    node = this.nodes{i};
+                    if (~node.StepsFromCache( nodecache{i} ))
+                        break;
+                    end
+                    
+                    nodesLoaded = 1 + nodesLoaded;
+                end
+                
+                % It's all or nothing for loading the history data
+                if ( nodesLoaded < nNodes )
+                    for i=1:nNodes
+                        node = this.nodes{i};
+                        node.Reset();
+                    end
+                else
+                    isLoaded = true;
+                end
+            end
+        end
+        
+        function SaveStepsToCache(this, cache, steps)
+            nNodes = size(this.nodes, 2);
+            for i=1:nNodes
+                node = this.nodes{i};
+                node.SaveStepsToCache( this.NodeCacheName(cache, steps, i) );
+            end
+        end
+        
+        function StepsWithoutCache(this, nStepsTotal, bVerbose)
             if (bVerbose)
                 % Percentage indicating progress
                 progressDiv = 1.0 / 25;
@@ -103,20 +179,13 @@ classdef dcf_simulator < handle
                     end
                 end
             else
+                % Normal steps without progress bar
                 for i=1:nStepsTotal
                     this.Step();
                 end
             end
             
             this.PostSimulationProcessing(bVerbose);
-        end
-        
-        function PostSimulationProcessing(this, bVerbose)
-            nNodes = size(this.nodes, 2);
-            for i=1:nNodes
-                node = this.nodes{i};
-                node.PostSimulationProcessing(this.bDoPacketchainBacktrack, bVerbose);
-            end
         end
 
         % Simulate single timer transition for all nodes
@@ -216,11 +285,6 @@ classdef dcf_simulator < handle
             
             fprintf('success = %.3f%%\t', 100*successPercent);
             fprintf('transmit = %.3f%%\n', 100*successTransmitTimePercent);
-        end
-
-        function DumpCSV(this, fName)
-            fprintf('Writing to CSV file: %s\n', fName);
-            %TODO: Write out all CSV data
         end
         
         function success = GetSuccess(this)

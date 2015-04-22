@@ -248,12 +248,6 @@ classdef mpeg4_frame_model < handle
                 chain.SetP( src, dst, pLarge, txType );
             end
         end
-        
-        function fName = MakeCacheFilename(this)
-            x = ['mpeg4_' num2str(this.gopAnchorFrameDistance) num2str(this.gopFullFrameDistance) ];
-            y = [ num2str(this.bps) num2str(this.fps) num2str(this.physical_payload) ];
-            fName = [x y];
-        end
     end % methods
     
     % GOP characteristics

@@ -542,13 +542,6 @@ classdef dcf_markov_model < handle
             
             this.nColsMax = this.W(1, this.nStages);
         end
-        
-        function fName = MakeCacheFilename(this)
-            x = [ '_dcf_' num2str(this.m) num2str(this.wMin) num2str(this.nPkt) ];
-            y = [ num2str(this.nInterarrival) num2str(this.pEnterInterarrival) num2str(this.pRawArrive) ];
-            z = [ num2str(this.bFixedPacketchain) num2str(this.bFixedInterarrivalChain) ];
-            fName = [x y z];
-        end
     end % methods
     
     properties (SetAccess = public)

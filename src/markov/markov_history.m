@@ -48,10 +48,6 @@ classdef markov_history < handle
             obj = obj@handle;
         end
         
-        function fName = MakeCacheFilename(~)
-            fName = 'c';
-        end
-        
         function tx = CurrentTransition(this)
             tx = this.txTypes(this.prevStateIndex, this.currentStateIndex);
         end

@@ -5,8 +5,9 @@ classdef nodegen_file_download < handle
         nMaxPackets = 1;
         nInterarrival = 0;
         wMin = 32;
-        wMax = 1024;
+        wMax = 64;
         
+        nGenerators = 1;
         name = 'f';
     end
     
@@ -30,12 +31,20 @@ classdef nodegen_file_download < handle
             this.nVars = size(this.varSizes,2);
             this.Reset();
 
-            nVariations = prod(this.varSizes);
+            nVariations = this.nGenerators * prod(this.varSizes);
         end
         
         function Reset(this)
             this.varIndices = ones(1, this.nVars);
             this.varCount = 1;
+        end
+        
+        function uid = UID(this)
+            arrayStrings = sprintf(...
+                '  pArrive=%s\n  pEnter=%s\n  nMaxPackets=%s\n  nInterarrival=%s\n  wMin=%s\n  wMax%s\n', ...
+                mat2str(this.pArrive), mat2str(this.pEnter), mat2str(this.nMaxPackets), mat2str(this.nInterarrival), mat2str(this.wMin), mat2str(this.wMax));
+            
+            uid = sprintf('%s\n  nGenerators=%d\n%s', this.name, this.nGenerators, arrayStrings);
         end
         
         function AddCurrentVariation(this, simulator)
