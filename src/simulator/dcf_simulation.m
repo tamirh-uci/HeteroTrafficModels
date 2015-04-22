@@ -216,7 +216,8 @@ classdef dcf_simulation < handle
                     nVariations = 1 + nVariations;
                     this.elapsedRun(nVariations) = toc(time);
                     
-                    fprintf('   -Running Variation %d of %d: %f seconds\n', nVariations, this.nExpectedVariations, this.elapsedRun(nVariations));
+                    fprintf('   -Running Variation %d of %d (size=%d): %f seconds\n', ...
+                        nVariations, this.nExpectedVariations, simulator.simSize, this.elapsedRun(nVariations));
                 end %nTimesteps
             end
 
@@ -229,22 +230,24 @@ classdef dcf_simulation < handle
             this.elapsedTotal = toc(totalTime);
             fprintf(' =Total execution (%s): %f seconds\n', this.name, this.elapsedTotal);
             
-            this.SaveTimingData();
+            this.SaveRunData(simulation);
         end % run()
 
-        function SaveTimingData(this)
-            setup = this.elapsedSetup;
-            newSim = this.elapsedNewSim;
-            run = this.elapsedRun;
-            total = this.elapsedTotal;
+        function SaveRunData(this, simulation)
+            setupTime = this.elapsedSetup;
+            newSimTime = this.elapsedNewSim;
+            runTime = this.elapsedRun;
+            totalTime = this.elapsedTotal;
+            simSize = simulation.simSize;
             
-            assert(~isempty(setup));
-            assert(~isempty(newSim));
-            assert(~isempty(run));
-            assert(~isempty(total));
+            assert(~isempty(setupTime));
+            assert(~isempty(newSimTime));
+            assert(~isempty(runTime));
+            assert(~isempty(totalTime));
+            assert(~isempty(simSize));
             
-            filename = fullfile(this.cacheFolder, 'elapsed.mat');
-            save( filename, 'setup', 'newSim', 'run', 'total' );
+            filename = fullfile(this.cacheFolder, 'rundata.mat');
+            save( filename, 'setup', 'newSim', 'run', 'total', 'simSize' );
         end
         
         function AddNodes(this, simulator)
