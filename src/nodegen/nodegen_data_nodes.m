@@ -1,4 +1,6 @@
-classdef nodegen_file_download < handle
+classdef nodegen_data_nodes < handle
+    % NODEGEN_DATA_NODES Create any number of identical nodes which will
+    % use the standard DCF model paramaters
     properties
         pArrive = 1.0;
         pEnter = 0;
@@ -8,7 +10,7 @@ classdef nodegen_file_download < handle
         wMax = 64;
         
         nGenerators = 1;
-        name = 'f';
+        name = 'data node';
     end
     
     properties (SetAccess = protected)
@@ -19,6 +21,10 @@ classdef nodegen_file_download < handle
     end
     
     methods
+        function obj = nodegen_data_nodes()
+            obj = obj@handle;
+        end
+        
         function nVariations = NumVariations(this)
             pArriveSize = size(this.pArrive, 2);
             pEnterSize = size(this.pEnter, 2);
@@ -85,4 +91,3 @@ classdef nodegen_file_download < handle
         end
     end
 end
-
