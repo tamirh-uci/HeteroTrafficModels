@@ -102,7 +102,7 @@ classdef nodegen_mpeg4_nodes < handle
             
             % Propegate any overflow from right to left
             for i = this.nVars:-1:2
-                if ( this.varIndices(i) >= this.varSizes(i) )
+                if ( this.varIndices(i) > this.varSizes(i) )
                     this.varIndices(i) = 1;
                     this.varIndices(i-1) = 1 + this.varIndices(i-1);
                 end
