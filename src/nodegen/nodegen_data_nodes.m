@@ -18,6 +18,8 @@ classdef nodegen_data_nodes < handle
         varSizes;
         varIndices;
         varCount;
+        
+        nodeName;
     end
     
     methods
@@ -48,7 +50,10 @@ classdef nodegen_data_nodes < handle
         function uid = UID(this)
             arrayStrings = sprintf(...
                 '  pArrive=%s\n  pEnter=%s\n  nMaxPackets=%s\n  nInterarrival=%s\n  wMin=%s\n  wMax%s\n', ...
-                mat2str(this.pArrive), mat2str(this.pEnter), mat2str(this.nMaxPackets), mat2str(this.nInterarrival), mat2str(this.wMin), mat2str(this.wMax));
+                mat2str(this.pArrive), mat2str(this.pEnter), ...
+                mat2str(this.nMaxPackets), mat2str(this.nInterarrival), ...
+                mat2str(this.wMin), mat2str(this.wMax)...
+                );
             
             uid = sprintf('%s\n  nGenerators=%d\n%s', this.name, this.nGenerators, arrayStrings);
         end
@@ -61,10 +66,9 @@ classdef nodegen_data_nodes < handle
             wMinValue = this.wMin( this.varIndices(5) );
             wMaxValue = this.wMax( this.varIndices(6) );
             
-            dcf_model = dcf_markov_model();
-            
             [m, ~] = dcf_markov_model.CalculateDimensions(wMinValue, wMaxValue);
             
+            dcf_model = dcf_markov_model();
             dcf_model.m = m;
             dcf_model.wMin = wMinValue;
             dcf_model.nPkt = nMaxPacketsValue;
@@ -72,8 +76,8 @@ classdef nodegen_data_nodes < handle
             dcf_model.pEnterInterarrival = pEnterValue;
             dcf_model.pRawArrive = pArriveValue;
 
-            nodeName = sprintf('%s%d', this.name, this.varCount);
-            simulator.add_plain_node(nodeName, dcf_model);
+            this.nodeName = sprintf('%s (%d)', this.name, this.varCount);
+            simulator.add_plain_node(this.nodeName, dcf_model);
         end
         
         function IncrementCartesianIndices(this)

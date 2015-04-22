@@ -87,12 +87,6 @@ classdef dcf_sim_node < handle
         function Reset(this)
             this.dcfHist = markov_history();
             this.secHist = markov_history();
-            
-            this.dcfHist.Setup(this.dcfChainSingleTx, this.piSingleTransmit, 0);
-
-            if (this.hasSecondary)
-                this.secHist.Setup(this.secChain, this.piSecondary, 1);
-            end
         end
         
         function Setup(this, cache, loadCache, saveCache, bVerbose)
@@ -130,12 +124,16 @@ classdef dcf_sim_node < handle
             end
             
             if (isLoaded)
-                assert( strcmp(this.name, simnode.name) );
-
-                % copy over all of the values
-                p = properties(this);
-                for i = 1:length(p)
-                    this.(p{i}) = simnode.(p{i});
+                if (~strcmp(this.name, simnode.name))
+                    fprintf('WARN: You are trying to load data from a cache that has become out of date\n');
+                    fprintf('WARN: Ignoring old cache\n');
+                    isLoaded = false;
+                else
+                    % copy over all of the values
+                    p = properties(this);
+                    for i = 1:length(p)
+                        this.(p{i}) = simnode.(p{i});
+                    end
                 end
             end
         end

@@ -80,7 +80,6 @@ classdef dcf_simulation < handle
             this.physical_speedSize = size(this.physical_speed, 2);
             this.physical_payloadSize = size(this.physical_payload, 2);
             
-            this.ngSizes = 1:this.nodegensSize;
             this.ngCurrIndices = ones(1, size(this.nodegens, 2));
             this.ngVariations = prod(this.ngSizes);
             
@@ -112,33 +111,61 @@ classdef dcf_simulation < handle
             this.nExpectedVariations = this.NumVariations();
         end
         
+        function [valid, exists] = VerifyCacheUID(~, folder, uid, filename)
+            valid = false;
+            exists = false;
+            
+            fullFilename = fullfile(folder, filename);
+            if( exist(fullFilename, 'file')==2 )
+                exists = true;
+                
+                fileUID = '';
+                load(fullFilename);
+                if ( strcmp(fileUID, uid) )
+                    valid = true;
+                end
+            end
+            
+            fileUID = uid;
+            assert( ~isempty(fileUID) );
+            save(fullFilename, 'fileUID');
+        end
+        
         function SetupCache(this)
             % setup folders
-            uid = this.UID();
-            hash = string2hash( uid, 2 );
+            simUID = this.UID();
+            hash = string2hash( simUID, 2 );
             this.cacheFolder = sprintf('%s%s%.16X-%.16X', this.cacheBaseFolder, filesep(), hash(1), hash(2));
             
             [~, ~, ~] = mkdir(this.resultsFolder);
             [~, ~, ~] = mkdir(this.cacheBaseFolder);
             [~, ~, ~] = mkdir(this.cacheFolder);
             
-            % make sure we're dealing with the same cache
-            uidFileName = fullfile(this.cacheFolder, 'uid.mat');
-            if( exist(uidFileName, 'file')==2 )
-                fileUID = '';
-                load(uidFileName);
-                assert( strcmp(fileUID, uid) );
-            end
-            
             if( this.cleanCache )
                 [~, ~, ~] = rmdir(this.cacheFolder, 's');
                 [~, ~, ~] = mkdir(this.cacheFolder);
             end
             
-            % matlab thinks fileUID is an unused variable, so 'use' it
-            fileUID = uid;
-            assert( size(fileUID,2) > 1 );
-            save(uidFileName, 'fileUID');
+            % Make sure all the caches look like they're up to date
+            [simcacheValid, simcacheExists] = this.VerifyCacheUID(this.cacheFolder, simUID, 'simulation.uid.mat');
+            if (simcacheExists && ~simcacheValid)
+                fprintf('WARN: Simulation cache exists but is not valid (probably out of date)\n');
+            end
+            
+            for i=1:this.nodegensSize
+                node = this.nodegens{i};
+                nodegenUID = node.UID();
+                nodegenUIDFilename = sprintf('nodegen.%d.uid.mat', i);
+                
+                [nodegencacheValid, nodegencacheExists] = this.VerifyCacheUID(this.cacheFolder, nodegenUID, nodegenUIDFilename);
+                if (nodegencacheExists && ~nodegencacheValid)
+                    fprintf('WARN: Nodegen cache %d exists but is not valid\n', i);
+                    
+                    if (simcacheValid)
+                        fprintf('ERROR: This is bad, the overall simcache was thought to be valid but one of the nodegen caches was invalid\n');
+                    end
+                end
+            end
         end
         
         function Run(this)
@@ -161,6 +188,8 @@ classdef dcf_simulation < handle
                 this.IncrementCartesianIndices();
                 
                 for thisNTimesteps = this.nTimesteps
+                    fprintf('Running variation %d...\n', nVariations+1);
+                    
                     this.RunSimInstance(simulator, thisNTimesteps, nVariations);
                     simulator.Reset();
                     
@@ -205,8 +234,8 @@ classdef dcf_simulation < handle
         end
         
         function RunSimInstance(this, sim, thisNTimesteps, index)
-            setupCache = fullfile(this.cacheFolder, sprintf('%d%s', index, '.setup.mat'));
-            stepsCache = fullfile(this.cacheFolder, sprintf('%d%s', index, '.steps'));
+            setupCache = fullfile( this.cacheFolder, sprintf('variation-%d', index) );
+            stepsCache = fullfile( this.cacheFolder, sprintf('variation-%d', index) );
             
             sim.Setup(setupCache, this.loadSetupCache, this.saveSetupCache, this.verboseSetup);
             sim.Steps(thisNTimesteps, stepsCache, this.loadStepsCache, this.saveStepsCache, this.verboseExecute);

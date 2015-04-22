@@ -49,6 +49,10 @@ classdef markov_history < handle
         end
         
         function tx = CurrentTransition(this)
+            if( this.prevStateIndex < 1 || this.currentStateIndex < 1 )
+                fprintf('Not good: prevIndex=%d, currentIndex=%d', this.prevStateIndex, this.currentStateIndex);
+            end
+            
             tx = this.txTypes(this.prevStateIndex, this.currentStateIndex);
         end
         
@@ -110,6 +114,10 @@ classdef markov_history < handle
             
             % choose one of the states randomly based on weights
             this.currentStateIndex = pCur.sample();
+            if (this.currentStateIndex == 0)
+                fprintf('uh oh\n');
+                this.currentStateIndex = pCur.sample();
+            end
             %this.currentStateIndex = randsample(this.sampleIndices, 1, true, pCur);
         end
         

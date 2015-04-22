@@ -67,19 +67,20 @@ classdef dcf_simulator < handle
         end
         
         % Initialize the object and ready it for calls to StepSimulate
-        function Setup(this, cache, loadCache, saveCache, bVerbose)
+        function Setup(this, cachePrefix, loadCache, saveCache, bVerbose)
             nNodes = size(this.nodes, 2);
             this.nSteps = 0;
             
             % Setup node data
             for i=1:nNodes
                 node = this.nodes{i};
+                cache = sprintf('%s.node-%d.setup.mat', cachePrefix, i);
                 node.Setup(cache, loadCache, saveCache, bVerbose);
             end
         end
         
         % Simulate multipler timer transitions for all nodes
-        function Steps(this, nStepsTotal, cache, loadCache, saveCache, bVerbose)
+        function Steps(this, nStepsTotal, cachePrefix, loadCache, saveCache, bVerbose)
             if (this.nSteps == 0)
                 nNodes = size(this.nodes, 2);
                 for i=1:nNodes
@@ -91,7 +92,7 @@ classdef dcf_simulator < handle
             isLoaded = false;
             loadedFromCache = false;
             if (loadCache)
-                isLoaded = this.StepsFromCache(cache, nStepsTotal);
+                isLoaded = this.StepsFromCache(cachePrefix, nStepsTotal);
                 loadedFromCache = isLoaded;
             end
             
@@ -100,7 +101,7 @@ classdef dcf_simulator < handle
             end
             
             if (saveCache && ~loadedFromCache)
-                this.SaveStepsToCache(cache, nStepsTotal);
+                this.SaveStepsToCache(cachePrefix, nStepsTotal);
             end
         end
         
@@ -113,10 +114,10 @@ classdef dcf_simulator < handle
         end
         
         function nodecache = NodeCacheName(~, cache, steps, i)
-            nodecache = sprintf('%s.n%d_%d.mat', cache, i, steps);
+            nodecache = sprintf('%s.node-%d.steps-%d.mat', cache, i, steps);
         end
         
-        function isLoaded = StepsFromCache(this, cache, steps)
+        function isLoaded = StepsFromCache(this, cachePrefix, steps)
             nNodes = size(this.nodes, 2);
             nodecache = cell(1, nNodes);
             isLoaded = false;
@@ -124,7 +125,7 @@ classdef dcf_simulator < handle
             % Check if all node cache files exist
             canLoad = true;
             for i=1:nNodes
-                nodecache{i} = this.NodeCacheName(cache, steps, i);
+                nodecache{i} = this.NodeCacheName(cachePrefix, steps, i);
                 if ( exist(nodecache{i}, 'file')~=2 )
                     canLoad = false;
                     break;
@@ -155,34 +156,17 @@ classdef dcf_simulator < handle
             end
         end
         
-        function SaveStepsToCache(this, cache, steps)
+        function SaveStepsToCache(this, cachePrefix, steps)
             nNodes = size(this.nodes, 2);
             for i=1:nNodes
                 node = this.nodes{i};
-                node.SaveStepsToCache( this.NodeCacheName(cache, steps, i) );
+                node.SaveStepsToCache( this.NodeCacheName(cachePrefix, steps, i) );
             end
         end
         
         function StepsWithoutCache(this, nStepsTotal, bVerbose)
-            if (bVerbose)
-                % Percentage indicating progress
-                progressDiv = 1.0 / 25;
-                progressStep = progressDiv;
-                
-                for i=1:nStepsTotal
-                    this.Step();
-                    
-                    progress = i/nStepsTotal;
-                    if (progress > progressStep)
-                        progressStep = progressStep + progressDiv;
-                        fprintf('Progress: %.1f%%\n', 100*progress);
-                    end
-                end
-            else
-                % Normal steps without progress bar
-                for i=1:nStepsTotal
-                    this.Step();
-                end
+            for i=1:nStepsTotal
+                this.Step();
             end
             
             this.PostSimulationProcessing(bVerbose);
