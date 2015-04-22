@@ -44,6 +44,8 @@ classdef dcf_sim_node < handle
         
         % Array of states which we should never see
         txInvalidTypes@dcf_transition_type;
+        
+        simSize;
     end
     
     methods (Static)
@@ -141,6 +143,7 @@ classdef dcf_sim_node < handle
         function SetupWithoutCache(this, bVerbose)
             this.dcfChainSingleTx = this.dcfChainBuilder.CreateMarkovChain(this.pSuccessSingleTransmit, false, bVerbose);
             this.piSingleTransmit = dcf_sim_node.makepi(this.dcfHist, this.dcfChainSingleTx);
+            this.simSize = size(this.piSingleTransmit, 2);
 
             this.dcfChainMultiTx = this.dcfChainBuilder.CreateMarkovChain(this.pSuccessMultiTransmit, true, bVerbose);
             this.piMultiTransmit = dcf_sim_node.makepi(this.dcfHist, this.dcfChainMultiTx);

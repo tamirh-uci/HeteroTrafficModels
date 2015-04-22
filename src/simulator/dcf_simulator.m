@@ -14,6 +14,7 @@ classdef dcf_simulator < handle
         
         % simulation nodes
         nodes;
+        simSize;
         
         % Boolean array which switches on/off depending on if a node is
         % currently transmitting
@@ -70,12 +71,14 @@ classdef dcf_simulator < handle
         function Setup(this, cachePrefix, loadCache, saveCache, bVerbose)
             nNodes = size(this.nodes, 2);
             this.nSteps = 0;
+            this.simSize = zeros(1, nNodes);
             
             % Setup node data
             for i=1:nNodes
                 node = this.nodes{i};
                 cache = sprintf('%s.node-%d.setup.mat', cachePrefix, i);
                 node.Setup(cache, loadCache, saveCache, bVerbose);
+                this.simSize(i) = node.simSize;
             end
         end
         

@@ -1,14 +1,13 @@
 run_set_path
 
-datanode = nodegen_data_nodes();
-videonode = nodegen_mpeg4_nodes();
-videonode.bps = [ 1000000 5000000 ];
+wMin = 8;
+wMax = 16;
+
+datanode = traffic_file_downloads([], [], wMin, wMax, [], []); 
 
 sim1 = dcf_simulation('cachetest');
-sim1.nTimesteps = [100 200];
-sim1.cleanCache = false;
+sim1.nTimesteps = [100];
 sim1.AddNodegen( datanode );
-sim1.AddNodegen( videonode );
 sim1.Run();
 
 %sim2 = dcf_simulation('cachetest');

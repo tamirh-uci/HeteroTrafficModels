@@ -1,3 +1,32 @@
+run_set_path
+
+datanode = nodegen_data_nodes();
+videonode = nodegen_mpeg4_nodes();
+
+% VIDEO NODE PARAMS
+%Attempt 2-16 MBps
+videonode.bps = [2 * 1000000, 4 * 1000000, 8 * 1000000, 16 * 1000000];
+
+% F
+pArrive = [1.0];
+pEnter = [1.0];
+nMaxPackets = [5, 10, 25];
+nInterarrival = [5, 10, 25];
+
+
+sim = dcf_simulation('simulation_download_multimedia');
+sim.nTimesteps = 10000;
+sim.wMin = 2;
+sim.wMax = 16;
+
+
+
+sim.AddNodegen( datanode );
+sim.AddNodegen( videonode );
+sim.Run();
+
+
+
 timeSteps = 10000; 
 Wmin = 2;
 Wmax = 16;
