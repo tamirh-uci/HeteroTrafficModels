@@ -53,6 +53,11 @@ classdef dcf_simulation < handle
         ngCurrIndices;
         
         cacheFolder;
+        
+        elapsedSetup;
+        elapsedNewSim;
+        elapsedRun;
+        elapsedTotal;
     end
     
     methods
@@ -109,6 +114,11 @@ classdef dcf_simulation < handle
             end
             
             this.nExpectedVariations = this.NumVariations();
+            
+            this.elapsedSetup = 0;
+            this.elapsedNewSim = zeros(1, this.nExpectedVariations / size(this.nTimesteps,2));
+            this.elapsedRun = zeros(1, this.nExpectedVariations);
+            this.elapsedTotal = 0;
         end
         
         function [valid, exists] = VerifyCacheUID(~, folder, uid, filename)
@@ -170,13 +180,13 @@ classdef dcf_simulation < handle
         
         function Run(this)
             fprintf('Setting up simulation for: %s\n', this.name);
-            
+
             time = tic();
             totalTime = time;
             this.PreCalc();
             this.SetupCache();
-            elapsed = toc(time);
-            fprintf(' =Setup: %f seconds\n', elapsed);
+            this.elapsedSetup = toc(time);
+            fprintf(' =Setup: %f seconds\n', this.elapsedSetup);
             
             % loop over all of our possible variables
             fprintf(' =Running %d variations\n', this.nExpectedVariations);
@@ -188,22 +198,25 @@ classdef dcf_simulation < handle
 
             % loop over every nodegen variation combination
             nVariations = 0;
+            nSimulators = 0;
             while (nVariations < this.nExpectedVariations)
+                nSimulators = 1 + nSimulators;
+                
                 time = tic();
                 simulator = dcf_simulator(thisPSingleSuccess, thisPMultiSuccess, thisPhysical_type, thisPhysical_payload, thisPhysical_speed);
                 this.AddNodes(simulator);
                 this.IncrementCartesianIndices();
-                elapsed = toc(time);
-                fprintf('  +Generating new simulator: %f seconds\n', elapsed);
+                this.elapsedNewSim(nSimulators) = toc(time);
+                fprintf('  +Generating new simulator: %f seconds\n', this.elapsedNewSim(nSimulators));
                 
                 for thisNTimesteps = this.nTimesteps
                     time = tic();
                     this.RunSimInstance(simulator, thisNTimesteps, nVariations);
                     simulator.Reset();
                     nVariations = 1 + nVariations;
-                    elapsed = toc(time);
+                    this.elapsedRun(nVariations) = toc(time);
                     
-                    fprintf('   -Running Variation %d of %d: %f seconds\n', nVariations, this.nExpectedVariations, elapsed);
+                    fprintf('   -Running Variation %d of %d: %f seconds\n', nVariations, this.nExpectedVariations, this.elapsedRun(nVariations));
                 end %nTimesteps
             end
 
@@ -213,10 +226,27 @@ classdef dcf_simulation < handle
             end %pMultiSuccess
             end %pSingleSuccess
             
-            elapsed = toc(totalTime);
-            fprintf(' =Total execution (%s): %f seconds\n', this.name, elapsed);
+            this.elapsedTotal = toc(totalTime);
+            fprintf(' =Total execution (%s): %f seconds\n', this.name, this.elapsedTotal);
+            
+            this.SaveTimingData();
         end % run()
 
+        function SaveTimingData(this)
+            setup = this.elapsedSetup;
+            newSim = this.elapsedNewSim;
+            run = this.elapsedRun;
+            total = this.elapsedTotal;
+            
+            assert(~isempty(setup));
+            assert(~isempty(newSim));
+            assert(~isempty(run));
+            assert(~isempty(total));
+            
+            filename = fullfile(this.cacheFolder, 'elapsed.mat');
+            save( filename, 'setup', 'newSim', 'run', 'total' );
+        end
+        
         function AddNodes(this, simulator)
             for i=1:this.nodegensSize
                 nodegen = this.nodegens{i};
