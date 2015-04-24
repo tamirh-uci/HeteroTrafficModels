@@ -1,4 +1,4 @@
-function [ nodegen ] = traffic_file_downloads(nNodes, wMin, wMax, nSizeTypes, nInterarrivalTypes, fileBigness, fileWaityness)
+function [ nodegen ] = traffic_web_browsing(nNodes, wMin, wMax, nSizeTypes, nInterarrivalTypes, nEnterInterarrivalTypes, fileBigness, fileWaityness)
 %TRAFFIC_FILE_DOWNLOADS Create nodegen to simulate file downloading
     nodegen = nodegen_data_nodes();
     nodegen.name = 'file download';
@@ -20,6 +20,10 @@ function [ nodegen ] = traffic_file_downloads(nNodes, wMin, wMax, nSizeTypes, nI
         nInterarrivalTypes = 3;
     end
     
+    if (isempty(nEnterInterarrivalTypes))
+        nEnterInterarrivalTypes = 3;
+    end
+    
     if (~isempty(wMin))
         nodegen.wMin = wMin;
     end
@@ -35,10 +39,7 @@ function [ nodegen ] = traffic_file_downloads(nNodes, wMin, wMax, nSizeTypes, nI
     % There is always a packet in the buffer
     nodegen.pArrive = 1.0;
     
-    % We will always wait after sending a 'file'
-    nodegen.pEnter = 1.0;
-    
-    % Generate some variation in our packet/interarrival sizes
-    nodegen.nMaxPackets = ceil( fileBigness * 5 * (2 .^ (0:nSizeTypes-1)) );
-    nodegen.nInterarrival = ceil( fileWaityness * 5 * (2 .^ (0:nInterarrivalTypes-1)) );
+    nodegen.pEnter = 1:nEnterInterarrivalTypes / nEnterInterarrivalTypes;
+    nodegen.nMaxPackets = ceil( fileBigness * 1:nSizeTypes );
+    nodegen.nInterarrival = ceil( fileWaityness * 5 * 1:nInterarrivalTypes );
 end
