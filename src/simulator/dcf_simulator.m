@@ -31,18 +31,19 @@ classdef dcf_simulator < handle
     
     methods
         % Constructor
-        function obj = dcf_simulator(pSuccessSingleTransmitIn, pSuccessMultiTransmitIn, physical_type_in, physical_payload_in, physical_speed_in)
+        function obj = dcf_simulator(params)
             obj = obj@handle();
-            obj.pSuccessSingleTransmit = pSuccessSingleTransmitIn;
-            obj.pSuccessMultiTransmit = pSuccessMultiTransmitIn;
-            obj.physical_type = physical_type_in;
-            obj.physical_payload = physical_payload_in;
-            obj.physical_speed = physical_speed_in;
             
-            if (pSuccessMultiTransmitIn > 0.5)
+            obj.pSuccessSingleTransmit = params.pSingleSuccess;
+            obj.pSuccessMultiTransmit = params.pMultiSuccess;
+            obj.physical_type = params.physical_type;
+            obj.physical_payload = params.physical_payload;
+            obj.physical_speed = params.physical_speed;
+            
+            if (obj.pSuccessMultiTransmit > 0.5)
                 fprintf('Are you sure you wanted the chance of success with multiple nodes transmitting at the SAME TIME to be so high?\n');
                 fprintf('In other words, pSuccessMultiTransmit is the chance of SUCCESS with multiple transmits (usually its zero)\n');
-                assert(pSuccessMultiTransmitIn < 0.9);
+                assert(obj.pSuccessMultiTransmit < 0.9);
             end
         end
         
@@ -95,7 +96,7 @@ classdef dcf_simulator < handle
             isLoaded = false;
             loadedFromCache = false;
             if (loadCache)
-                isLoaded = this.StepsFromCache(cachePrefix, nStepsTotal);
+                isLoaded = this.StepsFromCache(cachePrefix);
                 loadedFromCache = isLoaded;
             end
             
@@ -104,7 +105,7 @@ classdef dcf_simulator < handle
             end
             
             if (saveCache && ~loadedFromCache)
-                this.SaveStepsToCache(cachePrefix, nStepsTotal);
+                this.SaveStepsToCache(cachePrefix);
             end
         end
         
@@ -116,11 +117,11 @@ classdef dcf_simulator < handle
             end
         end
         
-        function nodecache = NodeCacheName(~, cache, steps, i)
-            nodecache = sprintf('%s.node-%d.steps-%d.mat', cache, i, steps);
+        function nodecache = NodeCacheName(~, cache, i)
+            nodecache = sprintf('%s.node-%d.mat', cache, i);
         end
         
-        function isLoaded = StepsFromCache(this, cachePrefix, steps)
+        function isLoaded = StepsFromCache(this, cachePrefix)
             nNodes = size(this.nodes, 2);
             nodecache = cell(1, nNodes);
             isLoaded = false;
@@ -128,7 +129,7 @@ classdef dcf_simulator < handle
             % Check if all node cache files exist
             canLoad = true;
             for i=1:nNodes
-                nodecache{i} = this.NodeCacheName(cachePrefix, steps, i);
+                nodecache{i} = this.NodeCacheName(cachePrefix, i);
                 if ( exist(nodecache{i}, 'file')~=2 )
                     canLoad = false;
                     break;
@@ -159,11 +160,11 @@ classdef dcf_simulator < handle
             end
         end
         
-        function SaveStepsToCache(this, cachePrefix, steps)
+        function SaveStepsToCache(this, cachePrefix)
             nNodes = size(this.nodes, 2);
             for i=1:nNodes
                 node = this.nodes{i};
-                node.SaveStepsToCache( this.NodeCacheName(cachePrefix, steps, i) );
+                node.SaveStepsToCache( this.NodeCacheName(cachePrefix, i) );
             end
         end
         

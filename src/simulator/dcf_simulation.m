@@ -3,15 +3,17 @@ classdef dcf_simulation < handle
     % combinations of variables
 
     % These are the params which we will loop over
+    % Timesteps are kept separate because we won't create a new simulation
+    % object, we can just Reset() to call with different timesteps
     properties
         nTimesteps = 100;
-        params@nodegen_data_params;
+        
+        params@dcf_simulation_params;
+        cartesianParams@cartesian_params;
     end
     
     properties
         name;
-        
-        cartesianParams@cartesian_params;
         
         % if true, delete all previous run data for this setup
         cleanCache = false;
@@ -40,11 +42,6 @@ classdef dcf_simulation < handle
         nodegens = {};
         
         nTimestepsSize;
-        pSingleSuccessSize;
-        pMultiSuccessSize;
-        physical_typeSize;
-        physical_speedSize;
-        physical_payloadSize;
         nodegensSize;
         nExpectedVariations;
         
@@ -63,7 +60,7 @@ classdef dcf_simulation < handle
         function obj = dcf_simulation(nameIn)
             obj = obj@handle();
             
-            obj.params = nodegen_data_params();
+            obj.params = dcf_simulation_params();
             obj.nodegensSize = 0;
             obj.name = nameIn;
         end
@@ -78,11 +75,20 @@ classdef dcf_simulation < handle
             this.nodegensSize = 0;
         end
         
-        function uid = UID(this)
-            paramUID = this.cartesianParams.UID(false, ' ');
+        function uid = UID(this, timesteps)
+            if (isempty(timesteps))
+                steps = this.nTimesteps;
+                current = false;
+            else
+                steps = timesteps;
+                current = true;
+            end
+            
+            paramUID = this.cartesianParams.UID(current, ' ');
+            
             uid = sprintf(...
                 'DCF_SIMULATION:%s\n%s\n nTimesteps=%d\n nNodegens=%d', ...
-                this.name, paramUID, this.nTimesteps, this.nodegensSize );
+                this.name, paramUID, mat2str(steps), this.nodegensSize );
             
             nodegenString = '';
             for i=1:this.nodegensSize
@@ -107,7 +113,6 @@ classdef dcf_simulation < handle
             this.nTimestepsSize = size(this.nTimesteps, 2);
             
             this.nodegensSize = size(this.nodegens, 2);
-            this.ngCurrIndices = ones(1, size(this.nodegens, 2));
             this.ngSizes = zeros(1, this.nodegensSize);
             
             for i = 1:this.nodegensSize;
@@ -145,18 +150,17 @@ classdef dcf_simulation < handle
         
         function SetupCache(this)
             % setup folders
-            simUID = this.UID();
+            simUID = this.UID([]);
             hash = string2hash( simUID, 2 );
             this.cacheFolder = sprintf('%s%s%.16X-%.16X', this.cacheBaseFolder, filesep(), hash(1), hash(2));
+            
+            if( this.cleanCache )
+                [~, ~, ~] = rmdir(this.cacheFolder, 's');
+            end
             
             [~, ~, ~] = mkdir(this.resultsFolder);
             [~, ~, ~] = mkdir(this.cacheBaseFolder);
             [~, ~, ~] = mkdir(this.cacheFolder);
-            
-            if( this.cleanCache )
-                [~, ~, ~] = rmdir(this.cacheFolder, 's');
-                [~, ~, ~] = mkdir(this.cacheFolder);
-            end
             
             % Make sure all the caches look like they're up to date
             [simcacheValid, simcacheExists] = this.VerifyCacheUID(this.cacheFolder, simUID, 'simulation.uid.mat');
@@ -192,14 +196,12 @@ classdef dcf_simulation < handle
             fprintf(' =Setup: %f seconds\n', this.elapsedSetup);
             
             % loop over all of our possible variables
-            
             fprintf(' =Running %d variations\n', this.nExpectedVariations);
             nVariations = 0;
             nSimulators = 0;
             nParamVariations = this.cartesianParams.NumVariations();
             for iParamVariation = 1:nParamVariations
-                nVariations = 1 + nVariations;
-                
+                this.NodegenResetCartesianIndices();
                 this.cartesianParams.IncrementCartesianIndices();
                 currentSimValues = this.cartesianParams.CurrentValues();
                 
@@ -215,8 +217,10 @@ classdef dcf_simulation < handle
                     fprintf('  +Generating new simulator: %f seconds\n', this.elapsedNewSim(nSimulators));
                     
                     for thisNTimesteps = this.nTimesteps
+                        nVariations = 1 + nVariations;
+                        
                         time = tic();
-                        this.RunSimInstance(simulator, thisNTimesteps, iNodegenVariation);
+                        this.RunSimInstance(simulator, thisNTimesteps, nVariations);
                         simulator.Reset();
                         this.elapsedRun(nVariations) = toc(time);
 
@@ -254,6 +258,14 @@ classdef dcf_simulation < handle
             end
         end
         
+        function NodegenResetCartesianIndices(this)
+            this.ngCurrIndices = ones(1, this.nodegensSize);
+            for i = 1:this.nodegensSize
+                nodegen = this.nodegens{i};
+                nodegen.Reset();
+            end
+        end
+        
         function NodegenIncrementCartesianIndices(this)
             % Increment index of rightmost index
             this.ngCurrIndices(this.nodegensSize) = 1 + this.ngCurrIndices(this.nodegensSize);
@@ -277,11 +289,15 @@ classdef dcf_simulation < handle
         end
         
         function RunSimInstance(this, sim, thisNTimesteps, index)
-            setupCache = fullfile( this.cacheFolder, sprintf('variation-%d', index) );
-            stepsCache = fullfile( this.cacheFolder, sprintf('variation-%d', index) );
+            cachePrefix = fullfile( this.cacheFolder, sprintf('variation-%d', index) );
+            uidfile = strcat( cachePrefix, '.uid.mat' );
             
-            sim.Setup(setupCache, this.loadSetupCache, this.saveSetupCache, this.verboseSetup);
-            sim.Steps(thisNTimesteps, stepsCache, this.loadStepsCache, this.saveStepsCache, this.verboseExecute);
+            uid = this.UID(thisNTimesteps);
+            assert(~isempty(uid));
+            save(uidfile, 'uid');
+            
+            sim.Setup(cachePrefix, this.loadSetupCache, this.saveSetupCache, this.verboseSetup);
+            sim.Steps(thisNTimesteps, cachePrefix, this.loadStepsCache, this.saveStepsCache, this.verboseExecute);
             
             if (this.printResults)
                 sim.PrintResults(this.verbosePrint);
