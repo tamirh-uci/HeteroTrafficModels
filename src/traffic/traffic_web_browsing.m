@@ -1,9 +1,22 @@
 function [ nodegen ] = traffic_web_browsing(nNodes, wMin, wMax, nSizeTypes, nInterarrivalTypes, nEnterInterarrivalTypes, fileBigness, fileWaityness)
-%TRAFFIC_FILE_DOWNLOADS Create nodegen to simulate file downloading
+%TRAFFIC_WEB_BROWSING Create nodegen to simulate browsing webpages
     nodegen = nodegen_data_nodes();
     nodegen.name = 'file download';
     
     % user entered params
+    if (~isempty(nNodes))
+        nodegen.nGenerators = nNodes;
+    end
+    
+    if (~isempty(wMin))
+        nodegen.wMin = wMin;
+    end
+    
+    if (~isempty(wMax))
+        nodegen.wMax = wMax;
+    end
+    
+    % 2nd level params to be used later
     if (isempty(fileBigness))
         fileBigness = 1.0;
     end
@@ -22,18 +35,6 @@ function [ nodegen ] = traffic_web_browsing(nNodes, wMin, wMax, nSizeTypes, nInt
     
     if (isempty(nEnterInterarrivalTypes))
         nEnterInterarrivalTypes = 3;
-    end
-    
-    if (~isempty(wMin))
-        nodegen.wMin = wMin;
-    end
-    
-    if (~isempty(wMax))
-        nodegen.wMax = wMax;
-    end
-    
-    if (~isempty(nNodes))
-        nodegen.nGenerators = nNodes;
     end
     
     % There is always a packet in the buffer

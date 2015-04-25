@@ -1,12 +1,18 @@
 run_set_path
 
+timesteps = 100;
+nFileNodes = 1;
+nSizeTypes = 1;
+nInterarrivalTypes = 1;
+fileBigness = 1.0;
+fileWaityness = 1.0;
 wMin = 8;
 wMax = 16;
 
-datanode = traffic_file_downloads([], [], wMin, wMax, [], []); 
+datanode = traffic_file_downloads(nFileNodes, wMin, wMax, nSizeTypes, nInterarrivalTypes, fileBigness, fileWaityness); 
 
 sim1 = dcf_simulation('cachetest');
-sim1.nTimesteps = [100];
+sim1.nTimesteps = timesteps;
 sim1.AddNodegen( datanode );
 sim1.Run();
 

@@ -4,6 +4,19 @@ function [ nodegen ] = traffic_file_downloads(nNodes, wMin, wMax, nSizeTypes, nI
     nodegen.name = 'file download';
     
     % user entered params
+    if (~isempty(nNodes))
+        nodegen.nGenerators = nNodes;
+    end
+    
+    if (~isempty(wMin))
+        nodegen.wMin = wMin;
+    end
+    
+    if (~isempty(wMax))
+        nodegen.wMax = wMax;
+    end
+    
+    % 2nd level params to be used later
     if (isempty(fileBigness))
         fileBigness = 1.0;
     end
@@ -18,18 +31,6 @@ function [ nodegen ] = traffic_file_downloads(nNodes, wMin, wMax, nSizeTypes, nI
     
     if (isempty(nInterarrivalTypes))
         nInterarrivalTypes = 3;
-    end
-    
-    if (~isempty(wMin))
-        nodegen.wMin = wMin;
-    end
-    
-    if (~isempty(wMax))
-        nodegen.wMax = wMax;
-    end
-    
-    if (~isempty(nNodes))
-        nodegen.nGenerators = nNodes;
     end
     
     % There is always a packet in the buffer

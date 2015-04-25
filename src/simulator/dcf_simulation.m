@@ -230,24 +230,22 @@ classdef dcf_simulation < handle
             this.elapsedTotal = toc(totalTime);
             fprintf(' =Total execution (%s): %f seconds\n', this.name, this.elapsedTotal);
             
-            this.SaveRunData(simulation);
+            this.SaveRunData();
         end % run()
 
-        function SaveRunData(this, simulation)
+        function SaveRunData(this)
             setupTime = this.elapsedSetup;
             newSimTime = this.elapsedNewSim;
             runTime = this.elapsedRun;
             totalTime = this.elapsedTotal;
-            simSize = simulation.simSize;
             
             assert(~isempty(setupTime));
             assert(~isempty(newSimTime));
             assert(~isempty(runTime));
             assert(~isempty(totalTime));
-            assert(~isempty(simSize));
             
             filename = fullfile(this.cacheFolder, 'rundata.mat');
-            save( filename, 'setup', 'newSim', 'run', 'total', 'simSize' );
+            save( filename, 'setupTime', 'newSimTime', 'runTime', 'totalTime' );
         end
         
         function AddNodes(this, simulator)
