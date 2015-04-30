@@ -1,7 +1,9 @@
 run_set_path
 
+simParams = dcf_simulation_params();
+
 timesteps = [100 200];
-pSuccess = [0.85 1.0];
+simParams.pSingleSuccess = [0.85 1.0];
 
 nFileNodes = 1;
 nSizeTypes = 1;
@@ -15,7 +17,8 @@ datanode = traffic_file_downloads(nFileNodes, wMin, wMax, nSizeTypes, nInterarri
 
 sim1 = dcf_simulation('cachetest');
 sim1.nTimesteps = timesteps;
-sim1.params.pSingleSuccess = pSuccess;
+sim1.params = simParams;
+
 sim1.AddNodegen( datanode );
 sim1.Run();
 

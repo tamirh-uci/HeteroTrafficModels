@@ -9,11 +9,11 @@ function [ nodegen ] = traffic_file_downloads(nNodes, wMin, wMax, nSizeTypes, nI
     end
     
     if (~isempty(wMin))
-        nodegen.wMin = wMin;
+        nodegen.params.wMin = wMin;
     end
     
     if (~isempty(wMax))
-        nodegen.wMax = wMax;
+        nodegen.params.wMax = wMax;
     end
     
     % 2nd level params to be used later
@@ -34,12 +34,12 @@ function [ nodegen ] = traffic_file_downloads(nNodes, wMin, wMax, nSizeTypes, nI
     end
     
     % There is always a packet in the buffer
-    nodegen.pArrive = 1.0;
+    nodegen.params.pArrive = 1.0;
     
     % We will always wait after sending a 'file'
-    nodegen.pEnter = 1.0;
+    nodegen.params.pEnter = 1.0;
     
     % Generate some variation in our packet/interarrival sizes
-    nodegen.nMaxPackets = ceil( fileBigness * 5 * (2 .^ (0:nSizeTypes-1)) );
-    nodegen.nInterarrival = ceil( fileWaityness * 5 * (2 .^ (0:nInterarrivalTypes-1)) );
+    nodegen.params.nMaxPackets = ceil( fileBigness * 5 * (2 .^ (0:nSizeTypes-1)) );
+    nodegen.params.nInterarrival = ceil( fileWaityness * 5 * (2 .^ (0:nInterarrivalTypes-1)) );
 end

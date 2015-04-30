@@ -8,6 +8,7 @@ classdef cartesian_params < handle
         nParams;
         paramSizes;
         currIndices;
+        nVariations;
     end
     
     methods
@@ -19,8 +20,7 @@ classdef cartesian_params < handle
             this.paramNames = properties( this.values );
             this.nParams = size( this.paramNames, 1 );
             this.paramSizes = zeros(1, this.nParams);
-            this.currIndices = ones(1, this.nParams);
-            this.currIndices( this.nParams ) = 0;
+            this.Reset();
             
             for i = 1:this.nParams
                 paramName = this.paramNames{i};
@@ -29,16 +29,28 @@ classdef cartesian_params < handle
             end
         end
         
-        function nVariations = NumVariations(this)
-            nVariations = prod( this.paramSizes );
+        function Reset(this)
+            this.currIndices = ones(1, this.nParams);
+        end
+        
+        function nVars = NumVariations(this)
+            nVars = prod( this.paramSizes );
+            this.nVariations = nVars;
         end
         
         function current = CurrentValues(this)
+            current = struct();
+            
             for i = 1:this.nParams
                 paramName = this.paramNames{i};
                 param = this.values.(paramName);
                 currentIndex = this.currIndices(i);
-                current.(paramName) = param(currentIndex);
+                
+                if (currentIndex <= size(param,2))
+                    current.(paramName) = param(currentIndex);
+                else
+                    current.(paramName) = 'INVALID';
+                end
             end
         end
         

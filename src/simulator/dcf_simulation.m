@@ -86,17 +86,17 @@ classdef dcf_simulation < handle
             
             paramUID = this.cartesianParams.UID(current, ' ');
             
-            uid = sprintf(...
+            mainUID = sprintf(...
                 'DCF_SIMULATION:%s\n%s\n nTimesteps=%d\n nNodegens=%d', ...
                 this.name, paramUID, mat2str(steps), this.nodegensSize );
             
             nodegenString = '';
             for i=1:this.nodegensSize
                 nodegen = this.nodegens{i};
-                nodegenString = sprintf('%s NODEGEN #%d: %s', nodegenString, i, nodegen.UID());
+                nodegenString = sprintf('%s NODEGEN #%d: %s', nodegenString, i, nodegen.UID(false, '  '));
             end
             
-            uid = sprintf('%s\n%s', uid, nodegenString);
+            uid = sprintf('%s\n%s', mainUID, nodegenString);
         end
         
         function nVariations = NumVariations(this)
@@ -117,6 +117,8 @@ classdef dcf_simulation < handle
             
             for i = 1:this.nodegensSize;
                 nodegen = this.nodegens{i};
+                
+                nodegen.PreCalc();
                 this.ngSizes(i) = nodegen.NumVariations();
             end
             
@@ -170,7 +172,7 @@ classdef dcf_simulation < handle
             
             for i=1:this.nodegensSize
                 node = this.nodegens{i};
-                nodegenUID = node.UID();
+                nodegenUID = node.UID(false, '  ');
                 nodegenUIDFilename = sprintf('nodegen.%d.uid.mat', i);
                 
                 [nodegencacheValid, nodegencacheExists] = this.VerifyCacheUID(this.cacheFolder, nodegenUID, nodegenUIDFilename);
@@ -202,8 +204,8 @@ classdef dcf_simulation < handle
             nParamVariations = this.cartesianParams.NumVariations();
             for iParamVariation = 1:nParamVariations
                 this.NodegenResetCartesianIndices();
-                this.cartesianParams.IncrementCartesianIndices();
                 currentSimValues = this.cartesianParams.CurrentValues();
+                this.cartesianParams.IncrementCartesianIndices();
                 
                 % loop over every nodegen variation combination
                 for iNodegenVariation = 1:prod( this.ngSizes )

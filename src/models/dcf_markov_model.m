@@ -505,7 +505,11 @@ classdef dcf_markov_model < handle
         
         function CalculateConstants(this)
             % Basic assumptions
+            try
             assert( this.pRawSuccess >= 0 && this.pRawSuccess <= 1 );
+            catch e
+                assert( this.pRawSuccess >= 0 && this.pRawSuccess <= 1 );
+            end
             assert( this.pRawArrive > 0 && this.pRawArrive <= 1 ); % arrival rate of 0 means absolutely no packets will be sent
             assert( this.pEnterInterarrival >= 0 && this.pEnterInterarrival <= 1 );
             assert( this.m >= 1 );
