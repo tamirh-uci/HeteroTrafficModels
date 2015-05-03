@@ -20,9 +20,13 @@ classdef dcf_simulation < handle
         
         loadSetupCache = true;
         loadStepsCache = true;
+        loadResultsCache = true;
         
         saveSetupCache = true;
         saveStepsCache = true;
+        saveResultsCache = true;
+        
+        displayFigures = true;
         
         resultsFolder = './../results';
         cacheBaseFolder = './../results/cache';
@@ -298,14 +302,20 @@ classdef dcf_simulation < handle
             assert(~isempty(uid));
             save(uidfile, 'uid');
             
+            % Run the simulation
             sim.Setup(cachePrefix, this.loadSetupCache, this.saveSetupCache, this.verboseSetup);
             sim.Steps(thisNTimesteps, cachePrefix, this.loadStepsCache, this.saveStepsCache, this.verboseExecute);
             
+            % Dump out results to screen
             if (this.printResults)
                 sim.PrintResults(this.verbosePrint);
             end
             
+            % Save results to file
+            sim.SaveResults(cachePrefix, this.loadResultsCache, this.saveResultsCache);
+            
             % TODO: Plot Figures
+            sim.PlotFigures(cachePrefix, this.displayFigures);
         end
     end
 end

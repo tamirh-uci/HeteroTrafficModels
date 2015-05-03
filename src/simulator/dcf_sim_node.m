@@ -45,7 +45,11 @@ classdef dcf_sim_node < handle
         % Array of states which we should never see
         txInvalidTypes@dcf_transition_type;
         
+        % Results
         simSize;
+        throughput;
+        success;
+        failure;
     end
     
     methods (Static)
@@ -89,6 +93,57 @@ classdef dcf_sim_node < handle
         function Reset(this)
             this.dcfHist = markov_history();
             this.secHist = markov_history();
+        end
+        
+        function PlotFigures(this, cache, figureId, displayFigures)
+            fileThroughput = sprintf('%s.throughput.fig', cache);
+            fileSuccess = sprintf('%s.success.fig', cache);
+            fileFailure = sprintf('%s.failure.fig', cache);
+            
+            % TODO: Plot stuff
+            fig = figure(figureId);
+        end
+        
+        function SaveResults(this, cache, loadCache, saveCache)
+            filename = sprintf('%s.results.mat', cache);
+            resultsThroughput = [];
+            resultsSuccess = [];
+            resultsFailure = [];
+            isLoaded = loadCache;
+            
+            if (loadCache && exist(filename, 'file')==2)
+                try
+                    load(filename, 'resultsThroughput', 'resultsSuccess', 'resultsFailure');
+                catch err
+                    err
+                    isLoaded = false;
+                end
+                
+                if (isempty(resultsThroughput))
+                    isLoaded = false;
+                end
+                
+                if (isempty(resultsSuccess))
+                    isLoaded = false;
+                end
+                
+                if (isempty(resultsFailure))
+                    isLoaded = false;
+                end
+            end
+            
+            if (~isLoaded)
+                resultsThroughput = this.GetTransmit();
+                resultsSuccess = this.GetSuccess();
+                resultsFailure = this.GetFailure();
+            end
+            
+            this.throughput = resultsThroughput;
+            this.success = resultsSuccess;
+            this.failure = resultsFailure;
+            if (saveCache)
+                save(filename, 'resultsThroughput', 'resultsSuccess', 'resultsFailure');
+            end 
         end
         
         function Setup(this, cache, loadCache, saveCache, bVerbose)

@@ -57,6 +57,10 @@ classdef dcf_simulator < handle
             this.nodes{nNodes+1} = dcf_sim_node(name, dcf_model, video_model, this.pSuccessSingleTransmit, this.pSuccessMultiTransmit);
         end
         
+        function filename = NodeFilename(~, cachePrefix, index)
+            filename = sprintf('%s.node-%d', cachePrefix, index);
+        end
+        
         function Reset(this)
             nNodes = size(this.nodes, 2);
             this.nSteps = 0;
@@ -77,8 +81,8 @@ classdef dcf_simulator < handle
             % Setup node data
             for i=1:nNodes
                 node = this.nodes{i};
-                cache = sprintf('%s.node-%d.setup.mat', cachePrefix, i);
-                node.Setup(cache, loadCache, saveCache, bVerbose);
+                filename = this.NodeFilename(cachePrefix, i);
+                node.Setup(filename, loadCache, saveCache, bVerbose);
                 this.simSize(i) = node.simSize;
             end
         end
@@ -209,6 +213,28 @@ classdef dcf_simulator < handle
                 node = this.nodes{i};
                 node.PostStep(this.transmittingNodes(i));
             end
+        end
+        
+        function SaveResults(this, cachePrefix, loadCache, saveCache)
+            nNodes = size(this.nodes, 2);
+            for i=1:nNodes
+                node = this.nodes{i};
+                filename = this.NodeFilename(cachePrefix, i);
+                node.SaveResults(filename, loadCache, saveCache);
+            end
+            
+            % TODO: Save overall results
+        end
+        
+        function PlotFigures(this, cachePrefix, displayFigures)
+            nNodes = size(this.nodes, 2);
+            for i=1:nNodes
+                node = this.nodes{i};
+                filename = this.NodeFilename(cachePrefix, i);
+                node.PlotFigures(filename, displayFigures);
+            end
+            
+            % TODO: Plot overall figures
         end
         
         % Print out some useful information about this run
