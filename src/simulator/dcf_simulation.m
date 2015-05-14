@@ -300,7 +300,7 @@ classdef dcf_simulation < handle
             
             uid = this.UID(thisNTimesteps);
             assert(~isempty(uid));
-            save(uidfile, 'uid');
+            save(uidfile, 'uid'); % TODO: The pSuccess is null when this happens
             
             % Run the simulation
             sim.Setup(cachePrefix, this.loadSetupCache, this.saveSetupCache, this.verboseSetup);
@@ -314,7 +314,7 @@ classdef dcf_simulation < handle
             % Save results to file
             sim.SaveResults(cachePrefix, this.loadResultsCache, this.saveResultsCache);
             
-            % TODO: Plot Figures
+            % Output plots of data
             sim.PlotFigures(cachePrefix, this.displayFigures);
         end
     end

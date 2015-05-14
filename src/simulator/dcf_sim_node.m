@@ -149,9 +149,10 @@ classdef dcf_sim_node < handle
         function Setup(this, cache, loadCache, saveCache, bVerbose)
             isLoaded = false;
             loadedFromCache = false;
+            filename = sprintf('%s.setup.mat', cache);
             
-            if (loadCache && exist(cache, 'file')==2)
-                isLoaded = this.SetupFromCache(cache, bVerbose);
+            if (loadCache && exist(filename, 'file')==2)
+                isLoaded = this.SetupFromCache(filename, bVerbose);
                 loadedFromCache = isLoaded;
             end
             
@@ -160,7 +161,7 @@ classdef dcf_sim_node < handle
             end
             
             if (saveCache && ~loadedFromCache)
-                this.SaveSetupCache(cache, bVerbose);
+                this.SaveSetupCache(filename, bVerbose);
             end
         end
         
@@ -213,6 +214,9 @@ classdef dcf_sim_node < handle
         end
         
         function isLoaded = StepsFromCache(this, cache)
+            dcf = [];
+            sec = [];
+            
             try
                 load(cache, 'dcf', 'sec');
                 isLoaded = true;
@@ -222,7 +226,7 @@ classdef dcf_sim_node < handle
                 return;
             end
             
-            if (isLoaded)
+            if (isLoaded && ~isempty(dcf) && ~isempty(dcf))
                 this.dcfHist = dcf;
                 this.secHist = sec;
             end

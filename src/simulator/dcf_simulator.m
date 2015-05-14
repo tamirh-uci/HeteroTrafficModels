@@ -122,7 +122,7 @@ classdef dcf_simulator < handle
         end
         
         function nodecache = NodeCacheName(~, cache, i)
-            nodecache = sprintf('%s.node-%d.mat', cache, i);
+            nodecache = sprintf('%s.node-%d.steps.mat', cache, i);
         end
         
         function isLoaded = StepsFromCache(this, cachePrefix)
