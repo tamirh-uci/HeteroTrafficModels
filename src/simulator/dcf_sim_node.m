@@ -47,9 +47,10 @@ classdef dcf_sim_node < handle
         
         % Results
         simSize;
-        throughput;
-        success;
-        failure;
+        cachedSuccessCount;
+        cachedFailureCount;
+        cachedWaitCount;
+        cachedInvalidCount;
     end
     
     methods (Static)
@@ -70,8 +71,7 @@ classdef dcf_sim_node < handle
             obj.name = nameIn;
             
             obj.dcfChainBuilder = dcfChainBuilderIn;
-            obj.dcfHist = markov_history();
-            obj.secHist = markov_history();
+            Reset(obj);
             
             obj.pSuccessSingleTransmit = pSuccessSingleTransmitIn;
             obj.pSuccessMultiTransmit = pSuccessMultiTransmitIn;
@@ -93,6 +93,11 @@ classdef dcf_sim_node < handle
         function Reset(this)
             this.dcfHist = markov_history();
             this.secHist = markov_history();
+            
+            this.cachedSuccessCount = -1;
+            this.cachedFailureCount = -1;
+            this.cachedWaitCount = -1;
+            this.cachedInvalidCount = -1;
         end
         
         function PlotFigures(this, cache, figureId, displayFigures)
@@ -106,43 +111,52 @@ classdef dcf_sim_node < handle
         
         function SaveResults(this, cache, loadCache, saveCache)
             filename = sprintf('%s.results.mat', cache);
-            resultsThroughput = [];
-            resultsSuccess = [];
-            resultsFailure = [];
+            successCount = [];
+            failureCount = [];
+            waitCount = [];
+            invalidCount = [];
             isLoaded = loadCache;
             
             if (loadCache && exist(filename, 'file')==2)
                 try
-                    load(filename, 'resultsThroughput', 'resultsSuccess', 'resultsFailure');
+                    load(filename);
                 catch err
                     err
                     isLoaded = false;
                 end
                 
-                if (isempty(resultsThroughput))
+                if (isempty(successCount))
                     isLoaded = false;
                 end
                 
-                if (isempty(resultsSuccess))
+                if (isempty(failureCount))
                     isLoaded = false;
                 end
                 
-                if (isempty(resultsFailure))
+                if (isempty(waitCount))
                     isLoaded = false;
                 end
+                
+                if (isempty(invalidCount))
+                    isLoaded = false;
+                end
+            else
+                isLoaded = false;
             end
             
             if (~isLoaded)
-                resultsThroughput = this.GetTransmit();
-                resultsSuccess = this.GetSuccess();
-                resultsFailure = this.GetFailure();
+                successCount = this.CountSuccesses();
+                failureCount = this.CountFailures();
+                waitCount = this.CountWaits();
+                invalidCount = this.CountInvalidStates();
             end
             
-            this.throughput = resultsThroughput;
-            this.success = resultsSuccess;
-            this.failure = resultsFailure;
+            this.cachedSuccessCount = successCount;
+            this.cachedFailureCount = failureCount;
+            this.cachedWaitCount = waitCount;
+            this.cachedInvalidCount = invalidCount;
             if (saveCache)
-                save(filename, 'resultsThroughput', 'resultsSuccess', 'resultsFailure');
+                save(filename, 'successCount', 'failureCount', 'waitCount', 'invalidCount');
             end 
         end
         
@@ -297,19 +311,31 @@ classdef dcf_sim_node < handle
         
         % An entire packet successfully transmitted
         function count = CountSuccesses(this)
-            count = this.dcfHist.CountTransitions(this.txSuccessTypes);
+            if (this.cachedSuccessCount < 0)
+                this.cachedSuccessCount = this.dcfHist.CountTransitions(this.txSuccessTypes);
+            end
+            
+            count = this.cachedSuccessCount;
         end
         
         % Something happened in a packet transmission and it will need
         % retransmission now
         function count = CountFailures(this)
-            count = this.dcfHist.CountTransitions(this.txFailTypes);
+            if (this.cachedFailureCount < 0)
+                this.cachedFailureCount = this.dcfHist.CountTransitions(this.txFailTypes);
+            end
+            
+            count = this.cachedFailureCount;
         end
         
         % Node is either waiting to transmit, or waiting for new data to
         % arrive so it can transmit eventually
         function count = CountWaits(this)
-            count = this.dcfHist.CountTransitions(this.txWaitTypes);
+            if (this.cachedWaitCount < 0)
+                this.cachedWaitCount = this.dcfHist.CountTransitions(this.txWaitTypes);
+            end
+            
+            count = this.cachedWaitCount;
         end
         
         function success = GetSuccess(this)
@@ -326,7 +352,11 @@ classdef dcf_sim_node < handle
         
         % This should always be zero
         function count = CountInvalidStates(this)
-            count = this.dcfHist.CountTransitions(this.txInvalidTypes);
+            if (this.cachedInvalidCount < 0)
+                this.cachedInvalidCount = this.dcfHist.CountTransitions(this.txInvalidTypes);
+            end
+            
+            count = this.cachedInvalidCount;
         end
     end % methods    
 end % classdef dcf_sim_node

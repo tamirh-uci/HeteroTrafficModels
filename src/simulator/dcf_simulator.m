@@ -27,6 +27,12 @@ classdef dcf_simulator < handle
         physical_type;
         physical_payload;
         physical_speed;
+        
+        % Cache overall data
+        cachedSuccess;
+        cachedFailure;
+        cachedWait;
+        cachedInvalid;
     end %properties (SetAccess = protected)
     
     methods
@@ -39,6 +45,10 @@ classdef dcf_simulator < handle
             obj.physical_type = params.physical_type;
             obj.physical_payload = params.physical_payload;
             obj.physical_speed = params.physical_speed;
+            obj.cachedSuccess = -1;
+            obj.cachedFailure = -1;
+            obj.cachedWait = -1;
+            obj.cachedInvalid = -1;
             
             if (obj.pSuccessMultiTransmit > 0.5)
                 fprintf('Are you sure you wanted the chance of success with multiple nodes transmitting at the SAME TIME to be so high?\n');
@@ -64,6 +74,10 @@ classdef dcf_simulator < handle
         function Reset(this)
             nNodes = size(this.nodes, 2);
             this.nSteps = 0;
+            this.cachedSuccess = -1;
+            this.cachedFailure = -1;
+            this.cachedWait = -1;
+            this.cachedInvalid = -1;
             
             % Setup node data
             for i=1:nNodes
@@ -85,6 +99,8 @@ classdef dcf_simulator < handle
                 node.Setup(filename, loadCache, saveCache, bVerbose);
                 this.simSize(i) = node.simSize;
             end
+            
+            this.LoadCachedRunData(cachePrefix);
         end
         
         % Simulate multipler timer transitions for all nodes
@@ -223,7 +239,54 @@ classdef dcf_simulator < handle
                 node.SaveResults(filename, loadCache, saveCache);
             end
             
-            % TODO: Save overall results
+            % Save overall results
+            this.SaveCachedRunData(cachePrefix);
+        end
+        
+        function LoadCachedRunData(this, prefix)
+            filename = sprintf('%s.results.mat', prefix);
+            if ( exist(filename, 'file')~=2 )
+                return;
+            end
+            
+            success = [];
+            failure = [];
+            wait = [];
+            invalid = [];
+            
+            load(filename);
+            
+            if ( ~isempty(success) )
+                this.cachedSuccess = success;
+            end
+            
+            if ( ~isempty(failure) )
+                this.cachedFailure = failure;
+            end
+            
+            if ( ~isempty(wait) )
+                this.cachedWait = wait;
+            end
+            
+            if ( ~isempty(invalid) )
+                this.cachedInvalid = invalid;
+            end
+        end
+        
+        function SaveCachedRunData(this, prefix)
+            filename = sprintf('%s.results.mat', prefix);
+            
+            success = this.CountSuccesses();
+            failure = this.CountFailures();
+            wait = this.CountWaits();
+            invalid = this.CountInvalid();
+            
+            assert( ~isempty(success) );
+            assert( ~isempty(failure) );
+            assert( ~isempty(wait) );
+            assert( ~isempty(invalid) );
+            
+            save(filename, 'success', 'failure', 'wait', 'invalid');
         end
         
         function PlotFigures(this, cachePrefix, displayFigures)
@@ -332,22 +395,38 @@ classdef dcf_simulator < handle
         
         % Count up success transitions
         function count = CountSuccesses(this)
-            count = this.CountStates('CountSuccesses');
+            if (this.cachedSuccess < 0)
+                this.cachedSuccess = this.CountStates('CountSuccesses');
+            end
+            
+            count = this.cachedSuccess;
         end
         
         % Count up failure transitions
         function count = CountFailures(this)
-            count = this.CountStates('CountFailures');
+            if (this.cachedFailure < 0)
+                this.cachedFailure = this.CountStates('CountFailures');
+            end
+            
+            count = this.cachedFailure;
         end
         
         % Count up wait (backoff) transitions
         function count = CountWaits(this)
-            count = this.CountStates('CountWaits');
+            if (this.cachedWait < 0)
+                this.cachedWait = this.CountStates('CountWaits');
+            end
+            
+            count = this.cachedWait;
         end
         
         % Count up how many times we ended up in invalid states
         function count = CountInvalid(this)
-            count = this.CountStates('CountInvalidStates');
+            if (this.cachedInvalid < 0)
+                this.cachedInvalid = this.CountStates('CountInvalidStates');
+            end
+            
+            count = this.cachedInvalid;
         end
     end %methods
 end
