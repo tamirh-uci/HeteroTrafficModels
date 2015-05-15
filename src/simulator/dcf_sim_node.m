@@ -100,6 +100,15 @@ classdef dcf_sim_node < handle
             this.cachedInvalidCount = -1;
         end
         
+        function GetResults(this, results, index)
+            results.nodeSuccessCount(index) = this.cachedSuccessCount;
+            results.nodeFailureCount(index) = this.cachedFailureCount;
+            results.nodeWaitCount(index) = this.cachedWaitCount;
+            results.nodeInvalidCount(index) = this.cachedInvalidCount;
+            results.nodeDcfHistory{index} = this.dcfHist;
+            results.nodeSecHistory{index} = this.secHist;
+        end
+        
         function PlotFigures(this, cache, figureId, displayFigures)
             fileThroughput = sprintf('%s.throughput.fig', cache);
             fileSuccess = sprintf('%s.success.fig', cache);

@@ -289,15 +289,29 @@ classdef dcf_simulator < handle
             save(filename, 'success', 'failure', 'wait', 'invalid');
         end
         
-        function PlotFigures(this, cachePrefix, displayFigures)
-            nNodes = size(this.nodes, 2);
-            for i=1:nNodes
-                node = this.nodes{i};
-                filename = this.NodeFilename(cachePrefix, i);
-                node.PlotFigures(filename, displayFigures);
-            end
+        function results = GetResults(this, variation)
+            results = simulation_run_results();
+            results.variation = variation;
+            results.nSteps = this.nSteps;
             
-            % TODO: Plot overall figures
+            results.simSuccessCount = this.cachedSuccess;
+            results.simFailureCount = this.cachedFailure;
+            results.simWaitCount = this.cachedWait;
+            results.simInvalidCount = this.cachedInvalid;
+            
+            results.nNodes = size(this.nodes, 2);
+            results.nodeSuccessCount = zeros(1, results.nNodes);
+            results.nodeFailureCount = zeros(1, results.nNodes);
+            results.nodeWaitCount = zeros(1, results.nNodes);
+            results.nodeInvalidCount = zeros(1, results.nNodes);
+            
+            results.nodeDcfHistory = cell(1, results.nNodes);
+            results.nodeSecHistory = cell(1, results.nNodes);
+            
+            for i=1:results.nNodes
+                node = this.nodes{i};
+                node.GetResults(results, i);
+            end
         end
         
         % Print out some useful information about this run

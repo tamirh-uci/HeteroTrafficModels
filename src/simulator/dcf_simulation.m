@@ -58,6 +58,8 @@ classdef dcf_simulation < handle
         elapsedNewSim;
         elapsedRun;
         elapsedTotal;
+        
+        simResults = {};
     end
     
     methods
@@ -158,7 +160,7 @@ classdef dcf_simulation < handle
             % setup folders
             simUID = this.UID([]);
             hash = string2hash( simUID, 2 );
-            this.cacheFolder = sprintf('%s%s%.16X-%.16X', this.cacheBaseFolder, filesep(), hash(1), hash(2));
+            this.cacheFolder = sprintf('%s%s%s-%.16X-%.16X', this.cacheBaseFolder, filesep(), this.name, hash(1), hash(2));
             
             if( this.cleanCache )
                 [~, ~, ~] = rmdir(this.cacheFolder, 's');
@@ -201,11 +203,31 @@ classdef dcf_simulation < handle
             this.elapsedSetup = toc(time);
             fprintf(' =Setup: %f seconds\n', this.elapsedSetup);
             
+            if (this.loadResultsCache && this.LoadSimulationRunResults())
+                fprintf(' =Loaded simulation run, skipping operations\n');
+            else
+                this.SimulationRun();
+            end
+            
+            
+            
+            fprintf(' =Plotting Figures\n');
+            this.PlotFigures(this.displayFigures);
+            
+            this.elapsedTotal = toc(totalTime);
+            fprintf(' =Total execution (%s): %f seconds\n', this.name, this.elapsedTotal);
+            
+            this.SaveRunData();
+        end
+        
+        function SimulationRun(this)
             % loop over all of our possible variables
             fprintf(' =Running %d variations\n', this.nExpectedVariations);
             nVariations = 0;
             nSimulators = 0;
             nParamVariations = this.cartesianParams.NumVariations();
+            this.simResults = cell(1, nParamVariations);
+            
             for iParamVariation = 1:nParamVariations
                 this.NodegenResetCartesianIndices();
                 currentSimValues = this.cartesianParams.CurrentValues();
@@ -236,10 +258,9 @@ classdef dcf_simulation < handle
                 end
             end
             
-            this.elapsedTotal = toc(totalTime);
-            fprintf(' =Total execution (%s): %f seconds\n', this.name, this.elapsedTotal);
-            
-            this.SaveRunData();
+            if (this.saveResultsCache)
+                this.SaveSimulationRunResults();
+            end
         end % run()
 
         function SaveRunData(this)
@@ -313,9 +334,43 @@ classdef dcf_simulation < handle
             
             % Save results to file
             sim.SaveResults(cachePrefix, this.loadResultsCache, this.saveResultsCache);
+            this.simResults{index} = sim.GetResults(index);
+        end
+        
+        function isLoaded = LoadSimulationRunResults(this)
+            filename = fullfile( this.cacheFolder, 'results.mat' );
             
-            % Output plots of data
-            sim.PlotFigures(cachePrefix, this.displayFigures);
+            results = [];
+            isLoaded = false;
+            if( exist(filename, 'file')==2 )
+                try
+                    load(filename);
+                    isLoaded = true;
+                catch err
+                    err
+                    isLoaded = false;
+                end
+            end
+            
+            if (isempty(results))
+                isLoaded = false;
+            end
+            
+            if (isLoaded)
+                this.simResults = results;
+            end
+        end
+        
+        function SaveSimulationRunResults(this)
+            filename = fullfile( this.cacheFolder, 'results.mat' );
+            
+            results = this.simResults;
+            assert( ~isempty(results) );
+            save(filename, 'results');
+        end
+        
+        function PlotFigures(this, display)
+            
         end
     end
 end
