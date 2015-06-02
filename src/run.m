@@ -1,7 +1,7 @@
 run_set_path
 
 % number of nodes in system
-MAX_DATANODES = 4;
+MAX_DATANODES = 2;
 MAX_VIDNODES = 1;
 
 % Shared params
@@ -22,22 +22,32 @@ fileWaityness = 1.0;
 wMin = 8;
 wMax = 16;
 
+nVariations = 5;
+slowWaitQuality = zeros(5, MAX_DATANODES);
+slowWaitCount = zeros(5, MAX_DATANODES);
 
+for i=1:MAX_DATANODES
+    videonode = traffic_video_stream(nVideoNodes, wMin, wMax, bps, [], []);
+    datanode = traffic_file_downloads(nFileNodes, wMin, wMax, nSizeTypes, nInterarrivalTypes, fileBigness, fileWaityness); 
 
-videonode = traffic_video_stream(nVideoNodes, wMin, wMax, bps, [], []);
-datanode = traffic_file_downloads(nFileNodes, wMin, wMax, nSizeTypes, nInterarrivalTypes, fileBigness, fileWaityness); 
+    sim = dcf_simulation('cachetest');
+    sim.nTimesteps = timesteps;
+    sim.params = simParams;
 
-sim1 = dcf_simulation('cachetest');
-sim1.nTimesteps = timesteps;
-sim1.params = simParams;
+    sim.AddNodegen( videonode );
+    
+    for j=1:i
+        sim.AddNodegen( datanode );
+    end
+    
+    sim.Run();
+    
+    nSimResults = size(sim.simResults,2);
+    for j=1:nSimResults
+        results = sim.simResults{j};
+        slowWaitQuality(j, i) = results.nodeSlowWaitQuality(1);
+        slowWaitCount(j, i) = results.nodeSlowWaitCount(1);
+    end
+end
 
-sim1.AddNodegen( videonode );
-sim1.AddNodegen( datanode );
-
-sim1.Run();
-
-%sim2 = dcf_simulation('cachetest');
-%sim2.nTimesteps = [100 200];
-%sim2.AddNodegen( datanode );
-%sim2.AddNodegen( videonode );
-%sim2.Run();
+slowWaitQuality

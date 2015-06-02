@@ -51,21 +51,5 @@ classdef simulation_run_results < handle
             
             this.label = sprintf('Var %d', this.variation);
         end
-        
-        function PlotWaitHistory(this, ~)
-            figure();
-            ax = axes;
-            
-            hold(ax, 'on');
-            plot(0);
-            for i=1:this.nNodes
-                plot(this.nodeWaitHistory{i});
-            end
-            hold(ax, 'off');
-            
-            title('Wait History');
-            xlabel('Packet #');
-            ylabel('Packet Delay (microseconds)');
-        end
     end
 end

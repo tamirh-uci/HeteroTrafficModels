@@ -62,7 +62,9 @@ classdef dcf_simulation < handle
         elapsedNewSim;
         elapsedRun;
         elapsedTotal;
-        
+    end
+    
+    properties
         simResults = {};
     end
     
