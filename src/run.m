@@ -2,8 +2,8 @@ run_set_path
 
 % Shared params
 simParams = dcf_simulation_params();
-timesteps = [100];
-simParams.pSingleSuccess = [0.15, 1.0];
+timesteps = 10000;
+simParams.pSingleSuccess = [0.20, 0.50, 1.0];
 
 % Video node stuff
 nVideoNodes = 1;

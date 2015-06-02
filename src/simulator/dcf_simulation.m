@@ -127,6 +127,7 @@ classdef dcf_simulation < handle
                 nodegen = this.nodegens{i};
                 
                 nodegen.PreCalc();
+                nv = nodegen.NumVariations()
                 this.ngSizes(i) = nodegen.NumVariations();
             end
             
