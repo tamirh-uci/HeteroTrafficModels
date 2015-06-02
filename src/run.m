@@ -1,9 +1,13 @@
 run_set_path
 
+% number of nodes in system
+MAX_DATANODES = 4;
+MAX_VIDNODES = 1;
+
 % Shared params
 simParams = dcf_simulation_params();
-timesteps = 10000;
-simParams.pSingleSuccess = [0.20, 0.50, 1.0];
+timesteps = 100;
+simParams.pSingleSuccess = [0.20, 0.40, 0.60, 0.80, 1.0];
 
 % Video node stuff
 nVideoNodes = 1;
@@ -17,6 +21,8 @@ fileBigness = 1.0;
 fileWaityness = 1.0;
 wMin = 8;
 wMax = 16;
+
+
 
 videonode = traffic_video_stream(nVideoNodes, wMin, wMax, bps, [], []);
 datanode = traffic_file_downloads(nFileNodes, wMin, wMax, nSizeTypes, nInterarrivalTypes, fileBigness, fileWaityness); 

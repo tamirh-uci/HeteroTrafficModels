@@ -19,6 +19,7 @@ classdef simulation_run_results < handle
         nodeDcfHistory;
         nodeSecHistory;
         nodeWaitHistory;
+        nodeTxHistory;
         
         nodeSlowWaitQuality;
         nodeSlowWaitCount;
@@ -33,6 +34,7 @@ classdef simulation_run_results < handle
             this.nodeWaitHistory = cell(1, this.nNodes);
             this.nodeSlowWaitQuality = zeros(1, this.nNodes);
             this.nodeSlowWaitCount = zeros(1, this.nNodes);
+            this.nodeTxHistory = cell(1, this.nNodes);
             
             for i=1:this.nNodes
                 history = this.nodeDcfHistory{i};
@@ -43,6 +45,8 @@ classdef simulation_run_results < handle
                 
                 this.nodeSlowWaitCount(i) = nnz(q);
                 this.nodeSlowWaitQuality(i) = sum(q);
+                
+                this.nodeTxHistory{i} = history.stateTypeHistory == dcf_state_type.Transmit;
             end
             
             this.label = sprintf('Var %d', this.variation);

@@ -127,7 +127,6 @@ classdef dcf_simulation < handle
                 nodegen = this.nodegens{i};
                 
                 nodegen.PreCalc();
-                nv = nodegen.NumVariations()
                 this.ngSizes(i) = nodegen.NumVariations();
             end
             
@@ -373,9 +372,9 @@ classdef dcf_simulation < handle
             save(filename, 'results');
         end
         
-        function figureCountOut = PlotWaitHistories(this, plotNode, figureCount, ~)
+        function figureCountOut = PlotTxHistories(this, plotNode, figureCount, nBins, ~)
             nSimResults = size(this.simResults, 2);
-           
+            
             figureCount = figureCount + 1;
             figure(figureCount);
             ax = axes;
@@ -384,14 +383,26 @@ classdef dcf_simulation < handle
             plot(0);
             for i=1:nSimResults
                simResult = this.simResults{i};
-               waitHistory = simResult.nodeWaitHistory{plotNode};
-               plot(waitHistory, 'Color', this.plotColors(i,:));
+               txHistory = double( simResult.nodeTxHistory{plotNode} );
+               binsize = floor( size(txHistory,2) / nBins );
+               
+               index = 1;
+               binnedHistory = zeros(1, nBins);
+               for j=1:nBins
+                   endIndex = index + binsize - 1;
+                   binnedHistory(j) = sum( txHistory(index:endIndex) );
+                   index = index + binsize;
+               end
+               
+               plot(binnedHistory, 'Color', this.plotColors(i,:));
             end
             hold(ax, 'off');
             
-            title('Wait History');
-            xlabel('Packet #');
-            ylabel('Packet Delay (microseconds)');
+            title('Transmit History');
+            xlabel('Percent time elapsed');
+            ylabel('Number packets transmitted');
+            savefig(fullfile( this.cacheFolder, 'txhistory.fig' ));
+            
             figureCountOut = figureCount;
         end
         
@@ -412,25 +423,27 @@ classdef dcf_simulation < handle
             figure(figureCount);
             ax = axes;
             hold(ax, 'on');
-            for (j = 1:nSimResults)
+            for j = 1:nSimResults
                 bar(j, nodeSlowWaitCount(j), 'FaceColor', this.plotColors(j,:));
             end
             hold(ax, 'off');
             title('Number of packets waiting over threshold');
             xlabel('Simulation Variation');
             ylabel('Packet Count');
+            savefig(fullfile( this.cacheFolder, 'nodeSlowWaitCount.fig' ));
             
             figureCount = figureCount + 1;
             figure(figureCount);
             ax = axes;
             hold(ax, 'on');
-            for (j = 1:nSimResults)
+            for j = 1:nSimResults
                 bar(j, nodeSlowWaitQuality(j), 'FaceColor', this.plotColors(j,:));
             end
             hold(ax, 'off');
             title('Time spent waiting over threshold');
             xlabel('Simulation Variation');
             ylabel('Time (microseconds)');
+            savefig(fullfile( this.cacheFolder, 'nodeSlowWaitQuality.fig' ));
             
             figureCountOut = figureCount;
         end
@@ -452,7 +465,7 @@ classdef dcf_simulation < handle
             this.PrepPlotData();
             
             figureCount = 0;
-            figureCount = this.PlotWaitHistories(1, figureCount, display);
+            figureCount = this.PlotTxHistories(1, figureCount, 25, display);
             figureCount = this.PlotThresholdBreakHistory(1, figureCount, display);
             
             fprintf('Plotted %d figures\n', figureCount);
