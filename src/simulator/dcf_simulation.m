@@ -15,6 +15,10 @@ classdef dcf_simulation < handle
     properties
         name;
         
+        qualityThresholdMicrosec = 50000; % 50 microseconds
+        plotColors;
+        plotLabels;
+        
         % if true, delete all previous run data for this setup
         cleanCache = false;
         
@@ -106,8 +110,6 @@ classdef dcf_simulation < handle
         end
         
         function nVariations = NumVariations(this)
-            
-            
             nVariations = this.nTimestepsSize * this.cartesianParams.NumVariations() * prod(this.ngSizes);
         end
         
@@ -234,7 +236,8 @@ classdef dcf_simulation < handle
                 this.cartesianParams.IncrementCartesianIndices();
                 
                 % loop over every nodegen variation combination
-                for iNodegenVariation = 1:prod( this.ngSizes )
+                nTotalNodegenVariations = prod( this.ngSizes );
+                for iNodegenVariation = 1:nTotalNodegenVariations
                     nSimulators = 1 + nSimulators;
                     
                     time = tic();
@@ -369,8 +372,89 @@ classdef dcf_simulation < handle
             save(filename, 'results');
         end
         
-        function PlotFigures(this, display)
+        function figureCountOut = PlotWaitHistories(this, plotNode, figureCount, ~)
+            nSimResults = size(this.simResults, 2);
+           
+            figureCount = figureCount + 1;
+            figure(figureCount);
+            ax = axes;
             
+            hold(ax, 'on');
+            plot(0);
+            for i=1:nSimResults
+               simResult = this.simResults{i};
+               waitHistory = simResult.nodeWaitHistory{plotNode};
+               plot(waitHistory, 'Color', this.plotColors(i,:));
+            end
+            hold(ax, 'off');
+            
+            title('Wait History');
+            xlabel('Packet #');
+            ylabel('Packet Delay (microseconds)');
+            figureCountOut = figureCount;
+        end
+        
+        function figureCountOut = PlotThresholdBreakHistory(this, plotNode, figureCount, ~)
+            nSimResults = size(this.simResults, 2);
+            nodeSlowWaitCount = zeros(1, nSimResults);
+            nodeSlowWaitQuality = zeros(1, nSimResults);
+            
+            for i=1:nSimResults
+                simResult = this.simResults{i};
+                
+                % We only care about node 1, our video node
+                nodeSlowWaitCount(i) = simResult.nodeSlowWaitCount(plotNode);
+                nodeSlowWaitQuality(i) = simResult.nodeSlowWaitQuality(plotNode);
+            end
+            
+            figureCount = figureCount + 1;
+            figure(figureCount);
+            ax = axes;
+            hold(ax, 'on');
+            for (j = 1:nSimResults)
+                bar(j, nodeSlowWaitCount(j), 'FaceColor', this.plotColors(j,:));
+            end
+            hold(ax, 'off');
+            title('Number of packets waiting over threshold');
+            xlabel('Simulation Variation');
+            ylabel('Packet Count');
+            
+            figureCount = figureCount + 1;
+            figure(figureCount);
+            ax = axes;
+            hold(ax, 'on');
+            for (j = 1:nSimResults)
+                bar(j, nodeSlowWaitQuality(j), 'FaceColor', this.plotColors(j,:));
+            end
+            hold(ax, 'off');
+            title('Time spent waiting over threshold');
+            xlabel('Simulation Variation');
+            ylabel('Time (microseconds)');
+            
+            figureCountOut = figureCount;
+        end
+        
+        function PrepPlotData(this)
+            nSimResults = size(this.simResults, 2);
+            microsecPerTick = phys80211.TransactionTime(this.params.physical_type, this.params.physical_payload, this.params.physical_speed);
+            
+            for i=1:nSimResults
+                simResult = this.simResults{i};
+                simResult.PrepData(microsecPerTick, this.qualityThresholdMicrosec);
+                this.plotLabels{i} = simResult.label;
+            end
+            
+            this.plotColors = distinguishable_colors(nSimResults);
+        end
+        
+        function PlotFigures(this, display)
+            this.PrepPlotData();
+            
+            figureCount = 0;
+            figureCount = this.PlotWaitHistories(1, figureCount, display);
+            figureCount = this.PlotThresholdBreakHistory(1, figureCount, display);
+            
+            fprintf('Plotted %d figures\n', figureCount);
         end
     end
 end

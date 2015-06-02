@@ -5,23 +5,23 @@ function [ nodegen ] = traffic_video_stream(nNodes, wMin, wMax, bps, gopAnchorFr
     
     % user entered params
     if (~isempty(wMin))
-        nodegen.wMin = wMin;
+        nodegen.params.wMin = wMin;
     end
     
     if (~isempty(wMax))
-        nodegen.wMax = wMax;
+        nodegen.params.wMax = wMax;
     end
     
     if (~isempty(bps))
-        nodegen.bps = bps;
+        nodegen.params.bps = bps;
     end
     
     if (~isempty(gopAnchorFrameDistance))
-        nodegen.gopAnchorFrameDistance = gopAnchorFrameDistance;
+        nodegen.params.gopAnchorFrameDistance = gopAnchorFrameDistance;
     end
     
     if (~isempty(gopFullFrameDistance))
-        nodegen.gopFullFrameDistance = gopFullFrameDistance;
+        nodegen.params.gopFullFrameDistance = gopFullFrameDistance;
     end
     
     if (~isempty(nNodes))
@@ -29,5 +29,5 @@ function [ nodegen ] = traffic_video_stream(nNodes, wMin, wMax, bps, gopAnchorFr
     end
     
     % There is always a packet in the buffer
-    nodegen.pArrive = 1.0;
+    nodegen.params.pArrive = 1.0;
 end
