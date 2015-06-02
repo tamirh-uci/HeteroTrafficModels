@@ -23,8 +23,8 @@ wMin = 8;
 wMax = 16;
 
 nVariations = 5;
-slowWaitQuality = zeros(5, MAX_DATANODES);
-slowWaitCount = zeros(5, MAX_DATANODES);
+datanodeSlowWaitQuality = zeros(5, MAX_DATANODES);
+datanodeSlowWaitCount = zeros(5, MAX_DATANODES);
 
 for i=1:MAX_DATANODES
     videonode = traffic_video_stream(nVideoNodes, wMin, wMax, bps, [], []);
@@ -45,9 +45,35 @@ for i=1:MAX_DATANODES
     nSimResults = size(sim.simResults,2);
     for j=1:nSimResults
         results = sim.simResults{j};
-        slowWaitQuality(j, i) = results.nodeSlowWaitQuality(1);
-        slowWaitCount(j, i) = results.nodeSlowWaitCount(1);
+        datanodeSlowWaitQuality(j, i) = results.nodeSlowWaitQuality(1);
+        datanodeSlowWaitCount(j, i) = results.nodeSlowWaitCount(1);
     end
 end
+ 
+figure(1);
+ax = axes;
+hold(ax, 'on');
+plot(0);
+for i=1:nSimResults
+    simSlowWaitQuality = datanodeSlowWaitQuality(i,:);
+    plot(simSlowWaitQuality, 'Color', sim.plotColors(i,:));
+end
+hold(ax, 'off');
 
-slowWaitQuality
+title('Time spent waiting over threshold');
+xlabel('Number of data nodes');
+ylabel('Time (microseconds)');
+
+
+figure(2);
+ax = axes;
+hold(ax, 'on');
+plot(0);
+for i=1:nSimResults
+    simSlowWaitCount = datanodeSlowWaitCount(i,:);
+    plot(simSlowWaitCount, 'Color', sim.plotColors(i,:));
+end
+hold(ax, 'off');
+title('Number of packets waiting over threshold');
+xlabel('Simulation Variation');
+ylabel('Packet Count');
