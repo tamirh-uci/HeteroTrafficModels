@@ -466,11 +466,11 @@ classdef dcf_simulation < handle
         function PlotFigures(this, display)
             this.PrepPlotData();
             
-            figureCount = 2;
-            figureCount = this.PlotTxHistories(1, figureCount, 25, display);
-            figureCount = this.PlotThresholdBreakHistory(1, figureCount, display);
+            %figureCount = 2;
+            %figureCount = this.PlotTxHistories(1, figureCount, 25, display);
+            %figureCount = this.PlotThresholdBreakHistory(1, figureCount, display);
             
-            fprintf('Plotted %d figures\n', figureCount);
+            %fprintf('Plotted %d figures\n', figureCount);
         end
     end
 end

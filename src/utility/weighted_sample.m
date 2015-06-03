@@ -22,7 +22,7 @@ classdef weighted_sample < handle
         % Example: weighted probabilities = [0.25 0.25 0.5], precision = 8
         % Resulting indexing array = [1 1 2 2 3 3 3 3]
         function obj = weighted_sample(piIn)
-            PRECISION = 10000;
+            PRECISION = 25000;
             
             obj = obj@handle();
             obj.piIndexer = zeros(1,PRECISION);
