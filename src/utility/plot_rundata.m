@@ -18,4 +18,3 @@ function plot_rundata( figNum, figFile, figTitle, figYLabel, labels, plotColors,
         savefig(figFile);
     end
 end
-

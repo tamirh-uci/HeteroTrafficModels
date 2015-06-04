@@ -2,7 +2,7 @@ run_set_path
 
 % max number of nodes in system
 nDatanodes = 0;
-nVidnodes = 5;
+nVidnodes = 10;
 
 % Shared params
 simName = 'interference';

@@ -197,7 +197,7 @@ classdef dcf_simulation < handle
         end
         
         function Run(this)
-            fprintf('Setting up simulation for: %s\n', this.name);
+            fprintf('Setting up simulation for: %s (%d nodegens)\n', this.name, size(this.nodegens,2));
 
             time = tic();
             totalTime = time;
@@ -213,13 +213,28 @@ classdef dcf_simulation < handle
                 this.SimulationRun();
             end
             
-            
-            
             fprintf(' =Plotting Figures\n');
             this.PlotFigures(this.displayFigures);
             
             this.elapsedTotal = toc(totalTime);
-            fprintf(' =Total execution (%s): %f seconds\n', this.name, this.elapsedTotal);
+            this.elapsedTotal = 92;
+            
+            elapsedSec = this.elapsedTotal;
+            elapsedHour = floor( elapsedSec/3600);
+            
+            elapsedSec = elapsedSec - (elapsedHour * 3600);
+            elapsedMin = floor( elapsedSec/60 );
+            
+            elapsedSec = elapsedSec - (elapsedMin * 60);
+            
+            if (elapsedHour > 0)
+                fprintf(' =Total execution (%s): %.0f hours %.0f minutes %.0f seconds\n', this.name, elapsedHour, elapsedMin, elapsedSec);
+            elseif (elapsedMin > 0)
+                fprintf(' =Total execution (%s): %.0f minutes %.0f seconds\n', this.name, elapsedMin, elapsedSec);
+            else
+                fprintf(' =Total execution (%s): %.0f seconds\n', this.name, elapsedSec);
+            end
+            
             
             this.SaveRunData();
         end
