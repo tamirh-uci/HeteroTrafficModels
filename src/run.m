@@ -1,17 +1,24 @@
 run_set_path
 
+% Load in a real video file to test against
+vu = video_util();
+vu.setup();
+vu.nFrames = 800; % a bit over 30 seconds
+vu.prep();
+
 % max number of nodes in system
 nDatanodes = 0;
-nVidnodes = 10;
+nVidnodes = 1;
 
 % Shared params
-simName = 'interference';
+simName = 'mp4-interference';
 simParams = dcf_simulation_params();
-timesteps = 1000;
 simParams.pSingleSuccess = [0.20, 0.60, 1.0];
 
 % Video node stuff
-bps = 800000;
+% Grab values from our actual loaded file
+timesteps = vu.nPacketsSrcC; % how many packets we'll need for our video
+bps = vu.bpsSrcC;
 
 % File node stuff
 nSizeTypes = 1;

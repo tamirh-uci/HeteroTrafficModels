@@ -197,7 +197,7 @@ classdef dcf_simulation < handle
         end
         
         function Run(this)
-            fprintf('Setting up simulation for: %s (%d nodegens)\n', this.name, size(this.nodegens,2));
+            fprintf('Setting up simulation for: %s (%d nodegens %d timesteps)\n', this.name, size(this.nodegens,2), this.nTimesteps);
 
             time = tic();
             totalTime = time;
@@ -217,8 +217,6 @@ classdef dcf_simulation < handle
             this.PlotFigures(this.displayFigures);
             
             this.elapsedTotal = toc(totalTime);
-            this.elapsedTotal = 92;
-            
             elapsedSec = this.elapsedTotal;
             elapsedHour = floor( elapsedSec/3600);
             

@@ -3,32 +3,55 @@ classdef video_util < handle
     
     properties
         % http://www.h264info.com/clips.html
-        DEFAULT_FOLDER = 'C:\Users\rawkuts\Downloads\';
-        DEFAULT_FILE = 'serenity_hd_dvd_trailer.mp4';
+        DEFAULT_INPUT_FOLDER = 'C:\Users\rawkuts\Downloads\';
+        DEFAULT_OUTPUT_FOLDER = './../results/cache/video/';
+        DEFAULT_FILE = 'serenity_480p_dvd_trailer.mp4';
         DEFAULT_START_FRAME = 150;
-        DEFAULT_NFRAMES = 200;
+        DEFAULT_NFRAMES = 1000;
+        DEFAULT_PACKETSIZE = 1316;
+    end
+    
+    properties
+        fNameOrig;
+        fNameSrcU;
+        fNameSrcC;
+        fNameDstC;
+        frameStart;
+        nFrames;
+        nBytesPerPacket;
+        resDst;
+    end
+    
+    properties
+        nBytesSrcC;
+        nPacketsSrcC;
+        fpsSrcC;
+        bpsSrcC;
+        durationSrcC;
     end
     
     methods (Static)
-        function ffmpeg = ffmpeg_exe()
+        function exe = ffmpeg_exe()
             exe = 'E:\Downloads\ffmpeg-20150414-git-013498b-win64-static\bin\ffmpeg.exe';
         end
         
-        function xvid_encode()
+        function exe = xvid_encode()
             exe = 'C:\Users\rawkuts\Downloads\xvidcore\build\win32\bin\xvid_encraw.exe';
         end
         
-        function xvid_decode()
+        function exe = xvid_decode()
             exe = 'C:\Users\rawkuts\Downloads\xvidcore\build\win32\bin\xvid_decraw.exe';
         end
         
-        function [fNameOrig, fNameSrcU, fNameSrcC, fNameDstC] = subFilenames(folder, fNameIn, frameStart, nFrames)
-            fNameOrig = [folder fNameIn];
+        function [fNameOrig, fNameSrcU, fNameSrcC, fNameDstC] = subFilenames(folderIn, folderOut, fNameIn, frameStart, nFrames)
+            fNameOrig = fullfile(folderIn, fNameIn);
             
-            subsection = ['.' num2str(frameStart) '-' num2str(nFrames)];
-            fNameSrcU = [folder 'src_u_' fNameIn subsection '.avi'];
-            fNameSrcC = [folder 'src_c_' fNameIn subsection '.mp4'];
-            fNameDstC = [folder 'dst_c_' fNameIn subsection '.mp4'];
+            subsection = ['.' num2str(frameStart) '-' num2str(frameStart+nFrames-1)];
+            fNameSrcU = fullfile(folderOut, ['src_u_' fNameIn subsection '.avi']);
+            fNameSrcC = fullfile(folderOut, ['src_c_' fNameIn subsection '.mp4']);
+            fNameDstC = fullfile(folderOut, ['dst_c_' fNameIn subsection '.mp4']);
+            
+            [~, ~, ~] = mkdir(folderOut);
         end
         
         % Take input video and extract subset of frames and reencode
@@ -48,6 +71,11 @@ classdef video_util < handle
             
             if (exist(fNameSrcU, 'file') ~= 2)
                 fprintf('Generating uncompressed version of %s\n', fNameOrig);
+                
+                exe = sprintf('%s -i %s -s 320x240 %s', video_util.ffmpeg_exe(), srcFile, outputPrefix);
+                fprintf(' Running command: %s\n', exe);
+                system(exe);
+                
                 video_util.extractFrames(fNameOrig, fNameSrcU, 'Uncompressed AVI', frameStart, nFrames);
             else
                 fprintf('Uncompressed version of %s already exists, skipping\n', fNameOrig);
@@ -64,18 +92,18 @@ classdef video_util < handle
         
         % Mangle frames listed in badFrames
         % Input and output will be MPEG4 compressed data streams
-        function mangle(fNameSrcC, fNameDstC, ~, badPackets, packetSize)
+        function mangle(fNameSrcC, fNameDstC, ~, badPackets, packetsize)
             copyfile(fNameSrcC, fNameDstC, 'f');
             
             % Overwrite packets with zeros
-            data = zeros(1, packetSize);
+            data = zeros(1, this.nBytesPerPacket);
             
             % Open the destination as a byte stream
             dstFile = fopen(fNameDstC, 'r+');
             
             for badPkt = badPackets
                 % Override each bad packet with 0's
-                offset = (badPkt-1)*packetSize;
+                offset = (badPkt-1)*packetsize;
                 fseek(dstFile, offset, 'bof');
                 fwrite(dstFile, data, 'uint8');
             end
@@ -138,9 +166,9 @@ classdef video_util < handle
         function [vidData, height, width] = reader(fName, frameStart, nFramesOut)
             vidObj = VideoReader(fName);
             
-            nFrames = vidObj.NumberOfFrames;
+            frames = vidObj.NumberOfFrames;
             assert(frameStart >= 1);
-            assert((frameStart + nFramesOut - 1) <= nFrames);
+            assert((frameStart + nFramesOut - 1) <= frames);
             
             width = vidObj.Width;
             height = vidObj.Height;
@@ -154,11 +182,11 @@ classdef video_util < handle
         end
         
         function writer(vidData, vidObj)
-            nFrames = size(vidData, 2);
+            frames = size(vidData, 2);
             open(vidObj);
             
             % Dump frame data into video
-            for k = 1:nFrames
+            for k = 1:frames
                 vidObj.writeVideo(vidData(k).cdata);
             end
             
@@ -171,49 +199,59 @@ classdef video_util < handle
             obj = obj@handle();
         end
         
-        function test(this)
-            frameStart = this.DEFAULT_START_FRAME;
-            nFrames = this.DEFAULT_NFRAMES;
-            [fNameOrig, fNameSrcU, fNameSrcC, fNameDstC] = video_util.subFilenames(this.DEFAULT_FOLDER, this.DEFAULT_FILE, frameStart, nFrames);
+        function setup(this)
+            this.frameStart = this.DEFAULT_START_FRAME;
+            this.nFrames = this.DEFAULT_NFRAMES;
+            this.nBytesPerPacket = this.DEFAULT_PACKETSIZE;
+        end
+        
+        function prep(this)
+            [this.fNameOrig, this.fNameSrcU, this.fNameSrcC, this.fNameDstC] = video_util.subFilenames(this.DEFAULT_INPUT_FOLDER, this.DEFAULT_OUTPUT_FOLDER, this.DEFAULT_FILE, this.frameStart, this.nFrames);
+            video_util.prepInput(this.fNameOrig, this.fNameSrcU, this.fNameSrcC, this.frameStart, this.nFrames);
             
-            fprintf('\n=============PREP INPUT==============\n');
-            video_util.prepInput(fNameOrig, fNameSrcU, fNameSrcC, frameStart, nFrames);
+            fileInfoSrcC = dir(this.fNameSrcC);
+            this.nBytesSrcC = fileInfoSrcC.bytes;
+            this.nPacketsSrcC = ceil( this.nBytesSrcC / this.nBytesPerPacket );
             
-            fprintf('\n===============MANGLE================\n');
-            badPackets = 1000:1001;
-            packetSize = 1316;
-            
-            fprintf('\n=============TEST DIFF===============\n');
-            
-            i = 0;
-            while (i<3000)
-                badPackets = i;
-                i = i + 257;
+            vidObj = VideoReader(this.fNameSrcC);
+            this.fpsSrcC = vidObj.FrameRate;
+            this.durationSrcC = vidObj.Duration;
+            this.bpsSrcC = (this.nBytesSrcC * 8) / this.durationSrcC;
+        end
+        
+        function filename = getFile(this, type)
+            switch(type)
+                case 'sU'
+                    filename = this.fNameSrcU;
+                case 'sC'
+                    filename = this.fNameSrcC;
+                case 'dU'
+                    filename = this.fNameDstU;
+                case 'dC'
+                    filename = this.fNameDstC;
             end
+        end
+        
+        function [psnr, snr] = testMangle(this, badPackets, srcType, dstType)
+            video_util.mangle(this.fNameSrc, this.fNameDstC, this.nFrames, badPackets, this.nBytesPerPacket);
+            [psnr, snr] = video_util.test_diff( this.getFile(srcType), this.getFile(dstType), this.nFrames);
+        end
+        
+        function test(this)
+            this.setup();
+            this.prep();
             
             badPackets = 100:100;
-            video_util.mangle(fNameSrcC, fNameDstC, nFrames, badPackets, packetSize);
-            %[psnrUtoCC1, snrUtoCC1] = video_util.test_diff(fNameSrcU, fNameSrcC, nFrames);
-            %[psnrUtoMC1, snrUtoMC1] = video_util.test_diff(fNameSrcU, fNameDstC, nFrames);
-            [psnrCtoMC1, snrCtoMC1] = video_util.test_diff(fNameSrcC, fNameDstC, nFrames);
+            [psnrCtoMC1, snrCtoMC1] = this.testMangle(badPackets, 'sC', 'dC');
             
             badPackets = 101:101;
-            video_util.mangle(fNameSrcC, fNameDstC, nFrames, badPackets, packetSize);
-            %[psnrUtoCC2, snrUtoCC2] = video_util.test_diff(fNameSrcU, fNameSrcC, nFrames);
-            %[psnrUtoMC2, snrUtoMC2] = video_util.test_diff(fNameSrcU, fNameDstC, nFrames);
-            [psnrCtoMC2, snrCtoMC2] = video_util.test_diff(fNameSrcC, fNameDstC, nFrames);
+            [psnrCtoMC2, snrCtoMC2] = this.testMangle(badPackets, 'sC', 'dC');
             
             badPackets = 102:102;
-            video_util.mangle(fNameSrcC, fNameDstC, nFrames, badPackets, packetSize);
-            %[psnrUtoCC3, snrUtoCC3] = video_util.test_diff(fNameSrcU, fNameSrcC, nFrames);
-            %[psnrUtoMC3, snrUtoMC3] = video_util.test_diff(fNameSrcU, fNameDstC, nFrames);
-            [psnrCtoMC3, snrCtoMC3] = video_util.test_diff(fNameSrcC, fNameDstC, nFrames);
+            [psnrCtoMC3, snrCtoMC3] = this.testMangle(badPackets, 'sC', 'dC');
             
             badPackets = 100:100;
-            video_util.mangle(fNameSrcC, fNameDstC, nFrames, badPackets, packetSize);
-            %[psnrUtoCC4, snrUtoCC4] = video_util.test_diff(fNameSrcU, fNameSrcC, nFrames);
-            %[psnrUtoMC4, snrUtoMC4] = video_util.test_diff(fNameSrcU, fNameDstC, nFrames);
-            [psnrCtoMC4, snrCtoMC4] = video_util.test_diff(fNameSrcC, fNameDstC, nFrames);
+            [psnrCtoMC4, snrCtoMC4] = this.testMangle(badPackets, 'sC', 'dC');
             
             figure
             fprintf('Plotting...');
