@@ -23,6 +23,7 @@ classdef simulation_run_results < handle
         
         nodeSlowWaitQuality;
         nodeSlowWaitCount;
+        nodeSlowWaitIndices;
     end
     
     methods
@@ -35,16 +36,14 @@ classdef simulation_run_results < handle
             this.nodeSlowWaitQuality = zeros(1, this.nNodes);
             this.nodeSlowWaitCount = zeros(1, this.nNodes);
             this.nodeTxHistory = cell(1, this.nNodes);
+            this.nodeSlowWaitIndices = cell(1, this.nNodes);
             
             for i=1:this.nNodes
                 history = this.nodeDcfHistory{i};
                 this.nodeWaitHistory{i} = microsecPerTick * history.packetWaitHistory(1:history.currentPacketIndex);
-                
-                q = this.nodeWaitHistory{i};
-                q( q<qualityThresholdMicrosec ) = 0;
-                
-                this.nodeSlowWaitCount(i) = nnz(q);
-                this.nodeSlowWaitQuality(i) = sum(q);
+                this.nodeSlowWaitIndices{i} = find( this.nodeWaitHistory{i} >= qualityThresholdMicrosec );
+                this.nodeSlowWaitCount(i) = size(this.nodeSlowWaitIndices{i}, 2);
+                this.nodeSlowWaitQuality(i) = sum( this.nodeWaitHistory{i}(this.nodeSlowWaitIndices{i}) );
                 
                 this.nodeTxHistory{i} = history.stateTypeHistory == dcf_state_type.Transmit;
             end

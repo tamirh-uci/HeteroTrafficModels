@@ -8,12 +8,13 @@ vu.prep();
 
 % max number of nodes in system
 nDatanodes = 0;
-nVidnodes = 8;
+nVidnodes = 3;
 
 % Shared params
 simName = 'mp4-interference';
 simParams = dcf_simulation_params();
-simParams.pSingleSuccess = [0.20, 0.60, 1.0];
+%simParams.pSingleSuccess = [0.20, 0.60, 1.0];
+simParams.pSingleSuccess = [1.0];
 
 % Video node stuff
 % Grab values from our actual loaded file
@@ -41,8 +42,12 @@ labels = cell(1, nVariations);
 overThresholdCount = zeros( nSimulations, nVariations );
 overThresholdTime = zeros( nSimulations, nVariations );
 transferCount = zeros( nSimulations, nVariations, timesteps );
-mangledPsnr = cell(nSimulations, nVariations);
-mangledSnr = cell(nSimulations, nVariations);
+allMangledPsnr = cell(nSimulations, nVariations);
+allMangledSnr = cell(nSimulations, nVariations);
+meanMangledPsnr = zeros(nSimulations, nVariations);
+meanMangledSnr = zeros(nSimulations, nVariations);
+medMangledPsnr = zeros(nSimulations, nVariations);
+medMangledSnr = zeros(nSimulations, nVariations);
 
 r = results{1};
 for i=1:nVariations
@@ -76,8 +81,16 @@ for i=1:nSimulations
         overThresholdTime(i, j) = variationResults.nodeSlowWaitQuality(1);
         transferCount(i, j, :) = variationResults.nodeTxHistory{1};
         
-        badPacketIndices = variationResults.badPacketIndices(1);
-        [mangledPsnr{i, j}, mangledSnr{i, j}] = vu.testMangle(badPackets, 'sC', 'dC');
+        badPacketIndices = variationResults.nodeSlowWaitIndices{1};
+        [allMangledPsnr{i, j}, allMangledSnr{i, j}] = vu.testMangle(badPacketIndices, 'sC', 'dC');
+        
+        cleanPsnr = allMangledPsnr{i, j}( isfinite(allMangledPsnr{i, j}) );
+        cleanSnr = allMangledSnr{i, j}( isfinite(allMangledSnr{i, j}) );
+        
+        meanMangledPsnr(i, j) = mean(cleanPsnr);
+        meanMangledSnr(i, j) = mean(cleanSnr);
+        medMangledPsnr(i, j) = median(cleanPsnr);
+        medMangledSnr(i, j) = median(cleanSnr);
     end
 end
 
@@ -87,4 +100,14 @@ plot_rundata( 1, '', 'Time spent waiting over threshold', ...
 plot_rundata( 2, '', 'Packets waiting over threshold', ...
     'Packet Count', labels, plotColors, nVariations, nSimulations, overThresholdCount );
 
-% TODO: Plot PSNR
+plot_rundata( 3, '', 'Mean PSNR after dropped packets', ...
+    'PSNR', labels, plotColors, nVariations, nSimulations, meanMangledPsnr);
+
+plot_rundata( 4, '', 'Median SNR after dropped packets', ...
+    'PSNR', labels, plotColors, nVariations, nSimulations, medMangledPsnr);
+
+plot_rundata( 5, '', 'Mean SNR after dropped packets', ...
+    'SNR', labels, plotColors, nVariations, nSimulations, meanMangledSnr );
+
+plot_rundata( 6, '', 'Median SNR after dropped packets', ...
+    'SNR', labels, plotColors, nVariations, nSimulations, medMangledSnr );

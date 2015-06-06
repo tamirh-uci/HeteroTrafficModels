@@ -33,7 +33,7 @@ classdef video_util < handle
     methods (Static)
         function exe = ffmpeg_exe()
             %exe = 'E:\Downloads\ffmpeg-20150414-git-013498b-win64-static\bin\ffmpeg.exe';
-            exe = 'C:\Users\rawkuts\Downloads\ffmpeg-20150605-git-7be0f48-win64-static\bin';
+            exe = 'C:\Users\rawkuts\Downloads\ffmpeg-20150605-git-7be0f48-win64-static\bin\ffmpeg.exe';
         end
         
         function exe = xvid_encode()
@@ -88,20 +88,23 @@ classdef video_util < handle
         
         % Mangle frames listed in badFrames
         % Input and output will be MPEG4 compressed data streams
-        function mangle(fNameSrcC, fNameDstC, ~, badPackets, packetsize)
+        function mangle(fNameSrcC, fNameDstC, ~, badPackets, bytesPerPacket)
             copyfile(fNameSrcC, fNameDstC, 'f');
             
             % Overwrite packets with zeros
-            data = zeros(1, this.nBytesPerPacket);
+            data = zeros(1, bytesPerPacket);
             
             % Open the destination as a byte stream
             dstFile = fopen(fNameDstC, 'r+');
             
             for badPkt = badPackets
-                % Override each bad packet with 0's
-                offset = (badPkt-1)*packetsize;
-                fseek(dstFile, offset, 'bof');
-                fwrite(dstFile, data, 'uint8');
+                % Make sure the header stuff is all in tact
+                if (badPkt > 100)
+                    % Override each bad packet with 0's
+                    offset = (badPkt-1)*bytesPerPacket;
+                    fseek(dstFile, offset, 'bof');
+                    fwrite(dstFile, data, 'uint8');
+                end
             end
             
             fclose(dstFile);
@@ -229,7 +232,7 @@ classdef video_util < handle
         end
         
         function [psnr, snr] = testMangle(this, badPackets, srcType, dstType)
-            video_util.mangle(this.fNameSrc, this.fNameDstC, this.nFrames, badPackets, this.nBytesPerPacket);
+            video_util.mangle(this.fNameSrcC, this.fNameDstC, this.nFrames, badPackets, this.nBytesPerPacket);
             [psnr, snr] = video_util.test_diff( this.getFile(srcType), this.getFile(dstType), this.nFrames);
         end
         
