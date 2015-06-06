@@ -8,7 +8,7 @@ vu.prep();
 
 % max number of nodes in system
 nDatanodes = 0;
-nVidnodes = 1;
+nVidnodes = 8;
 
 % Shared params
 simName = 'mp4-interference';
@@ -17,7 +17,7 @@ simParams.pSingleSuccess = [0.20, 0.60, 1.0];
 
 % Video node stuff
 % Grab values from our actual loaded file
-timesteps = vu.nPacketsSrcC; % how many packets we'll need for our video
+timesteps = 10 * vu.nPacketsSrcC; % how many packets we'll need for our video (assume pretty good conditions)
 bps = vu.bpsSrcC;
 
 % File node stuff
@@ -41,6 +41,8 @@ labels = cell(1, nVariations);
 overThresholdCount = zeros( nSimulations, nVariations );
 overThresholdTime = zeros( nSimulations, nVariations );
 transferCount = zeros( nSimulations, nVariations, timesteps );
+mangledPsnr = cell(nSimulations, nVariations);
+mangledSnr = cell(nSimulations, nVariations);
 
 r = results{1};
 for i=1:nVariations
@@ -73,6 +75,9 @@ for i=1:nSimulations
         overThresholdCount(i, j) = variationResults.nodeSlowWaitCount(1);
         overThresholdTime(i, j) = variationResults.nodeSlowWaitQuality(1);
         transferCount(i, j, :) = variationResults.nodeTxHistory{1};
+        
+        badPacketIndices = variationResults.badPacketIndices(1);
+        [mangledPsnr{i, j}, mangledSnr{i, j}] = vu.testMangle(badPackets, 'sC', 'dC');
     end
 end
 
@@ -82,15 +87,4 @@ plot_rundata( 1, '', 'Time spent waiting over threshold', ...
 plot_rundata( 2, '', 'Packets waiting over threshold', ...
     'Packet Count', labels, plotColors, nVariations, nSimulations, overThresholdCount );
 
-%figure(3);
-%ax = axes;
-%hold(ax, 'on');
-%plot(0);
-%for j=1:nVariations
-%    simTransferCount= transferCount(:,j);
-%    plot(simTransferCount, 'Color', plotColors(j,:));
-%end
-%hold(ax, 'off');
-%title('Total data transferred by main node');
-%xlabel('Number of nodes');
-%ylabel('Packet Count');
+% TODO: Plot PSNR
