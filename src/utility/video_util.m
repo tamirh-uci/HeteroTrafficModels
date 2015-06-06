@@ -5,7 +5,7 @@ classdef video_util < handle
         % http://www.h264info.com/clips.html
         DEFAULT_INPUT_FOLDER = 'C:\Users\rawkuts\Downloads\';
         DEFAULT_OUTPUT_FOLDER = './../results/cache/video/';
-        DEFAULT_FILE = 'serenity_480p_dvd_trailer.mp4';
+        DEFAULT_FILE = 'serenity_480p_trailer.mp4';
         DEFAULT_START_FRAME = 150;
         DEFAULT_NFRAMES = 1000;
         DEFAULT_PACKETSIZE = 1316;
@@ -32,7 +32,8 @@ classdef video_util < handle
     
     methods (Static)
         function exe = ffmpeg_exe()
-            exe = 'E:\Downloads\ffmpeg-20150414-git-013498b-win64-static\bin\ffmpeg.exe';
+            %exe = 'E:\Downloads\ffmpeg-20150414-git-013498b-win64-static\bin\ffmpeg.exe';
+            exe = 'C:\Users\rawkuts\Downloads\ffmpeg-20150605-git-7be0f48-win64-static\bin';
         end
         
         function exe = xvid_encode()
@@ -71,11 +72,6 @@ classdef video_util < handle
             
             if (exist(fNameSrcU, 'file') ~= 2)
                 fprintf('Generating uncompressed version of %s\n', fNameOrig);
-                
-                exe = sprintf('%s -i %s -s 320x240 %s', video_util.ffmpeg_exe(), srcFile, outputPrefix);
-                fprintf(' Running command: %s\n', exe);
-                system(exe);
-                
                 video_util.extractFrames(fNameOrig, fNameSrcU, 'Uncompressed AVI', frameStart, nFrames);
             else
                 fprintf('Uncompressed version of %s already exists, skipping\n', fNameOrig);
