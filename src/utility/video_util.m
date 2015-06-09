@@ -3,12 +3,12 @@ classdef video_util < handle
     
     properties
         % http://www.h264info.com/clips.html
-        DEFAULT_INPUT_FOLDER = 'C:\Users\rawkuts\Downloads\';
+        DEFAULT_INPUT_FOLDER = './../results/';
         DEFAULT_OUTPUT_FOLDER = './../results/cache/video/';
         DEFAULT_FILE = 'serenity_480p_trailer.mp4';
         DEFAULT_START_FRAME = 150;
         DEFAULT_NFRAMES = 1000;
-        DEFAULT_PACKETSIZE = 1316;
+        DEFAULT_PACKETSIZE = 1500;
     end
     
     properties
@@ -32,8 +32,8 @@ classdef video_util < handle
     
     methods (Static)
         function exe = ffmpeg_exe()
-            %exe = 'E:\Downloads\ffmpeg-20150414-git-013498b-win64-static\bin\ffmpeg.exe';
-            exe = 'C:\Users\rawkuts\Downloads\ffmpeg-20150605-git-7be0f48-win64-static\bin\ffmpeg.exe';
+            exe = 'E:\Downloads\ffmpeg-20150414-git-013498b-win64-static\bin\ffmpeg.exe';
+            %exe = 'C:\Users\rawkuts\Downloads\ffmpeg-20150605-git-7be0f48-win64-static\bin\ffmpeg.exe';
         end
         
         function exe = xvid_encode()
@@ -91,8 +91,8 @@ classdef video_util < handle
         function mangle(fNameSrcC, fNameDstC, ~, badPackets, bytesPerPacket)
             copyfile(fNameSrcC, fNameDstC, 'f');
             
-            % Overwrite packets with zeros
-            data = zeros(1, bytesPerPacket);
+            % Overwrite portion of packet with zeros
+            data = zeros(1, floor(0.1 * bytesPerPacket));
             
             % Open the destination as a byte stream
             dstFile = fopen(fNameDstC, 'r+');
@@ -110,13 +110,37 @@ classdef video_util < handle
             fclose(dstFile);
         end
         
-        function [peaksnr, snr] = psnr_pics(srcPrefix, dstPrefix, nFrames)
+        function [peaksnr, snr, ssim] = psnr_pics(srcPrefix, dstPrefix, nFrames)
             peaksnr = zeros(1, nFrames);
             snr = zeros(1, nFrames);
+            similarity = zeros(1, nFrames);
+            
             for i=1:nFrames
+                loaded = false;
                 src = imread( sprintf('%s_%08d.png', srcPrefix, i) );
-                dst = imread( sprintf('%s_%08d.png', dstPrefix, i) );
-                [peaksnr(i), snr(i)] = psnr(dst, src);
+                
+                try
+                    dst = imread( sprintf('%s_%08d.png', dstPrefix, i) );
+                    loaded = true;
+                catch
+                end
+                
+                % If we couldn't load the destination image, try just using
+                % the 1st frame of source as reference
+                try
+                    dst = imread( sprintf('%s_%08d.png', srcPrefix, 1) );
+                catch
+                    % finally just give up and set values to NaN
+                    peaksnr(i) = NaN;
+                    snr(i) = NaN;
+                    similarity(i) = NaN;
+                    printf('ERROR: Frame %d was not encoded');
+                end
+                
+                if (loaded)
+                    [peaksnr(i), snr(i)] = psnr(dst, src);
+                    %[ssim(i), ~] = ssim(dst, src);
+                end
             end
         end
         

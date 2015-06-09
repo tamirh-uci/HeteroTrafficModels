@@ -49,7 +49,7 @@ classdef dcf_simulator < handle
             obj.cachedFailure = -1;
             obj.cachedWait = -1;
             obj.cachedInvalid = -1;
-            
+
             if (obj.pSuccessMultiTransmit > 0.5)
                 fprintf('Are you sure you wanted the chance of success with multiple nodes transmitting at the SAME TIME to be so high?\n');
                 fprintf('In other words, pSuccessMultiTransmit is the chance of SUCCESS with multiple transmits (usually its zero)\n');

@@ -1,7 +1,8 @@
-function [ simResults, plotColors ] = run_single_sim( name, timesteps, simParams, dataParams, vidParams, nData, nVid )
+function [ simResults, plotColors ] = run_single_sim( name, timesteps, simParams, dataParams, vidParams, vidUtil, nData, nVid )
     sim = dcf_simulation(name);
     sim.nTimesteps = timesteps;
     sim.params = simParams;
+    sim.vidUtil = vidUtil;
 
     for vidNodeIndex=1:nVid
         sim.AddNodegen( vidParams );

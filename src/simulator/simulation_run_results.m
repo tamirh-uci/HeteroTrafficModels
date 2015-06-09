@@ -24,6 +24,9 @@ classdef simulation_run_results < handle
         nodeSlowWaitQuality;
         nodeSlowWaitCount;
         nodeSlowWaitIndices;
+        
+        allMangledPsnr;
+        allMangledSnr;
     end
     
     methods

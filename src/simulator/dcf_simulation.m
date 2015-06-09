@@ -16,6 +16,8 @@ classdef dcf_simulation < handle
         name;
         
         qualityThresholdMicrosec = 50000; % 50 microseconds
+        vidUtil;
+        
         plotColors;
         plotLabels;
         
@@ -25,10 +27,12 @@ classdef dcf_simulation < handle
         loadSetupCache = true;
         loadStepsCache = true;
         loadResultsCache = true;
+        loadVidResultsCache = true;
         
         saveSetupCache = true;
         saveStepsCache = true;
         saveResultsCache = true;
+        saveVidResultsCache = true;
         
         displayFigures = true;
         
@@ -213,8 +217,17 @@ classdef dcf_simulation < handle
                 this.SimulationRun();
             end
             
-            fprintf(' =Plotting Figures\n');
-            this.PlotFigures(this.displayFigures);
+            this.PrepPlotData();
+            
+            if (this.loadVidResultsCache && this.LoadVidResults())
+                fprintf(' =Loaded video simulation, skipping operations\n');
+            else
+                this.SimulateVideoMangling();
+            end
+            
+            if (this.saveResultsCache)
+                this.SaveSimulationRunResults();
+            end
             
             this.elapsedTotal = toc(totalTime);
             elapsedSec = this.elapsedTotal;
@@ -232,7 +245,6 @@ classdef dcf_simulation < handle
             else
                 fprintf(' =Total execution (%s): %.0f seconds\n', this.name, elapsedSec);
             end
-            
             
             this.SaveRunData();
         end
@@ -276,11 +288,23 @@ classdef dcf_simulation < handle
                 end
             end
             
-            if (this.saveResultsCache)
-                this.SaveSimulationRunResults();
-            end
+            
         end % run()
 
+        function SimulateVideoMangling(this)
+            nParamVariations = this.cartesianParams.NumVariations();
+            for iParamVariation = 1:nParamVariations
+                simResult = this.simResults{iParamVariation};
+                
+                badPacketIndices = simResult.nodeSlowWaitIndices{1};
+                [simResult.allMangledPsnr, simResult.allMangledSnr] = this.vidUtil.testMangle(badPacketIndices, 'sC', 'dC');
+            end
+            
+            if (this.saveVidResultsCache)
+                this.SaveVidResults();
+            end
+        end
+        
         function SaveRunData(this)
             setupTime = this.elapsedSetup;
             newSimTime = this.elapsedNewSim;
@@ -379,12 +403,44 @@ classdef dcf_simulation < handle
             end
         end
         
+        function isLoaded = LoadVidResults(this)
+            filename = fullfile( this.cacheFolder, 'vidresults.mat' );
+            
+            vidresults = [];
+            isLoaded = false;
+            if( exist(filename, 'file')==2 )
+                try
+                    load(filename);
+                    isLoaded = true;
+                catch err
+                    err
+                    isLoaded = false;
+                end
+            end
+            
+            if (isempty(vidresults))
+                isLoaded = false;
+            end
+            
+            if (vidresults ~= 1)
+                isLoaded = false;
+            end
+        end
+        
         function SaveSimulationRunResults(this)
             filename = fullfile( this.cacheFolder, 'results.mat' );
             
             results = this.simResults;
             assert( ~isempty(results) );
             save(filename, 'results');
+        end
+        
+        function SaveVidResults(this)
+            filename = fullfile( this.cacheFolder, 'vidresults.mat' );
+            
+            vidresults = 1;
+            assert( ~isempty(vidresults) );
+            save(filename, 'vidresults');
         end
         
         function figureCountOut = PlotTxHistories(this, plotNode, figureCount, nBins, ~)
@@ -474,16 +530,6 @@ classdef dcf_simulation < handle
             end
             
             this.plotColors = distinguishable_colors(nSimResults);
-        end
-        
-        function PlotFigures(this, display)
-            this.PrepPlotData();
-            
-            %figureCount = 2;
-            %figureCount = this.PlotTxHistories(1, figureCount, 25, display);
-            %figureCount = this.PlotThresholdBreakHistory(1, figureCount, display);
-            
-            %fprintf('Plotted %d figures\n', figureCount);
         end
     end
 end
