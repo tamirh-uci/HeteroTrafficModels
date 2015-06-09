@@ -69,7 +69,10 @@ classdef phys80211 < handle
                 case phys80211_type.A % 1.5-54 Mbit
                     min = 1500000;
                     max = 54000000;
-                case phys80211_type.G % 1-54 Mbit
+                case phys80211_type.G_short % 1-54 Mbit
+                    min = 1000000;
+                    max = 54000000;
+                case phys80211_type.G_long % 1-54 Mbit
                     min = 1000000;
                     max = 54000000;
                 case phys80211_type.N24 % 1-600 Mbit
@@ -96,7 +99,9 @@ classdef phys80211 < handle
                     time = 192;
                 case phys80211_type.A
                     time = 20;
-                case phys80211_type.G
+                case phys80211_type.G_short
+                    time = 20;
+                case phys80211_type.G_long
                     time = 20;
                 case phys80211_type.N24
                     time = 20;
@@ -119,7 +124,9 @@ classdef phys80211 < handle
                     ack = 203;
                 case phys80211_type.A
                     ack = 24;
-                case phys80211_type.G
+                case phys80211_type.G_short
+                    ack = 24;
+                case phys80211_type.G_long
                     ack = 24;
                 case phys80211_type.N24
                     ack = 24;
@@ -141,7 +148,9 @@ classdef phys80211 < handle
                     sifs = 10;
                 case phys80211_type.A
                     sifs = 16;
-                case phys80211_type.G
+                case phys80211_type.G_short
+                    sifs = 10;
+                case phys80211_type.G_long
                     sifs = 10;
                 case phys80211_type.N24
                     sifs = 10;
