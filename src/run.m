@@ -8,13 +8,12 @@ vu.prep();
 
 % max number of nodes in system
 nDatanodes = 0;
-nVidnodes = 3;
+nVidnodes = 9;
 
 % Shared params
 simName = 'mp4-interference';
 simParams = dcf_simulation_params();
-%simParams.pSingleSuccess = [0.20, 0.60, 1.0];
-simParams.pSingleSuccess = [1.0];
+simParams.pSingleSuccess = [0.20, 0.60, 1.0];
 
 % Video node stuff
 % Grab values from our actual loaded file
@@ -94,20 +93,20 @@ for i=1:nSimulations
     end
 end
 
-plot_rundata( 1, '', 'Time spent waiting over threshold', ...
+plot_rundata( 1, sprintf('./../results/VN%d Time spent waiting over 50ms.fig', nVidnodes), 'Time spent waiting over threshold', ...
     'Time (microseconds)', labels, plotColors, nVariations, nSimulations, overThresholdTime );
 
-plot_rundata( 2, '', 'Packets waiting over threshold', ...
+plot_rundata( 2, sprintf('./../results/VN%d Packets waiting over 50ms.fig', nVidnodes), 'Packets waiting over threshold', ...
     'Packet Count', labels, plotColors, nVariations, nSimulations, overThresholdCount );
 
-plot_rundata( 3, '', 'Mean PSNR after dropped packets', ...
+plot_rundata( 3, sprintf('./../results/VN%d Mean PSNR with dropped packets.fig', nVidnodes), 'Mean PSNR with dropped packets', ...
     'PSNR', labels, plotColors, nVariations, nSimulations, meanMangledPsnr);
 
-plot_rundata( 4, '', 'Median SNR after dropped packets', ...
+plot_rundata( 4, sprintf('./../results/VN%d Median PSNR with dropped packets.fig', nVidnodes), 'Median PSNR with dropped packets', ...
     'PSNR', labels, plotColors, nVariations, nSimulations, medMangledPsnr);
 
-plot_rundata( 5, '', 'Mean SNR after dropped packets', ...
+plot_rundata( 5, sprintf('./../results/VN%d Mean SNR with dropped packets.fig', nVidnodes), 'Mean SNR with dropped packets', ...
     'SNR', labels, plotColors, nVariations, nSimulations, meanMangledSnr );
 
-plot_rundata( 6, '', 'Median SNR after dropped packets', ...
+plot_rundata( 6, sprintf('./../results/VN%d Median SNR with dropped packets.fig', nVidnodes), 'Median SNR with dropped packets', ...
     'SNR', labels, plotColors, nVariations, nSimulations, medMangledSnr );
