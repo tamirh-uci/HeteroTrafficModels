@@ -49,9 +49,9 @@ classdef markov_history < handle
         end
         
         function tx = CurrentTransition(this)
-            if( this.prevStateIndex < 1 || this.currentStateIndex < 1 )
-                fprintf('Not good: prevIndex=%d, currentIndex=%d', this.prevStateIndex, this.currentStateIndex);
-            end
+            %if( this.prevStateIndex < 1 || this.currentStateIndex < 1 )
+            %    fprintf('Not good: prevIndex=%d, currentIndex=%d', this.prevStateIndex, this.currentStateIndex);
+            %end
             
             tx = this.txTypes(this.prevStateIndex, this.currentStateIndex);
         end
@@ -73,7 +73,7 @@ classdef markov_history < handle
         end
         
         function SetupSteps(this, nSteps)
-            assert( size(this.indexHistory,2)==0 );
+            assert( size(this.indexHistory, 2)==0 );
             this.indexHistory = zeros(1, nSteps);
             this.packetWaitHistory = zeros(1, nSteps);
             
@@ -102,7 +102,7 @@ classdef markov_history < handle
         % bPrevAsCurrent=true : travel from previous state
         % bPrevAsCurrent=false: travel from current state (normal)
         function Step(this, pi, bPrevAsCurrent)
-            assert(size(pi,2)==size(this.txTypes,2));
+            %assert(size(pi,2)==size(this.txTypes,2));
             
             % find the probability to go to all other states from this one
             if (bPrevAsCurrent)
@@ -201,7 +201,7 @@ classdef markov_history < handle
         end
         
         function CalculateTransitionHistory(this)
-            nTransitions = size(this.indexHistory,2) - 1;
+            nTransitions = size(this.indexHistory, 2) - 1;
             this.transitionHistory = zeros(1, nTransitions+1);
             
             for i=1:nTransitions
@@ -214,7 +214,7 @@ classdef markov_history < handle
         end
         
         function CalculateStateHistory(this)
-            nStates = size(this.indexHistory,2);
+            nStates = size(this.indexHistory, 2);
             this.stateTypeHistory = zeros(1,nStates);
             this.stateTypeHistory = this.stateTypes( this.indexHistory );
         end

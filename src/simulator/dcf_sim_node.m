@@ -266,7 +266,8 @@ classdef dcf_sim_node < handle
         end
         
         function bTransmitting = IsTransmitting(this)
-            bTransmitting = sum(this.dcfHist.CurrentTransition() == this.txSuccessTypes) > 0;
+            %bTransmitting = sum(this.dcfHist.CurrentTransition() == this.txSuccessTypes) > 0;
+            bTransmitting = any(this.dcfHist.CurrentTransition() == this.txSuccessTypes);
         end
         
         function Step(this)
@@ -284,7 +285,6 @@ classdef dcf_sim_node < handle
         
         function SetupSteps(this, nStepsTotal)
             this.dcfHist.SetupSteps(nStepsTotal);
-            
             if (this.hasSecondary)
                 this.secHist.SetupSteps(nStepsTotal);
             end

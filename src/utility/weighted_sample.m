@@ -22,10 +22,10 @@ classdef weighted_sample < handle
         % Example: weighted probabilities = [0.25 0.25 0.5], precision = 8
         % Resulting indexing array = [1 1 2 2 3 3 3 3]
         function obj = weighted_sample(piIn)
-            PRECISION = 25000;
+            PRECISION = 32768;
             
             obj = obj@handle();
-            obj.piIndexer = zeros(1,PRECISION);
+            obj.piIndexer = zeros(1, PRECISION);
             obj.piPrecision = PRECISION;
             
             % Loop through our probabilities, mapping them onto indices
@@ -57,20 +57,21 @@ classdef weighted_sample < handle
             obj.piIndexer(indexerEnd:PRECISION) = lastValidIndex;
             
             % Verify all indicies are valid
-            for i=1:PRECISION
-                index = obj.piIndexer(i);
-                if( index <= 0 || index > maxIndex || piIn(index) <= 0 )
-                    fprintf('fast indexer creation failed\n');
-                end
-                
-                assert(index > 0);
-                assert(index <= maxIndex);
-                assert(piIn(index) > 0);
-            end
+            % Expensive operation, commented out for since it seems to work
+%             for i=1:PRECISION
+%                 index = obj.piIndexer(i);
+%                 if( index <= 0 || index > maxIndex || piIn(index) <= 0 )
+%                     fprintf('fast indexer creation failed\n');
+%                 end
+%                 
+%                 assert(index > 0);
+%                 assert(index <= maxIndex);
+%                 assert(piIn(index) > 0);
+%             end
         end
         
         function index = sample(this)
-            index = this.piIndexer( randi(this.piPrecision) );
+            index = this.piIndexer(randi(this.piPrecision));
         end
     end
 end
