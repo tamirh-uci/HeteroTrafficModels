@@ -8,6 +8,7 @@ vu.prep();
 
 doVideoMangle = false;
 slotsPerVPacket = 5;
+qualityThresholdMicrosec = 50000; % 50 miliseconds
 
 % max number of nodes in system
 nDatanodes = 0;
@@ -32,12 +33,16 @@ fileWaityness = 1.0;
 wMin = 8;
 wMax = 16;
 
+channelBps = phys80211.EffectiveMaxDatarate(simParams.physical_type, simParams.physical_payload, simParams.physical_speed, 1);
+fprintf('%s Channel Speed: %.2fMbps (%d bps)\n', phys80211.Name(simParams.physical_type), (channelBps/1000000), channelBps);
+fprintf('Video node: %.2fMbps (%d bps)\n', (bps/1000000), bps);
+
 vidParams = traffic_video_stream(1, wMin, wMax, bps, [], []);
 dataParams = traffic_file_downloads(1, wMin, wMax, nSizeTypes, nInterarrivalTypes, fileBigness, fileWaityness);
 
 nSimulations = max(nDatanodes, 1) * max(nVidnodes, 1);
 results = cell( 1, nSimulations );
-[results{1}, plotColors] = run_single_sim( simName, timesteps, simParams, dataParams, vidParams, vu, doVideoMangle, max(0,nDatanodes), 1 );
+[results{1}, plotColors] = run_single_sim( simName, timesteps, simParams, dataParams, vidParams, vu, doVideoMangle, qualityThresholdMicrosec, max(0,nDatanodes), 1 );
 nVariations = size(results{1,1}, 2);
 nNodes = zeros(1, nSimulations);
 labels = cell(1, nVariations);
@@ -71,14 +76,14 @@ if (nDatanodes > 0)
     for vi=1:nVidnodes
         for di=1:nDatanodes
             nNodes(simIndex) = vi + di;
-            [results{simIndex}, ~] = run_single_sim( simName, timesteps, simParams, dataParams, vidParams, vu, doVideoMangle, di, vi );
+            [results{simIndex}, ~] = run_single_sim( simName, timesteps, simParams, dataParams, vidParams, vu, doVideoMangle, qualityThresholdMicrosec, di, vi );
             simIndex = simIndex + 1;
         end
     end
 else
     for vi=1:nVidnodes
         nNodes(simIndex) = vi;
-        [results{simIndex}, ~] = run_single_sim( simName, timesteps, simParams, dataParams, vidParams, vu, doVideoMangle, 0, vi );
+        [results{simIndex}, ~] = run_single_sim( simName, timesteps, simParams, dataParams, vidParams, vu, doVideoMangle, qualityThresholdMicrosec, 0, vi );
         simIndex = simIndex + 1;
     end
 end

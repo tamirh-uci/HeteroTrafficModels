@@ -15,7 +15,7 @@ classdef dcf_simulation < handle
     properties
         name;
         
-        qualityThresholdMicrosec = 50000; % 50 microseconds
+        qualityThreshold; % in microseconds
         vidUtil;
         
         plotColors;
@@ -524,7 +524,7 @@ classdef dcf_simulation < handle
             
             for i=1:nSimResults
                 simResult = this.simResults{i};
-                simResult.PrepData(microsecPerTick, this.qualityThresholdMicrosec);
+                simResult.PrepData(microsecPerTick, this.qualityThreshold);
                 this.plotLabels{i} = simResult.label;
             end
             

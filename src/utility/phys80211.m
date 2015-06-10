@@ -47,10 +47,33 @@ classdef phys80211 < handle
         % how fast individual transmissions send
         % given the system is working at %capacity of max
         % speed = [0,1] %capacity of max
-        % datarate = bits/second
+        % datarate (bits/second)
         function datarate = RawDatarate(type, speed)
-            [min, max] = phys80211.RawMinMaxDatarate(type);
-            datarate = speed * (max-min) + min;
+            [~, max] = phys80211.RawMinMaxDatarate(type);
+            datarate = speed * max;
+        end
+        
+        function name = Name(type)
+            switch(type)
+                case phys80211_type.FHSS % 1-2 Mbit
+                    name = '802.11 FHSS';
+                case phys80211_type.DHSS % 1-2 Mbit
+                    name = '802.11 DHSS';
+                case phys80211_type.B % 1-11 Mbit
+                    name = '802.11 B';
+                case phys80211_type.A % 1.5-54 Mbit
+                    name = '802.11 A';
+                case phys80211_type.G_short % 1-54 Mbit
+                    name = '802.11 G (short)';
+                case phys80211_type.G_long % 1-54 Mbit
+                    name = '802.11 G (long)';
+                case phys80211_type.N24 % 1-600 Mbit
+                    name = '802.11 N (24)';
+                case phys80211_type.N50 % 1-600 Mbit
+                    name = '802.11 N (24)';
+                case phys80211_type.AC % 1-500 Mbit
+                    name = '802.11 AC';
+            end
         end
         
         % how fast individual transmissions send 
