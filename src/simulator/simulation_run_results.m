@@ -27,6 +27,7 @@ classdef simulation_run_results < handle
         
         allMangledPsnr;
         allMangledSnr;
+        allMangledSSIM;
     end
     
     methods

@@ -200,7 +200,7 @@ classdef dcf_simulation < handle
             end
         end
         
-        function Run(this)
+        function Run(this, doVideoMangle)
             fprintf('Setting up simulation for: %s (%d nodegens %d timesteps)\n', this.name, size(this.nodegens,2), this.nTimesteps);
 
             time = tic();
@@ -219,10 +219,12 @@ classdef dcf_simulation < handle
             
             this.PrepPlotData();
             
-            if (this.loadVidResultsCache && this.LoadVidResults())
-                fprintf(' =Loaded video simulation, skipping operations\n');
-            else
-                this.SimulateVideoMangling();
+            if (doVideoMangle)
+                if (this.loadVidResultsCache && this.LoadVidResults())
+                    fprintf(' =Loaded video simulation, skipping operations\n');
+                else
+                    this.SimulateVideoMangling();
+                end
             end
             
             if (this.saveResultsCache)
@@ -252,8 +254,8 @@ classdef dcf_simulation < handle
         function SimulationRun(this)
             % loop over all of our possible variables
             fprintf(' =Running %d variations\n', this.nExpectedVariations);
-            nVariations = 0;
-            nSimulators = 0;
+            nVariations = int32(0);
+            nSimulators = int32(0);
             nParamVariations = this.cartesianParams.NumVariations();
             this.simResults = cell(1, nParamVariations);
             
@@ -281,14 +283,11 @@ classdef dcf_simulation < handle
                         this.RunSimInstance(simulator, thisNTimesteps, nVariations);
                         simulator.Reset();
                         this.elapsedRun(nVariations) = toc(time);
-
-                        fprintf('   -Running Variation %d of %d (size=%d): %f seconds\n', ...
-                            nVariations, this.nExpectedVariations, simulator.simSize, this.elapsedRun(nVariations));
+                        
+                        fprintf('   -Running Variation %d (size=%dx%d): %f seconds\n', nVariations, simulator.simSize(1), simulator.simSize(2), this.elapsedRun(nVariations));
                     end %nTimesteps
                 end
             end
-            
-            
         end % run()
 
         function SimulateVideoMangling(this)
@@ -297,7 +296,7 @@ classdef dcf_simulation < handle
                 simResult = this.simResults{iParamVariation};
                 
                 badPacketIndices = simResult.nodeSlowWaitIndices{1};
-                [simResult.allMangledPsnr, simResult.allMangledSnr] = this.vidUtil.testMangle(badPacketIndices, 'sC', 'dC');
+                [simResult.allMangledPsnr, simResult.allMangledSnr, simResult.allMangledSSIM] = this.vidUtil.testMangle(badPacketIndices, 'sC', 'dC');
             end
             
             if (this.saveVidResultsCache)

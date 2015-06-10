@@ -161,7 +161,7 @@ classdef video_util < handle
         end
         
         % Test the difference between two video files
-        function [peaksnr, snr] = test_diff(fNameSrc, fNameDst, nFrames)
+        function [peaksnr, snr, sims] = test_diff(fNameSrc, fNameDst, nFrames)
             fprintf('Calculating PSNR of %s...\n', fNameDst);
             
             % Dump temp files into a folder so we can delete it after
@@ -180,7 +180,7 @@ classdef video_util < handle
             video_util.vid_to_pics(fNameSrc, srcPrefix);
             video_util.vid_to_pics(fNameDst, dstPrefix);
             
-            [peaksnr, snr] = video_util.psnr_pics(srcPrefix, dstPrefix, nFrames);
+            [peaksnr, snr, sims] = video_util.psnr_pics(srcPrefix, dstPrefix, nFrames);
             
             % clean up our temp files
             rmdir(baseDir, 's');
@@ -255,9 +255,9 @@ classdef video_util < handle
             end
         end
         
-        function [psnr, snr] = testMangle(this, badPackets, srcType, dstType)
+        function [psnr, snr, sims] = testMangle(this, badPackets, srcType, dstType)
             video_util.mangle(this.fNameSrcC, this.fNameDstC, this.nFrames, badPackets, this.nBytesPerPacket);
-            [psnr, snr] = video_util.test_diff( this.getFile(srcType), this.getFile(dstType), this.nFrames);
+            [psnr, snr, sims] = video_util.test_diff( this.getFile(srcType), this.getFile(dstType), this.nFrames);
         end
         
         function test(this)
@@ -265,16 +265,16 @@ classdef video_util < handle
             this.prep();
             
             badPackets = 100:100;
-            [psnrCtoMC1, snrCtoMC1] = this.testMangle(badPackets, 'sC', 'dC');
+            [psnrCtoMC1, snrCtoMC1, simsMC1] = this.testMangle(badPackets, 'sC', 'dC');
             
             badPackets = 101:101;
-            [psnrCtoMC2, snrCtoMC2] = this.testMangle(badPackets, 'sC', 'dC');
+            [psnrCtoMC2, snrCtoMC2, simsMC2] = this.testMangle(badPackets, 'sC', 'dC');
             
             badPackets = 102:102;
-            [psnrCtoMC3, snrCtoMC3] = this.testMangle(badPackets, 'sC', 'dC');
+            [psnrCtoMC3, snrCtoMC3, simsMC3] = this.testMangle(badPackets, 'sC', 'dC');
             
             badPackets = 100:100;
-            [psnrCtoMC4, snrCtoMC4] = this.testMangle(badPackets, 'sC', 'dC');
+            [psnrCtoMC4, snrCtoMC4, simsMC4] = this.testMangle(badPackets, 'sC', 'dC');
             
             figure
             fprintf('Plotting...');
