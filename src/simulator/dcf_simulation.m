@@ -209,7 +209,7 @@ classdef dcf_simulation < handle
             this.SetupCache();
             
             this.elapsedSetup = toc(time);
-            fprintf(' =Setup: %f seconds\n', this.elapsedSetup);
+            fprintf(' =Setup: %.2f seconds\n', this.elapsedSetup);
             
             if (this.loadResultsCache && this.LoadSimulationRunResults())
                 fprintf(' =Loaded simulation run, skipping operations\n');
@@ -274,7 +274,7 @@ classdef dcf_simulation < handle
                     this.AddNodes(simulator);
                     this.NodegenIncrementCartesianIndices();
                     this.elapsedNewSim(nSimulators) = toc(time);
-                    fprintf('  +Generating new simulator: %f seconds\n', this.elapsedNewSim(nSimulators));
+                    fprintf('  +Generating new simulator: %.2f seconds\n', this.elapsedNewSim(nSimulators));
                     
                     for thisNTimesteps = this.nTimesteps
                         nVariations = 1 + nVariations;
@@ -284,7 +284,7 @@ classdef dcf_simulation < handle
                         simulator.Reset();
                         this.elapsedRun(nVariations) = toc(time);
                         
-                        fprintf('   -Running Variation %d (size=%dx%d): %f seconds\n', nVariations, simulator.simSize(1), simulator.simSize(2), this.elapsedRun(nVariations));
+                        fprintf('   -Running Variation %d (size=%dx%d): %.2f seconds\n', nVariations, simulator.simSize(1), simulator.simSize(2), this.elapsedRun(nVariations));
                     end %nTimesteps
                 end
             end
