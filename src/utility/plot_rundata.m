@@ -1,4 +1,4 @@
-function plot_rundata( figNum, subplotSize, subplotIndex, figFile, figTitle, figYLabel, labels, plotColors, nVariations, nSimulations, data )
+function plot_rundata( figNum, subplotSize, subplotIndex, figTitle, figYLabel, labels, plotColors, nVariations, nSimulations, data )
     figure(figNum);
     ax = subplot(subplotSize(1), subplotSize(2), subplotIndex);
     hold(ax, 'on');
@@ -13,8 +13,4 @@ function plot_rundata( figNum, subplotSize, subplotIndex, figFile, figTitle, fig
     xlabel(ax, 'Number of nodes');
     ylabel(ax, figYLabel);
     legend(ax, labels, 'Location', 'southeast');
-    
-    if (size(figFile, 2) > 1)
-        savefig(figFile);
-    end
 end
