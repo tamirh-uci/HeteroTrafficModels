@@ -11,19 +11,18 @@ slotsPerVPacket = 5;
 qualityThresholdMicrosec = 50000; % 50 miliseconds
 
 % max number of nodes in system
-nDatanodes = 0;
 nVidnodes = 2;
+nDatanodes = 0;
 
 % Shared params
 simName = 'mp4-interference';
 simParams = dcf_simulation_params();
-simParams.pSingleSuccess = [0.20, 0.60, 1.0];
+simParams.pSingleSuccess = [0.60, 0.80, 1.0];
 simParams.physical_type = phys80211_type.B;
 
 % Video node stuff
 % Grab values from our actual loaded file
 timesteps = slotsPerVPacket * vu.nPacketsSrcC; % how many packets we'll need for our video (assume pretty good conditions)
-bps = vu.bpsSrcC;
 
 % File node stuff
 nSizeTypes = 1;
@@ -33,11 +32,7 @@ fileWaityness = 1.0;
 wMin = 8;
 wMax = 16;
 
-channelBps = phys80211.EffectiveMaxDatarate(simParams.physical_type, simParams.physical_payload, simParams.physical_speed, 1);
-fprintf('%s Channel Speed: %.2fMbps (%d bps)\n', phys80211.Name(simParams.physical_type), (channelBps/1000000), channelBps);
-fprintf('Video node: %.2fMbps (%d bps)\n', (bps/1000000), bps);
-
-vidParams = traffic_video_stream(1, wMin, wMax, bps, [], []);
+vidParams = traffic_video_stream(1, wMin, wMax, vu.bpsSrcC, [], []);
 dataParams = traffic_file_downloads(1, wMin, wMax, nSizeTypes, nInterarrivalTypes, fileBigness, fileWaityness);
 
 nSimulations = max(nDatanodes, 1) * max(nVidnodes, 1);
@@ -119,31 +114,37 @@ end
 
 fprintf('Timesteps = %d\n', timesteps);
 
+channelBps = phys80211.EffectiveMaxDatarate(simParams.physical_type, simParams.physical_payload, simParams.physical_speed, 1);
+dataBps = (fileBigness/fileWaityness) * (channelBps/wMin);
+fprintf('%s Channel Speed: %.2fMbps\n', phys80211.Name(simParams.physical_type), (channelBps/1000000));
+fprintf('Desired Video Speed: %.2fMbps\n', (vu.bpsSrcC/1000000));
+fprintf('Desired Data Speed: %.2fMbps\n', (dataBps/1000000));
+
 nPlots = 1;
-plot_rundata( nPlots, sprintf('./../results/figures/VN%d Time spent waiting over 50ms.fig', nVidnodes), 'Time spent waiting over threshold (lower better)', ...
+plot_rundata( nPlots, [2 1], 1, sprintf('./../results/figures/VN%d Time spent waiting over 50ms.fig', nVidnodes), 'Time spent waiting over threshold (lower better)', ...
     'Time (microseconds)', labels, plotColors, nVariations, nSimulations, overThresholdTime );
 
-nPlots = nPlots + 1;
-plot_rundata( nPlots, sprintf('./../results/figures/VN%d Packets waiting over 50ms.fig', nVidnodes), 'Packets waiting over threshold (lower better)', ...
+plot_rundata( nPlots, [2 1], 2, sprintf('./../results/figures/VN%d Packets waiting over 50ms.fig', nVidnodes), 'Packets waiting over threshold (lower better)', ...
     'Packet Count', labels, plotColors, nVariations, nSimulations, overThresholdCount );
 
 if (doVideoMangle)
+    % PSNR
     nPlots = nPlots + 1;
-    plot_rundata( nPlots, sprintf('./../results/figures/VN%d Mean PSNR with dropped packets.fig', nVidnodes), 'Mean PSNR with dropped packets (lower better)', ...
+    plot_rundata( nPlots, [2 1], 1, sprintf('./../results/figures/VN%d Mean PSNR with dropped packets.fig', nVidnodes), 'Mean PSNR with dropped packets (lower better)', ...
         'PSNR', labels, plotColors, nVariations, nSimulations, meanMangledPsnr);
-
-    nPlots = nPlots + 1;
-    plot_rundata( nPlots, sprintf('./../results/figures/VN%d Median PSNR with dropped packets.fig', nVidnodes), 'Median PSNR with dropped packets (lower better)', ...
+    
+    plot_rundata( nPlots, [2 1], 2, sprintf('./../results/figures/VN%d Median PSNR with dropped packets.fig', nVidnodes), 'Median PSNR with dropped packets (lower better)', ...
         'PSNR', labels, plotColors, nVariations, nSimulations, medMangledPsnr);
 
+    % SNR
     nPlots = nPlots + 1;
-    plot_rundata( nPlots, sprintf('./../results/figures/VN%d Mean SNR with dropped packets.fig', nVidnodes), 'Mean SNR with dropped packets (lower better)', ...
+    plot_rundata( nPlots, [2 1], 1, sprintf('./../results/figures/VN%d Mean SNR with dropped packets.fig', nVidnodes), 'Mean SNR with dropped packets (lower better)', ...
         'SNR', labels, plotColors, nVariations, nSimulations, meanMangledSnr );
 
-    nPlots = nPlots + 1;
-    plot_rundata( nPlots, sprintf('./../results/figures/VN%d Median SNR with dropped packets.fig', nVidnodes), 'Median SNR with dropped packets (lower better)', ...
+    plot_rundata( nPlots, [2 1], 1, sprintf('./../results/figures/VN%d Median SNR with dropped packets.fig', nVidnodes), 'Median SNR with dropped packets (lower better)', ...
         'SNR', labels, plotColors, nVariations, nSimulations, medMangledSnr );
 
+    % SSIM
     nPlots = nPlots + 1;
     plot_rundata( nPlots, sprintf('./../results/figures/VN%d Median SSIM Similarity with dropped packets.fig', nVidnodes), 'Median SSIM Similarity with dropped packets(lower better)', ...
         'SNR', labels, plotColors, nVariations, nSimulations, medMangledSSIM );

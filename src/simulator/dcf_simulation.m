@@ -6,7 +6,7 @@ classdef dcf_simulation < handle
     % Timesteps are kept separate because we won't create a new simulation
     % object, we can just Reset() to call with different timesteps
     properties
-        nTimesteps = 100;
+        nTimesteps = 1000;
         
         params@dcf_simulation_params;
         cartesianParams@cartesian_params;
@@ -284,7 +284,7 @@ classdef dcf_simulation < handle
                         simulator.Reset();
                         this.elapsedRun(nVariations) = toc(time);
                         
-                        fprintf('   -Running Variation %d (size=%dx%d): %.2f seconds\n', nVariations, simulator.simSize(1), simulator.simSize(2), this.elapsedRun(nVariations));
+                        fprintf('   -Running Variation %d: %.2f seconds\n', nVariations, this.elapsedRun(nVariations));
                     end %nTimesteps
                 end
             end

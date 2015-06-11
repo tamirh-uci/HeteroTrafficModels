@@ -22,10 +22,9 @@ classdef weighted_sample < handle
         % Example: weighted probabilities = [0.25 0.25 0.5], precision = 8
         % Resulting indexing array = [1 1 2 2 3 3 3 3]
         function obj = weighted_sample(piIn)
-            PRECISION = 32768;
+            PRECISION = 25000;
             
             obj = obj@handle();
-            obj.piIndexer = zeros(1, PRECISION);
             obj.piPrecision = PRECISION;
             
             % Loop through our probabilities, mapping them onto indices
@@ -33,17 +32,24 @@ classdef weighted_sample < handle
             lastValidIndex = 1;
             maxIndex = size(piIn,2);
             
+            minP = min(piIn(piIn>0));
+            minPrecision = 2 * ceil( 1.0 / minP );
+            if (minPrecision > PRECISION)
+                obj.piPrecision = minPrecision;
+            end
+            obj.piIndexer = zeros(1, obj.piPrecision);
+            
             indexerStart = 0;
             indexerEnd = 1;
             for i=1:maxIndex
                 currentProbability = piIn(i);
                 if (currentProbability > 0)
-                    indexerEnd = floor( indexerStart + (currentProbability * PRECISION) );
+                    indexerEnd = floor( 0.5 + indexerStart + (currentProbability * obj.piPrecision) );
                     
                     % For very small probabilities we're restricted to
                     % 1/PRECISION chance
                     if (indexerStart==indexerEnd)
-                        fprintf('WARN: Probability %f rounded up to %f\n', currentProbability, 1.0/PRECISION);
+                        %fprintf('WARN: Probability %f rounded up to %f\n', currentProbability, 1.0/PRECISION);
                         indexerEnd = 1 + indexerStart;
                     end
                     
@@ -54,7 +60,7 @@ classdef weighted_sample < handle
             end
             
             % With leftover indices, map them onto the last valid index
-            obj.piIndexer(indexerEnd:PRECISION) = lastValidIndex;
+            obj.piIndexer(indexerEnd:obj.piPrecision) = lastValidIndex;
             
             % Verify all indicies are valid
             % Expensive operation, commented out for since it seems to work
