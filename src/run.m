@@ -63,11 +63,6 @@ for i=1:nVariations
     labels{i} = r{i}.label;
 end
 
-% TEMP OVERRIDE
-labels{1} = 'pSuccess=0.2';
-labels{2} = 'pSuccess=0.6';
-labels{3} = 'pSuccess=1.0';
-
 simIndex = 1;
 if (nDatanodes > 0)
     for vi=1:nVidnodes
@@ -151,6 +146,12 @@ plot_rundata( nPlots, [2 1], 2, 'Packets waiting over threshold (lower better)',
     'Packet Count', labels, plotColors, nVariations, nSimulations, overThresholdCount );
 savefig( sprintf('./../results/figures/VN%d Late Packets.fig', nVidnodes) );
 
+
+% TEMP OVERRIDE
+labels{1} = 'Video Node 1';
+labels{2} = 'Video Node 2';
+labels{3} = 'Data Node 1';
+
 % Data transfer
 for i=1:nSimulations
     nPlots = 1 + nPlots;
@@ -161,34 +162,36 @@ for i=1:nSimulations
         binned = txBinnedHistory{i,j};
         nNodes = size(binned, 1);
         
-        for k=1:nNodes
-            plot_timedata( nPlots, [nVariations 1], plotIndex, 'title', ...
-            'transfers', labels, plotColors, nVariations, nSimulations, binned(k,:));
-        end
+        plot_timedata( nPlots, [nVariations 1], plotIndex, 'title', ...
+            'transfers', labels, plotColors(nVariations+1:nVariations+nNodes,:), nNodes, nTxBins, binned);
     end
 end
 
+% TEMP OVERRIDE
+labels{1} = 'pSuccess=0.2';
+labels{2} = 'pSuccess=0.6';
+labels{3} = 'pSuccess=1.0';
 
 if (doVideoMangle)
     % PSNR
     nPlots = 1 + nPlots;
     plot_rundata( nPlots, [2 1], 1, 'Mean PSNR with dropped packets (lower better)', ...
-        'PSNR', labels, plotColors, nVariations, nSimulations, meanMangledPsnr);
+        'PSNR', labels, plotColors(1:nVariations,:), nVariations, nSimulations, meanMangledPsnr);
     plot_rundata( nPlots, [2 1], 2, 'Median PSNR with dropped packets (lower better)', ...
-        'PSNR', labels, plotColors, nVariations, nSimulations, medMangledPsnr);
+        'PSNR', labels, plotColors(1:nVariations,:), nVariations, nSimulations, medMangledPsnr);
     savefig( sprintf('./../results/figures/VN%d PSNR.fig', nVidnodes) );
 
     % SNR
     nPlots = 1 + nPlots;
     plot_rundata( nPlots, [2 1], 1, 'Mean SNR with dropped packets (lower better)', ...
-        'SNR', labels, plotColors, nVariations, nSimulations, meanMangledSnr );
+        'SNR', labels, plotColors(1:nVariations,:), nVariations, nSimulations, meanMangledSnr );
     plot_rundata( nPlots, [2 1], 1, 'Median SNR with dropped packets (lower better)', ...
-        'SNR', labels, plotColors, nVariations, nSimulations, medMangledSnr );
+        'SNR', labels, plotColors(1:nVariations,:), nVariations, nSimulations, medMangledSnr );
     savefig( sprintf('./../results/figures/VN%d SNR.fig', nVidnodes) );
 
     % SSIM
     nPlots = 1 + nPlots;
     plot_rundata( nPlots, 'Median SSIM Similarity with dropped packets(lower better)', ...
-        'SNR', labels, plotColors, nVariations, nSimulations, medMangledSSIM );
+        'SNR', labels, plotColors(1:nVariations,:), nVariations, nSimulations, medMangledSSIM );
     savefig( sprintf('./../results/figures/VN%d SSIM.fig', nVidnodes) );
 end

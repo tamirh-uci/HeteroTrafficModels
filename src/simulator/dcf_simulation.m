@@ -528,7 +528,7 @@ classdef dcf_simulation < handle
                 this.plotLabels{i} = simResult.label;
             end
             
-            this.plotColors = distinguishable_colors(nSimResults);
+            this.plotColors = distinguishable_colors(nSimResults*3);
         end
     end
 end
