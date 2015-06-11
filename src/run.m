@@ -7,8 +7,9 @@ vu.nFrames = 800; % a bit over 30 seconds
 vu.prep();
 
 doVideoMangle = false;
-slotsPerVPacket = 5;
+slotsPerVPacket = 1;
 qualityThresholdMicrosec = 50000; % 50 miliseconds
+nTxBins = 250;
 
 % max number of nodes in system
 nVidnodes = 2;
@@ -44,7 +45,8 @@ labels = cell(1, nVariations);
 
 overThresholdCount = zeros( nSimulations, nVariations );
 overThresholdTime = zeros( nSimulations, nVariations );
-transferCount = zeros( nSimulations, nVariations, timesteps );
+txHistory = cell( nSimulations, nVariations );
+txBinnedHistory = cell( nSimulations, nVariations );
 
 allMangledPsnr = cell(nSimulations, nVariations);
 allMangledSnr = cell(nSimulations, nVariations);
@@ -91,7 +93,28 @@ for i=1:nSimulations
         
         overThresholdCount(i, j) = variationResults.nodeSlowWaitCount(1);
         overThresholdTime(i, j) = variationResults.nodeSlowWaitQuality(1);
-        transferCount(i, j, :) = variationResults.nodeTxHistory{1};
+        
+        tx = variationResults.nodeTxHistory;
+        txHistory{i, j} = tx;
+        
+        nNodes = size( tx, 2 );
+        binned = zeros(nNodes, nTxBins);
+        for k=1:nNodes
+            nodeHistory = tx{k};
+            sizeHistory = size(nodeHistory, 2);
+            binSize = ceil( sizeHistory / nTxBins );
+            
+            for binIndex=1:nTxBins
+                startIndex = 1 + (binIndex-1)*binSize;
+                endIndex = startIndex + binSize - 1;
+                if (endIndex > sizeHistory)
+                    endIndex = sizeHistory;
+                end
+                binned(k, binIndex) = sum( nodeHistory(startIndex:endIndex) );
+            end
+            
+            txBinnedHistory{i,j} = binned;
+        end
 
 %         badPacketIndices = variationResults.nodeSlowWaitIndices{1};
 %         [allMangledPsnr{i, j}, allMangledSnr{i, j}] = vu.testMangle(badPacketIndices, 'sC', 'dC');
@@ -127,9 +150,24 @@ plot_rundata( nPlots, [2 1], 1, 'Time spent waiting over threshold (lower better
 plot_rundata( nPlots, [2 1], 2, 'Packets waiting over threshold (lower better)', ...
     'Packet Count', labels, plotColors, nVariations, nSimulations, overThresholdCount );
 savefig( sprintf('./../results/figures/VN%d Late Packets.fig', nVidnodes) );
-    
+
 % Data transfer
-nPlots = 1 + nPlots;
+for i=1:nSimulations
+    nPlots = 1 + nPlots;
+    plotIndex = 0;
+    
+    for j=1:nVariations
+        plotIndex = 1 + plotIndex;
+        binned = txBinnedHistory{i,j};
+        nNodes = size(binned, 1);
+        
+        for k=1:nNodes
+            plot_timedata( nPlots, [nVariations 1], plotIndex, 'title', ...
+            'transfers', labels, plotColors, nVariations, nSimulations, binned(k,:));
+        end
+    end
+end
+
 
 if (doVideoMangle)
     % PSNR
