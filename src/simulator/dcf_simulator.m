@@ -53,7 +53,7 @@ classdef dcf_simulator < handle
             if (obj.pSuccessMultiTransmit > 0.5)
                 fprintf('Are you sure you wanted the chance of success with multiple nodes transmitting at the SAME TIME to be so high?\n');
                 fprintf('In other words, pSuccessMultiTransmit is the chance of SUCCESS with multiple transmits (usually its zero)\n');
-                assert(obj.pSuccessMultiTransmit < 0.9);
+                %assert(obj.pSuccessMultiTransmit < 0.9);
             end
         end
         
@@ -105,12 +105,12 @@ classdef dcf_simulator < handle
         
         % Simulate multipler timer transitions for all nodes
         function Steps(this, nStepsTotal, cachePrefix, loadCache, saveCache, bVerbose)
-            if (this.nSteps == 0)
-                nNodes = size(this.nodes, 2);
-                for i=1:nNodes
-                    node = this.nodes{i};
-                    node.SetupSteps(nStepsTotal);
-                end
+            assert(this.nSteps == 0);
+            
+            nNodes = size(this.nodes, 2);
+            for i=1:nNodes
+                node = this.nodes{i};
+                node.SetupSteps(nStepsTotal);
             end
             
             isLoaded = false;

@@ -18,8 +18,12 @@ nDatanodes = 0;
 % Shared params
 simName = 'mp4-interference';
 simParams = dcf_simulation_params();
-simParams.pSingleSuccess = [0.60, 0.80, 1.0];
+%simParams.pSingleSuccess = [0.60, 0.80, 1.0];
+simParams.pSingleSuccess = 1.0;
+simParams.pMultiSuccess = 1.0;
 simParams.physical_type = phys80211_type.B;
+wMin = 8;
+wMax = 16;
 
 % Video node stuff
 % Grab values from our actual loaded file
@@ -30,8 +34,6 @@ nSizeTypes = 1;
 nInterarrivalTypes = 1;
 fileBigness = 1.0;
 fileWaityness = 1.0;
-wMin = 8;
-wMax = 16;
 
 vidParams = traffic_video_stream(1, wMin, wMax, vu.bpsSrcC, [], []);
 dataParams = traffic_file_downloads(1, wMin, wMax, nSizeTypes, nInterarrivalTypes, fileBigness, fileWaityness);
