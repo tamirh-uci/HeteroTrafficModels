@@ -40,7 +40,11 @@ dataParams = traffic_file_downloads(1, wMin, wMax, nSizeTypes, nInterarrivalType
 
 nSimulations = max(nDatanodes, 1) * max(nVidnodes, 1);
 results = cell( 1, nSimulations );
-[results{1}, plotColors] = run_single_sim( simName, timesteps, simParams, dataParams, vidParams, vu, doVideoMangle, qualityThresholdMicrosec, max(0,nDatanodes), 1 );
+
+sim = setup_single_sim( simName, timesteps, simParams, dataParams, vidParams, vu, qualityThresholdMicrosec, max(0,nDatanodes), 1 );
+sim.Run(doVideoMangle);
+results{1} = sim.simResults;
+
 nVariations = size(results{1,1}, 2);
 nNodes = zeros(1, nSimulations);
 labels = cell(1, nVariations);
@@ -70,14 +74,22 @@ if (nDatanodes > 0)
     for vi=1:nVidnodes
         for di=1:nDatanodes
             nNodes(simIndex) = vi + di;
-            [results{simIndex}, ~] = run_single_sim( simName, timesteps, simParams, dataParams, vidParams, vu, doVideoMangle, qualityThresholdMicrosec, di, vi );
+            
+            sim = setup_single_sim( simName, timesteps, simParams, dataParams, vidParams, vu, doVideoMangle, qualityThresholdMicrosec, di, vi );
+            sim.Run(doVideoMangle);
+            results{simIndex} = sim.simResults;
+            
             simIndex = simIndex + 1;
         end
     end
 else
     for vi=1:nVidnodes
         nNodes(simIndex) = vi;
-        [results{simIndex}, ~] = run_single_sim( simName, timesteps, simParams, dataParams, vidParams, vu, doVideoMangle, qualityThresholdMicrosec, 0, vi );
+        
+        sim = setup_single_sim( simName, timesteps, simParams, dataParams, vidParams, vu, doVideoMangle, qualityThresholdMicrosec, 0, vi );
+        sim.Run(doVideoMangle);
+        results{simIndex} = sim.simResults;
+        
         simIndex = simIndex + 1;
     end
 end

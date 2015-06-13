@@ -1,4 +1,4 @@
-function [ simResults, plotColors ] = run_single_sim( name, timesteps, simParams, dataParams, vidParams, vidUtil, doVideoMangle, qualityThresholdMicrosec, nData, nVid )
+function [ sim ] = setup_single_sim( name, timesteps, simParams, dataParams, vidParams, vidUtil, qualityThresholdMicrosec, nData, nVid )
     sim = dcf_simulation(name);
     sim.nTimesteps = timesteps;
     sim.params = simParams;
@@ -12,9 +12,4 @@ function [ simResults, plotColors ] = run_single_sim( name, timesteps, simParams
     for dataNodeIndex=1:nData
         sim.AddNodegen( dataParams );
     end
-    
-    sim.Run(doVideoMangle);
-    
-    simResults = sim.simResults;
-    plotColors = sim.plotColors;
 end
