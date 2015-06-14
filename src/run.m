@@ -6,20 +6,20 @@ vu.setup();
 vu.nFrames = 800; % a bit over 30 seconds
 vu.prep();
 
+cleanCache = true;
 doVideoMangle = false;
-slotsPerVPacket = 1;
+slotsPerVPacket = 10;
 qualityThresholdMicrosec = 50000; % 50 miliseconds
 nTxBins = 250;
 
 % max number of nodes in system
-nVidNodes = 1;
+nVidNodes = 0;
 nDataNodes = 1;
 
 % Shared params
 simName = 'mp4-interference';
 simParams = dcf_simulation_params();
 simParams.pSingleSuccess = 1.0;
-simParams.pMultiSuccess = 1.0;
 simParams.physical_type = phys80211_type.B;
 wMin = 8;
 wMax = 16;
@@ -74,6 +74,7 @@ if (nDataNodes > 0)
 
                 sim = setup_single_sim( simName, timesteps, simParams, dataParams, vidParams, vu, qualityThresholdMicrosec, vi, di );
                 sim.Run(doVideoMangle);
+                sim.cleanCache = true;
                 results{simIndex} = sim.simResults;
                 nodeLabels{simIndex} = sim.NodeLabels();
 
@@ -85,6 +86,7 @@ if (nDataNodes > 0)
             nNodes(simIndex) = di;
             sim = setup_single_sim( simName, timesteps, simParams, dataParams, vidParams, vu, qualityThresholdMicrosec, 0, di );
             sim.Run(doVideoMangle);
+            sim.cleanCache = true;
             results{simIndex} = sim.simResults;
             nodeLabels{simIndex} = sim.NodeLabels();
 
@@ -97,7 +99,9 @@ else
         
         sim = setup_single_sim( simName, timesteps, simParams, dataParams, vidParams, vu, qualityThresholdMicrosec, vi, 0 );
         sim.Run(doVideoMangle);
+        sim.cleanCache = true;
         results{simIndex} = sim.simResults;
+        nodeLabels{simIndex} = sim.NodeLabels();
         
         simIndex = simIndex + 1;
     end
