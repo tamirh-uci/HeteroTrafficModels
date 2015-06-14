@@ -12,8 +12,8 @@ qualityThresholdMicrosec = 50000; % 50 miliseconds
 nTxBins = 250;
 
 % max number of nodes in system
-nVidnodes = 2;
-nDatanodes = 0;
+nVidnodes = 0;
+nDatanodes = 1;
 
 % Shared params
 simName = 'mp4-interference';
@@ -32,8 +32,8 @@ timesteps = slotsPerVPacket * vu.nPacketsSrcC; % how many packets we'll need for
 % File node stuff
 nSizeTypes = 1;
 nInterarrivalTypes = 1;
-fileBigness = 1.0;
-fileWaityness = 1.0;
+fileBigness = 4.0;
+fileWaityness = 2.0;
 
 vidParams = traffic_video_stream(1, wMin, wMax, vu.bpsSrcC, [], []);
 dataParams = traffic_file_downloads(1, wMin, wMax, nSizeTypes, nInterarrivalTypes, fileBigness, fileWaityness);
@@ -41,9 +41,11 @@ dataParams = traffic_file_downloads(1, wMin, wMax, nSizeTypes, nInterarrivalType
 nSimulations = max(nDatanodes, 1) * max(nVidnodes, 1);
 results = cell( 1, nSimulations );
 
-sim = setup_single_sim( simName, timesteps, simParams, dataParams, vidParams, vu, qualityThresholdMicrosec, max(0,nDatanodes), 1 );
+sim = setup_single_sim( simName, timesteps, simParams, dataParams, vidParams, vu, qualityThresholdMicrosec, 1, max(0,nDatanodes) );
 sim.Run(doVideoMangle);
+
 results{1} = sim.simResults;
+plotColors = sim.plotColors;
 
 nVariations = size(results{1,1}, 2);
 nNodes = zeros(1, nSimulations);
@@ -75,7 +77,7 @@ if (nDatanodes > 0)
         for di=1:nDatanodes
             nNodes(simIndex) = vi + di;
             
-            sim = setup_single_sim( simName, timesteps, simParams, dataParams, vidParams, vu, doVideoMangle, qualityThresholdMicrosec, di, vi );
+            sim = setup_single_sim( simName, timesteps, simParams, dataParams, vidParams, vu, doVideoMangle, qualityThresholdMicrosec, vi, di );
             sim.Run(doVideoMangle);
             results{simIndex} = sim.simResults;
             
@@ -86,7 +88,7 @@ else
     for vi=1:nVidnodes
         nNodes(simIndex) = vi;
         
-        sim = setup_single_sim( simName, timesteps, simParams, dataParams, vidParams, vu, doVideoMangle, qualityThresholdMicrosec, 0, vi );
+        sim = setup_single_sim( simName, timesteps, simParams, dataParams, vidParams, vu, doVideoMangle, qualityThresholdMicrosec, vi, 0 );
         sim.Run(doVideoMangle);
         results{simIndex} = sim.simResults;
         

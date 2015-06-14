@@ -1,4 +1,4 @@
-function [ sim ] = setup_single_sim( name, timesteps, simParams, dataParams, vidParams, vidUtil, qualityThresholdMicrosec, nData, nVid )
+function [ sim ] = setup_single_sim( name, timesteps, simParams, dataParams, vidParams, vidUtil, qualityThresholdMicrosec, nVid, nData )
     sim = dcf_simulation(name);
     sim.nTimesteps = timesteps;
     sim.params = simParams;

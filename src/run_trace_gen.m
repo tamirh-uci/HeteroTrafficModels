@@ -1,14 +1,16 @@
 run_set_path
 
+nVidNodes = 1;
+nDataNodes = 10;
+
 % Load in a real video file to test against
 vu = video_util();
 vu.setup();
-vu.nFrames = 800; % a bit over 30 seconds
+vu.nFrames = 150; % a bit over 30 seconds
 vu.prep();
 
-slotsPerVPacket = 1;
+slotsPerVPacket = 50;
 qualityThresholdMicrosec = 50000; % 50 miliseconds
-nTxBins = 250;
 
 % Shared params
 simName = 'mp4-interference';
@@ -19,7 +21,6 @@ simParams.physical_type = phys80211_type.B;
 
 wMin = 8;
 wMax = 16;
-loadResultsCache = false;
 
 % Video node stuff
 % Grab values from our actual loaded file
@@ -28,68 +29,72 @@ timesteps = slotsPerVPacket * vu.nPacketsSrcC; % how many packets we'll need for
 % File node stuff
 nSizeTypes = 1;
 nInterarrivalTypes = 1;
-fileBigness = 2.0;
-fileWaityness = 1.0;
+fileBigness = 4.0;
+fileWaityness = 2.0;
 
 vidParams = traffic_video_stream(1, wMin, wMax, vu.bpsSrcC, [], []);
 dataParams = traffic_file_downloads(1, wMin, wMax, nSizeTypes, nInterarrivalTypes, fileBigness, fileWaityness);
 
-fprintf('Running simulation with one data node, one video node\n');
+nSims = nVidNodes + nDataNodes;
+nSim = 1;
+simType = zeros(1, nSims);
+simResults = cell(1, nSims);
+for i=1:nVidNodes
+    fprintf('\n==============\nSimulating video node %d of %d\n', i, nVidNodes);
+    sim = setup_single_sim( simName, timesteps, simParams, dataParams, vidParams, vu, qualityThresholdMicrosec, 1, 0 );
+    sim.cleanCache = true;
+    sim.Run(false);
+    
+    simType(nSim) = 20;
+    simResults{nSim} = sim.simResults;
+    nSim = nSim + 1;
+end
 
-sim = setup_single_sim( simName, timesteps, simParams, dataParams, vidParams, vu, qualityThresholdMicrosec, 1, 1 );
-sim.loadResultsCache = loadResultsCache;
+for i=1:nDataNodes
+    fprintf('\n==============\nSimulating data node %d of %d\n', i, nDataNodes);
+    sim = setup_single_sim( simName, timesteps, simParams, dataParams, vidParams, vu, qualityThresholdMicrosec, 0, 1 );
+    sim.cleanCache = true;
+    sim.Run(false);
+    
+    simType(nSim) = 10;
+    simResults{nSim} = sim.simResults;
+    nSim = nSim + 1;
+end
 
-sim.Run(false);
-results = sim.simResults;
-
-txHistory = results{1}.nodeTxHistory;
-nNodes = size(txHistory, 2);
-
-txHistory{1}(3:5) = 1;
 fprintf('Dumping out history to file\n');
-
 bytesPerPacket = simParams.physical_payload / 8;
 deltaTime = phys80211.TransactionTime(simParams.physical_type, simParams.physical_payload, simParams.physical_speed);
 time = 0;
 
+
+% Col 1: 'Simulation #'
+% Col 2: 'Node Type (10=web, 20=generic video, 21=iframe, 22=pframe, 23=bframe)'
+% Col 2: 'Packet Index'
+% Col 3: 'Time (microseconds)'
+% Col 4: 'Packet Size (bytes)'
 csvFilename = './../results/trace.csv';
+clear csvData;
+
 csvRow = 1;
-
-for i=1:nNodes
-    d = [0, txHistory{i}, 0];
-
-    packetStarts = strfind(d, [0 1]);
-    packetEnds = strfind(d, [1 0]);
-    packetSizes = packetEnds - packetStarts;
+for i=1:nSims
+    % Assume we're just doing simulations with a single node by iteslf
+    results = simResults{i};
+    packetHistories = results{1}.nodePacketHistory;    
+    packetHistory = packetHistories{1};
+    sentPackets = find(packetHistory ~= 0);
     
-    nPackets = size(packetStarts,2);
-    for j=1:nPackets
-        packetIndex = packetStarts(j);
-        packetSize = bytesPerPacket * packetSizes(j);
-        time = deltaTime * packetIndex;
+    for j=sentPackets
+        time = deltaTime * j;
+        packetSize = bytesPerPacket * packetHistory(j);
         
-        csvData(csvRow, 1) = int32(i);
-        csvData(csvRow, 2) = int32(packetIndex);
-        csvData(csvRow, 3) = time;
-        csvData(csvRow, 4) = int32(packetSize);
+        csvData(csvRow, 1) = int32(i); % simulation #
+        csvData(csvRow, 2) = int32(simType(i)); % type (web=10, video=20's)
+        csvData(csvRow, 3) = int32(j); % packet index
+        csvData(csvRow, 4) = time; % time (microseconds)
+        csvData(csvRow, 5) = int32(packetSize); % packetsize (bytes)
         
         csvRow = csvRow + 1;
     end
 end
 
-% Col 1: 'Node #';
-% Col 2: 'Packet Index';
-% Col 3: 'Time (microseconds)';
-% Col 4: 'Packet Size (bytes)';
 csvwrite(csvFilename, csvData);
-fid = fopen(csvFilename, 'r+');
-if (fid > 0)
-    frewind(fid);
-    fprintf(fid, '%s,%s,%s,%s\n', ...
-        'Node #', ...
-        'Packet Index', ...
-        'Time (microseconds)', ...
-        'Packet Size (bytes)');
-    
-    fclose(fid);
-end

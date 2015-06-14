@@ -24,7 +24,7 @@ classdef phys80211 < handle
         % How long does it take for a full transmission send
         % payload = bits per data payload in a frame = 8*framesize
         % speed = [0,1] %capacity of max
-        % unit = (microseconds)
+        % time = (microseconds)
         function time = TransactionTime(type, payload, speed)
             % How long does the payload take in microseconds
             bps = phys80211.RawDatarate(type, speed);
