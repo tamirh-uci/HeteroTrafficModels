@@ -91,6 +91,23 @@ classdef dcf_simulation < handle
             this.nodegensSize = 0;
         end
         
+        function nodeLabels = NodeLabels(this)
+            % Note: This ignores multinode nodegens
+            nameDupes = containers.Map();
+            nodeLabels = cell(1, this.nodegensSize);
+            for i = 1:this.nodegensSize
+                nodegen = this.nodegens{i};
+                if ( nameDupes.isKey(nodegen.name) )
+                    nDupes = nameDupes(nodegen.name);
+                else
+                    nDupes = 0;
+                end
+                
+                nDupes = nDupes + 1;
+                nodeLabels{i} = sprintf('%s %d', nodegen.name, nDupes);
+            end
+        end
+        
         function uid = UID(this, timesteps)
             if (isempty(timesteps))
                 steps = this.nTimesteps;
