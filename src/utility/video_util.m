@@ -110,7 +110,7 @@ classdef video_util < handle
             fclose(dstFile);
         end
         
-        function [peaksnr, snr, ssim] = psnr_pics(srcPrefix, dstPrefix, nFrames)
+        function [peaksnr, snr, similarity] = psnr_pics(srcPrefix, dstPrefix, nFrames)
             peaksnr = zeros(1, nFrames);
             snr = zeros(1, nFrames);
             similarity = zeros(1, nFrames);
@@ -139,7 +139,7 @@ classdef video_util < handle
                 
                 if (loaded)
                     [peaksnr(i), snr(i)] = psnr(dst, src);
-                    %[ssim(i), ~] = ssim(dst, src);
+                    [similarity(i), ~] = ssim(dst, src);
                 end
             end
         end

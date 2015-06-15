@@ -10,11 +10,11 @@ cleanCache = true;
 doVideoMangle = false;
 slotsPerVPacket = 10;
 qualityThresholdMicrosec = 50000; % 50 miliseconds
-nTxBins = 250;
+nTxBins = 200;
 
 % max number of nodes in system
 nVidNodes = 1;
-nDataNodes = 1;
+nDataNodes = 5;
 
 % Shared params
 simName = 'mp4-interference';
