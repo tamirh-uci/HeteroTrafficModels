@@ -281,7 +281,7 @@ classdef dcf_markov_model < handle
                     if ( ~this.bCurvedInterarrivalChain || this.nInterarrival <= 2 )
                         pInterarrivalState(:) = this.pEnterInterarrival / this.nInterarrival;
                     else
-                        fprintf('Making curved interarival probabilities for chain of %d\n', this.nInterarrival);
+                        %fprintf('Making curved interarival probabilities for chain of %d\n', this.nInterarrival);
                         % Make a parabola where the middle bottoms out at 0
                         % probability, and the ends are higher
                         syms a;

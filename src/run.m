@@ -19,14 +19,16 @@ nDataNodes = 1;
 % Shared params
 simName = 'mp4-interference';
 simParams = dcf_simulation_params();
-simParams.pSingleSuccess = 1.0;
+
 simParams.physical_type = phys80211_type.B;
 wMin = 8;
 wMax = 16;
 
-varLabels = ['p=1.0'];
-%simParams.pSingleSuccess = [0.60, 0.80, 1.0];
-%varLabels = ['p=0.6' 'p=0.8' 'p=1.0'];
+%simParams.pSingleSuccess = 1.0;
+%varLabels = ['p=1.0'];
+
+simParams.pSingleSuccess = [0.60, 0.80, 1.0];
+varLabels = ['p=0.6' 'p=0.8' 'p=1.0'];
 
 % Video node stuff
 % Grab values from our actual loaded file
