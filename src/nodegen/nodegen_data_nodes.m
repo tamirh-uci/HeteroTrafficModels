@@ -46,6 +46,7 @@ classdef nodegen_data_nodes < handle
             dcf_model.nInterarrival = currentValues.nInterarrival;
             dcf_model.pEnterInterarrival = currentValues.pEnter;
             dcf_model.pRawArrive = currentValues.pArrive;
+            dcf_model.bCurvedInterarrivalChain = true;
 
             this.nodeName = sprintf('%s (%d)', this.name, this.cartesianParams.nVariations);
             simulator.add_plain_node(this.nodeName, dcf_model);

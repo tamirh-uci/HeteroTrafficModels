@@ -3,7 +3,7 @@ run_set_path
 % Load in a real video file to test against
 vu = video_util();
 vu.setup();
-vu.nFrames = 800; % a bit over 30 seconds
+vu.nFrames = 800; % 250 is about 10 seconds
 vu.prep();
 
 cleanCache = true;
@@ -13,7 +13,7 @@ qualityThresholdMicrosec = 50000; % 50 miliseconds
 nTxBins = 250;
 
 % max number of nodes in system
-nVidNodes = 0;
+nVidNodes = 1;
 nDataNodes = 1;
 
 % Shared params
@@ -35,7 +35,7 @@ timesteps = slotsPerVPacket * vu.nPacketsSrcC; % how many packets we'll need for
 % File node stuff
 nSizeTypes = 1;
 nInterarrivalTypes = 1;
-fileBigness = 8.0;
+fileBigness = 2.0;
 fileWaityness = 16.0;
 
 vidParams = traffic_video_stream(1, wMin, wMax, vu.bpsSrcC, [], []);

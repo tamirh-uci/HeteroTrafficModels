@@ -277,11 +277,37 @@ classdef dcf_markov_model < handle
                     dcf.SetP( src, dst, 1.0, dcf_transition_type.Collapsible );
                 else
                     % Equal probabilities to go to any state in the interarrival chain
-                    pInterarrivalState = this.pEnterInterarrival / this.nInterarrival;
+                    pInterarrivalState = zeros(1, this.nInterarrival);
+                    if ( ~this.bCurvedInterarrivalChain || this.nInterarrival <= 2 )
+                        pInterarrivalState(:) = this.pEnterInterarrival / this.nInterarrival;
+                    else
+                        fprintf('Making curved interarival probabilities for chain of %d\n', this.nInterarrival);
+                        % Make a parabola where the middle bottoms out at 0
+                        % probability, and the ends are higher
+                        syms a;
+                        mid = floor( this.nInterarrival/2 );
+                        left = -mid;
+                        
+                        if (mod(this.nInterarrival,2)==0)
+                            % evens
+                            right = mid - 1;
+                        else
+                            % odds
+                            right = mid;
+                        end
+                        
+                        % Solve our parabola summed at discrete values
+                        X = left:right;
+                        sol = solve( sum( a.*(X.^2) ) == 1 );
+
+                        % Get the probabilities for each index
+                        pInterarrivalState = eval( this.pEnterInterarrival .* sol .* X.^2 );
+                    end
+                    
                     for k = 1:this.nInterarrival
                         dst = this.InterarrivalState(k);
-                        dcf.SetP( src, dst, pInterarrivalState, dcf_transition_type.Collapsible );
-                    end                    
+                        dcf.SetP( src, dst, pInterarrivalState(k), dcf_transition_type.Collapsible );
+                    end             
                 end
             end
 
@@ -584,6 +610,10 @@ classdef dcf_markov_model < handle
         % if false, we will randomly have a interarrival length of
         % [0,nInterarrival]
         bFixedInterarrivalChain = false;
+        
+        % does our interarrival probabilty curve as an upward facing
+        % parabola, with intercept at the midpoint from [1,nInterarrival]
+        bCurvedInterarrivalChain = false;
         
         % are we in the state where everything should fail?
         bFailureState = false;
