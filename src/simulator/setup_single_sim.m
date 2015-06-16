@@ -1,8 +1,8 @@
-function [ sim ] = setup_single_sim( name, timesteps, simParams, dataParams, vidParams, vidUtil, qualityThresholdMicrosec, nVid, nData )
+function [ sim ] = setup_single_sim( name, timesteps, simParams, dataParams, vidParams, vuCells, qualityThresholdMicrosec, nVid, nData )
     sim = dcf_simulation(name);
     sim.nTimesteps = timesteps;
     sim.params = simParams;
-    sim.vidUtil = vidUtil;
+    sim.vuCells = vuCells;
     sim.qualityThreshold = qualityThresholdMicrosec;
 
     for vidNodeIndex=1:nVid

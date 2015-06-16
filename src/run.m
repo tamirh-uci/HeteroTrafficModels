@@ -1,10 +1,34 @@
 run_set_path
 
 % Load in a real video file to test against
-vu = video_util();
-vu.setup();
-vu.nFrames = 250; % 250 is about 10 seconds
-vu.prep();
+fullStartFrame = 150;
+nTotalFrames = 800; % 250 is about 10 seconds
+framesPerChunk = 30;
+nChunks = ceil(nTotalFrames/framesPerChunk);
+fullEndFrame = fullStartFrame + nTotalFrames - 1;
+
+vuWhole = video_util();
+vuWhole.frameStart = fullStartFrame;
+vuWhole.nFrames = nTotalFrames;
+vuWhole.prep();
+
+vuTotalPackets = 0;
+vuAvgBps = 0;
+vuCells = cell(1, nChunks);
+for i=1:nChunks
+    startFrame = fullStartFrame + (i-1)*framesPerChunk;
+    endFrame = min(fullEndFrame, startFrame + framesPerChunk - 1);
+    
+    vu = video_util();
+    vu.frameStart = startFrame;
+    vu.nFrames = endFrame - startFrame + 1;
+    vu.prep();
+    
+    vuTotalPackets = vuTotalPackets + vu.nPacketsSrcC;
+    vuAvgBps = vuAvgBps + (vu.bpsSrcC / nChunks);
+    
+    vuCells{i} = vu;
+end
 
 cleanCache = true;
 doVideoMangle = true;
@@ -32,15 +56,15 @@ varLabels = ['p=1.0'];
 
 % Video node stuff
 % Grab values from our actual loaded file
-timesteps = slotsPerVPacket * vu.nPacketsSrcC; % how many packets we'll need for our video (assume pretty good conditions)
+timesteps = slotsPerVPacket * vuTotalPackets; % how many packets we'll need for our video (assume pretty good conditions)
 
 % File node stuff
 nSizeTypes = 1;
 nInterarrivalTypes = 1;
 fileBigness = 2.0;
-fileWaityness = 22.0;
+fileWaityness = 20.0;
 
-vidParams = traffic_video_stream(1, wMin, wMax, vu.bpsSrcC, [], []);
+vidParams = traffic_video_stream(1, wMin, wMax, vuAvgBps, [], []);
 dataParams = traffic_file_downloads(1, wMin, wMax, nSizeTypes, nInterarrivalTypes, fileBigness, fileWaityness);
 
 nSoftMaxVidNodes = max(nMaxVidNodes, 1);
@@ -87,7 +111,7 @@ for vi = 1:nSoftMaxVidNodes
         end
         
         nNodes(simIndex) = nVidNodes + nDataNodes;
-        sim = setup_single_sim( simName, timesteps, simParams, dataParams, vidParams, vu, qualityThresholdMicrosec, nVidNodes, nDataNodes );
+        sim = setup_single_sim( simName, timesteps, simParams, dataParams, vidParams, vuCells, qualityThresholdMicrosec, nVidNodes, nDataNodes );
         sim.Run(doVideoMangle);
         sim.cleanCache = true;
         results{simIndex} = sim.simResults;
@@ -147,17 +171,20 @@ for i=1:nSimulations
     end
 end
 
-mkdir('./../results/figures/');
+if (~exist('./../results/figures/', 'dir'))
+    mkdir('./../results/figures/');
+end
 
-fprintf('Timesteps = %d\n', timesteps);
-
-maxSinglenodeBps = (channelBps/wMin);
 channelBps = phys80211.EffectiveMaxDatarate(simParams.physical_type, simParams.physical_payload, simParams.physical_speed, 1);
-dataBps = ( fileBigness / (0.5*fileWaityness+wMin) ) * channelBps;
+maxSinglenodeBps = (channelBps/wMin);
 
+dataBps = ( fileBigness / (0.5*fileWaityness+wMin) ) * channelBps;
+elapsedMicroseconds = timesteps * phys80211.TransactionTime(simParams.physical_type, simParams.physical_payload, simParams.physical_speed);
+
+fprintf('Timesteps = %d, time=%f s\n', timesteps, (elapsedMicroseconds/1000000));
 fprintf('%s Channel Speed: %.2fMbps\n', phys80211.Name(simParams.physical_type), (channelBps/1000000));
 fprintf('Max Node Speed: %.2fMbps\n', (maxSinglenodeBps/1000000));
-fprintf('Desired Video Speed: %.2fMbps\n', nVidNodes*(vu.bpsSrcC/1000000));
+fprintf('Desired Video Speed: %.2fMbps\n', nVidNodes*(vuAvgBps/1000000));
 fprintf('Desired Data Speed: %.2fMbps\n', nDataNodes*(dataBps/1000000));
 
 % Late packets
@@ -202,8 +229,8 @@ if (doVideoMangle)
     savefig( sprintf('./../results/figures/VN%d SNR.fig', nVidNodes) );
 
     % SSIM
-    nPlots = 1 + nPlots;
-    plot_rundata( nPlots, 'Median SSIM Similarity with dropped packets(lower better)', ...
-        'SNR', varLabels, plotColors(1:nVariations,:), nVariations, nSimulations, medMangledSSIM );
-    savefig( sprintf('./../results/figures/VN%d SSIM.fig', nVidNodes) );
+    %nPlots = 1 + nPlots;
+    %plot_rundata( nPlots, 'Median SSIM Similarity with dropped packets(lower better)', ...
+        %'SNR', varLabels, plotColors(1:nVariations,:), nVariations, nSimulations, medMangledSSIM );
+    %savefig( sprintf('./../results/figures/VN%d SSIM.fig', nVidNodes) );
 end

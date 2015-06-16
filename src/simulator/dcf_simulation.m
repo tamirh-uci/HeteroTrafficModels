@@ -16,7 +16,7 @@ classdef dcf_simulation < handle
         name;
         
         qualityThreshold; % in microseconds
-        vidUtil;
+        vuCells;
         
         plotColors;
         plotLabels;
@@ -191,9 +191,17 @@ classdef dcf_simulation < handle
                 [~, ~, ~] = rmdir(this.cacheFolder, 's');
             end
             
-            [~, ~, ~] = mkdir(this.resultsFolder);
-            [~, ~, ~] = mkdir(this.cacheBaseFolder);
-            [~, ~, ~] = mkdir(this.cacheFolder);
+            if (~exist(this.resultsFolder, 'dir'))
+                mkdir(this.resultsFolder);
+            end
+            
+            if (~exist(this.cacheBaseFolder, 'dir'))
+                mkdir(this.cacheBaseFolder);
+            end
+            
+            if (~exist(this.cacheFolder, 'dir'))
+                mkdir(this.cacheFolder);
+            end
             
             % Make sure all the caches look like they're up to date
             [simcacheValid, simcacheExists] = this.VerifyCacheUID(this.cacheFolder, simUID, 'simulation.uid.mat');
@@ -311,9 +319,27 @@ classdef dcf_simulation < handle
             nParamVariations = this.cartesianParams.NumVariations();
             for iParamVariation = 1:nParamVariations
                 simResult = this.simResults{iParamVariation};
-                
+                simResult.allMangledPsnr = [];
+                simResult.allMangledSnr = [];
+                simResult.allMangledSSIM = [];
                 badPacketIndices = simResult.nodeSlowWaitIndices{1};
-                [simResult.allMangledPsnr, simResult.allMangledSnr, simResult.allMangledSSIM] = this.vidUtil.testMangle(badPacketIndices, 'sC', 'dC');
+                
+                nVuCells = size(this.vuCells, 2);
+                packetBoundaries = zeros(1, nVuCells+1);
+                packetBoundaries(1) = 0;
+                for i=1:nVuCells
+                    vu = this.vuCells{i};
+                    packetBoundaries(i+1) = packetBoundaries(i) + vu.nPacketsSrcC;
+                    
+                    badPacketChunk = badPacketIndices( badPacketIndices>packetBoundaries(i) & badPacketIndices<=packetBoundaries(i+1) );
+                    badPacketChunk = badPacketChunk - packetBoundaries(i);
+                    
+                    [chunkPsnr, chunkSnr, chunkSSIM] = vu.testMangle(badPacketChunk, 'sC', 'dC');
+                    
+                    simResult.allMangledPsnr = [simResult.allMangledPsnr chunkPsnr];
+                    simResult.allMangledSnr = [simResult.allMangledSnr chunkSnr];
+                    simResult.allMangledSSIM = [simResult.allMangledSSIM chunkSSIM];
+                end
             end
             
             if (this.saveVidResultsCache)

@@ -1,7 +1,7 @@
 classdef video_util < handle
     %VIDEO_UTIL Stuff to handle load/save of videos
     
-    properties
+    properties (Constant)
         % http://www.h264info.com/clips.html
         DEFAULT_INPUT_FOLDER = './../results/';
         DEFAULT_OUTPUT_FOLDER = './../results/cache/video/';
@@ -16,6 +16,7 @@ classdef video_util < handle
         fNameSrcU;
         fNameSrcC;
         fNameDstC;
+        packetRanges;
         frameStart;
         nFrames;
         nBytesPerPacket;
@@ -52,7 +53,9 @@ classdef video_util < handle
             fNameSrcC = fullfile(folderOut, ['src_c_' fNameIn subsection '.mp4']);
             fNameDstC = fullfile(folderOut, ['dst_c_' fNameIn subsection '.mp4']);
             
-            [~, ~, ~] = mkdir(folderOut);
+            if (~exist(folderOut, 'dir'))
+                mkdir(folderOut);
+            end
         end
         
         % Take input video and extract subset of frames and reencode
@@ -92,7 +95,7 @@ classdef video_util < handle
             copyfile(fNameSrcC, fNameDstC, 'f');
             
             % Overwrite portion of packet with zeros
-            data = zeros(1, floor(0.1 * bytesPerPacket));
+            data = zeros(1, floor(0.05 * bytesPerPacket));
             
             % Open the destination as a byte stream
             dstFile = fopen(fNameDstC, 'r+');
@@ -127,19 +130,22 @@ classdef video_util < handle
                 
                 % If we couldn't load the destination image, try just using
                 % the 1st frame of source as reference
-                try
-                    dst = imread( sprintf('%s_%08d.png', srcPrefix, 1) );
-                catch
-                    % finally just give up and set values to NaN
-                    peaksnr(i) = NaN;
-                    snr(i) = NaN;
-                    similarity(i) = NaN;
-                    printf('ERROR: Frame %d was not encoded');
+                if (~loaded)
+                    try
+                        dst = imread( sprintf('%s_%08d.png', srcPrefix, 1) );
+                        loaded = true;
+                    catch
+                        % finally just give up and set values to NaN
+                        peaksnr(i) = NaN;
+                        snr(i) = NaN;
+                        similarity(i) = NaN;
+                        printf('ERROR: Frame %d was not encoded');
+                    end
                 end
                 
                 if (loaded)
                     [peaksnr(i), snr(i)] = psnr(dst, src);
-                    [similarity(i), ~] = ssim(dst, src);
+                    %[similarity(i), ~] = ssim(dst, src);
                 end
             end
         end
@@ -162,13 +168,16 @@ classdef video_util < handle
         
         % Test the difference between two video files
         function [peaksnr, snr, sims] = test_diff(fNameSrc, fNameDst, nFrames)
-            fprintf('Calculating PSNR of %s...\n', fNameDst);
+            fprintf('Generating source and mangled frames for: %s...\n', fNameDst);
             
             % Dump temp files into a folder so we can delete it after
             baseDir = fullfile(tempdir(), 'snr');
             srcPrefix = fullfile(baseDir, 'src');
             dstPrefix = fullfile(baseDir, 'dst');
-            mkdir(baseDir);
+            
+            if (~exist(baseDir, 'dir'))
+                mkdir(baseDir);
+            end
             
             %[vidDataSrc, vidHeightSrc, vidWidthSrc] = video_util.reader(fNameSrc, 1, nFrames);
             %[vidDataDst, vidHeightDst, vidWidthDst] = video_util.reader(fNameDst, 1, nFrames);
@@ -180,6 +189,7 @@ classdef video_util < handle
             video_util.vid_to_pics(fNameSrc, srcPrefix);
             video_util.vid_to_pics(fNameDst, dstPrefix);
             
+            fprintf('Calculating PSNR for: %s...\n', fNameDst);
             [peaksnr, snr, sims] = video_util.psnr_pics(srcPrefix, dstPrefix, nFrames);
             
             % clean up our temp files
@@ -220,12 +230,9 @@ classdef video_util < handle
     methods
         function obj = video_util()
             obj = obj@handle();
-        end
-        
-        function setup(this)
-            this.frameStart = this.DEFAULT_START_FRAME;
-            this.nFrames = this.DEFAULT_NFRAMES;
-            this.nBytesPerPacket = this.DEFAULT_PACKETSIZE;
+            obj.frameStart = video_util.DEFAULT_START_FRAME;
+            obj.nFrames = video_util.DEFAULT_NFRAMES;
+            obj.nBytesPerPacket = video_util.DEFAULT_PACKETSIZE;
         end
         
         function prep(this)
