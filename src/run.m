@@ -3,18 +3,18 @@ run_set_path
 % Load in a real video file to test against
 vu = video_util();
 vu.setup();
-vu.nFrames = 800; % 250 is about 10 seconds
+vu.nFrames = 250; % 250 is about 10 seconds
 vu.prep();
 
 cleanCache = true;
-doVideoMangle = false;
+doVideoMangle = true;
 slotsPerVPacket = 10;
 qualityThresholdMicrosec = 50000; % 50 miliseconds
-nTxBins = 200;
+nTxBins = 100;
 
 % max number of nodes in system
-nVidNodes = 1;
-nDataNodes = 5;
+nMaxVidNodes = 1;
+nMaxDataNodes = 1;
 
 % Shared params
 simName = 'mp4-interference';
@@ -24,11 +24,11 @@ simParams.physical_type = phys80211_type.B;
 wMin = 8;
 wMax = 16;
 
-%simParams.pSingleSuccess = 1.0;
-%varLabels = ['p=1.0'];
+simParams.pSingleSuccess = 1.0;
+varLabels = ['p=1.0'];
 
-simParams.pSingleSuccess = [0.60, 0.80, 1.0];
-varLabels = ['p=0.6' 'p=0.8' 'p=1.0'];
+%simParams.pSingleSuccess = [0.60, 0.80, 1.0];
+%varLabels = ['p=0.6' 'p=0.8' 'p=1.0'];
 
 % Video node stuff
 % Grab values from our actual loaded file
@@ -38,12 +38,15 @@ timesteps = slotsPerVPacket * vu.nPacketsSrcC; % how many packets we'll need for
 nSizeTypes = 1;
 nInterarrivalTypes = 1;
 fileBigness = 2.0;
-fileWaityness = 16.0;
+fileWaityness = 22.0;
 
 vidParams = traffic_video_stream(1, wMin, wMax, vu.bpsSrcC, [], []);
 dataParams = traffic_file_downloads(1, wMin, wMax, nSizeTypes, nInterarrivalTypes, fileBigness, fileWaityness);
 
-nSimulations = max(nDataNodes, 1) * max(nVidNodes, 1);
+nSoftMaxVidNodes = max(nMaxVidNodes, 1);
+nSoftMaxDataNodes = max(nMaxDataNodes, 1);
+
+nSimulations = nSoftMaxVidNodes * nSoftMaxDataNodes;
 results = cell( 1, nSimulations );
 
 nVariations = 1; % TODO: Calculate this from simParams
@@ -68,43 +71,28 @@ medMangledSnr = zeros(nSimulations, nVariations);
 medMangledSSIM = zeros(nSimulations, nVariations);
 
 simIndex = 1;
-if (nDataNodes > 0)
-    if (nVidNodes > 0)
-        for vi=1:nVidNodes
-            for di=1:nDataNodes
-                nNodes(simIndex) = vi + di;
 
-                sim = setup_single_sim( simName, timesteps, simParams, dataParams, vidParams, vu, qualityThresholdMicrosec, vi, di );
-                sim.Run(doVideoMangle);
-                sim.cleanCache = true;
-                results{simIndex} = sim.simResults;
-                nodeLabels{simIndex} = sim.NodeLabels();
-
-                simIndex = simIndex + 1;
-            end
-        end
+for vi = 1:nSoftMaxVidNodes
+    if (nMaxVidNodes==0)
+        nVidNodes = 0;
     else
-        for di=1:nDataNodes
-            nNodes(simIndex) = di;
-            sim = setup_single_sim( simName, timesteps, simParams, dataParams, vidParams, vu, qualityThresholdMicrosec, 0, di );
-            sim.Run(doVideoMangle);
-            sim.cleanCache = true;
-            results{simIndex} = sim.simResults;
-            nodeLabels{simIndex} = sim.NodeLabels();
-
-            simIndex = simIndex + 1;
-        end
+        nVidNodes = vi;
     end
-else
-    for vi=1:nVidNodes
-        nNodes(simIndex) = vi;
+
+    for di = 1:nSoftMaxDataNodes
+        if (nMaxDataNodes==0)
+            nDataNodes = 0;
+        else
+            nDataNodes = vi;
+        end
         
-        sim = setup_single_sim( simName, timesteps, simParams, dataParams, vidParams, vu, qualityThresholdMicrosec, vi, 0 );
+        nNodes(simIndex) = nVidNodes + nDataNodes;
+        sim = setup_single_sim( simName, timesteps, simParams, dataParams, vidParams, vu, qualityThresholdMicrosec, nVidNodes, nDataNodes );
         sim.Run(doVideoMangle);
         sim.cleanCache = true;
         results{simIndex} = sim.simResults;
         nodeLabels{simIndex} = sim.NodeLabels();
-        
+
         simIndex = simIndex + 1;
     end
 end
@@ -159,11 +147,16 @@ for i=1:nSimulations
     end
 end
 
+mkdir('./../results/figures/');
+
 fprintf('Timesteps = %d\n', timesteps);
 
+maxSinglenodeBps = (channelBps/wMin);
 channelBps = phys80211.EffectiveMaxDatarate(simParams.physical_type, simParams.physical_payload, simParams.physical_speed, 1);
-dataBps = (fileBigness/fileWaityness) * (channelBps/wMin);
+dataBps = ( fileBigness / (0.5*fileWaityness+wMin) ) * channelBps;
+
 fprintf('%s Channel Speed: %.2fMbps\n', phys80211.Name(simParams.physical_type), (channelBps/1000000));
+fprintf('Max Node Speed: %.2fMbps\n', (maxSinglenodeBps/1000000));
 fprintf('Desired Video Speed: %.2fMbps\n', nVidNodes*(vu.bpsSrcC/1000000));
 fprintf('Desired Data Speed: %.2fMbps\n', nDataNodes*(dataBps/1000000));
 
@@ -186,7 +179,7 @@ for i=1:nSimulations
         binned = txBinnedHistory{i,j};
         nNodes = size(binned, 1);
         
-        plot_timedata( nPlots, [nVariations 1], plotIndex, 'title', ...
+        plot_timedata( nPlots, [nVariations 1], plotIndex, 'Data Transfer', ...
             'transfers', nodeLabels{i}, plotColors(nVariations+1:nVariations+nNodes,:), nNodes, nTxBins, binned);
     end
 end

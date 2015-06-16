@@ -259,58 +259,5 @@ classdef video_util < handle
             video_util.mangle(this.fNameSrcC, this.fNameDstC, this.nFrames, badPackets, this.nBytesPerPacket);
             [psnr, snr, sims] = video_util.test_diff( this.getFile(srcType), this.getFile(dstType), this.nFrames);
         end
-        
-        function test(this)
-            this.setup();
-            this.prep();
-            
-            badPackets = 100:100;
-            [psnrCtoMC1, snrCtoMC1, simsMC1] = this.testMangle(badPackets, 'sC', 'dC');
-            
-            badPackets = 101:101;
-            [psnrCtoMC2, snrCtoMC2, simsMC2] = this.testMangle(badPackets, 'sC', 'dC');
-            
-            badPackets = 102:102;
-            [psnrCtoMC3, snrCtoMC3, simsMC3] = this.testMangle(badPackets, 'sC', 'dC');
-            
-            badPackets = 100:100;
-            [psnrCtoMC4, snrCtoMC4, simsMC4] = this.testMangle(badPackets, 'sC', 'dC');
-            
-            figure
-            fprintf('Plotting...');
-            
-            % Peak SNR Plot
-            subplot(2,1,1);
-            hold on;
-            plot(psnrCtoMC1, 'r');
-            plot(psnrCtoMC2, 'g');
-            plot(psnrCtoMC3, 'b');
-            plot(psnrCtoMC4, 'c');
-            %plot(psnrUtoC, 'r');
-            %plot(psnrUtoMC, 'b');
-            %plot(psnrCtoMC, 'c');
-            hold off;
-            xlabel('Frame');
-            ylabel('Peak SNR');
-            %legend('from uncompressed to compressed', 'from uncompressed to mangled', 'from compressed to mangled');
-            legend('1', '2', '3', '4');
-            
-            subplot(2,1,2);
-            hold on;
-            plot(snrCtoMC1, 'r');
-            plot(snrCtoMC2, 'g');
-            plot(snrCtoMC3, 'b');
-            plot(snrCtoMC4, 'c');
-            %plot(snrUtoC, 'r');
-            %plot(snrUtoMC, 'b');
-            %plot(snrCtoMC, 'c');
-            hold off;
-            xlabel('Frame');
-            ylabel('SNR');
-            %legend('from uncompressed to compressed', 'from uncompressed to mangled', 'from compressed to mangled');
-            legend('1', '2', '3', '4');
-
-            fprintf('\nDone!\n');
-        end
     end
 end

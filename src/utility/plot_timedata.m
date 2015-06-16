@@ -11,7 +11,7 @@ function plot_timedata( figNum, subplotSize, subplotIndex, figTitle, figYLabel, 
     set(ax, 'XTick', 0:10:nX);
     hold(ax, 'off');
     title(ax, figTitle);
-    xlabel(ax, 'Number of nodes');
+    xlabel(ax, 'Simulation Time');
     ylabel(ax, figYLabel);
     legend(ax, labels, 'Location', 'southeast');
 end
