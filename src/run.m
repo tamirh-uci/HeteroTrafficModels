@@ -1,4 +1,5 @@
-run_set_path
+run_set_path;
+close all;
 
 % Load in a real video file to test against
 fullStartFrame = 150;
@@ -30,15 +31,17 @@ for i=1:nChunks
     vuCells{i} = vu;
 end
 
-cleanCache = true;
+plotTrafficSum = true;
+cleanCache = false;
 doVideoMangle = true;
-slotsPerVPacket = 10;
+slotsPerVPacket = 15;
 qualityThresholdMicrosec = 50000; % 50 miliseconds
 nTxBins = 100;
+movAvgWindow = 4;
 
 % max number of nodes in system
 nMaxVidNodes = 1;
-nMaxDataNodes = 1;
+nMaxDataNodes = 5;
 
 % Shared params
 simName = 'mp4-interference';
@@ -48,11 +51,15 @@ simParams.physical_type = phys80211_type.B;
 wMin = 8;
 wMax = 16;
 
-simParams.pSingleSuccess = 1.0;
-varLabels = ['p=1.0'];
+%simParams.pSingleSuccess = 1.0;
+%varLabels = ['p=1.0'];
 
-%simParams.pSingleSuccess = [0.60, 0.80, 1.0];
-%varLabels = ['p=0.6' 'p=0.8' 'p=1.0'];
+simParams.pSingleSuccess = [0.60, 0.80, 1.0];
+varLabels = cell(1,3);
+varLabels{1} = 'p=0.6';
+varLabels{2} = 'p=0.8';
+varLabels{3} = 'p=1.0';
+nVariations = 3; % TODO: Calculate this from simParams
 
 % Video node stuff
 % Grab values from our actual loaded file
@@ -73,9 +80,6 @@ nSoftMaxDataNodes = max(nMaxDataNodes, 1);
 nSimulations = nSoftMaxVidNodes * nSoftMaxDataNodes;
 results = cell( 1, nSimulations );
 
-nVariations = 1; % TODO: Calculate this from simParams
-plotColors = distinguishable_colors(2 * (nVariations + nSimulations));
-
 nNodes = zeros(1, nSimulations);
 nodeLabels = cell(1 , nSimulations);
 
@@ -86,13 +90,11 @@ txBinnedHistory = cell( nSimulations, nVariations );
 
 allMangledPsnr = cell(nSimulations, nVariations);
 allMangledSnr = cell(nSimulations, nVariations);
-allMangledSSIM = cell(nSimulations, nVariations);
 
 meanMangledPsnr = zeros(nSimulations, nVariations);
 meanMangledSnr = zeros(nSimulations, nVariations);
 medMangledPsnr = zeros(nSimulations, nVariations);
 medMangledSnr = zeros(nSimulations, nVariations);
-medMangledSSIM = zeros(nSimulations, nVariations);
 
 simIndex = 1;
 
@@ -103,21 +105,26 @@ for vi = 1:nSoftMaxVidNodes
         nVidNodes = vi;
     end
 
-    for di = 1:nSoftMaxDataNodes
+    for di = 0:nSoftMaxDataNodes
         if (nMaxDataNodes==0)
             nDataNodes = 0;
         else
-            nDataNodes = vi;
+            nDataNodes = di;
         end
         
-        nNodes(simIndex) = nVidNodes + nDataNodes;
         sim = setup_single_sim( simName, timesteps, simParams, dataParams, vidParams, vuCells, qualityThresholdMicrosec, nVidNodes, nDataNodes );
+        sim.cleanCache = cleanCache;
         sim.Run(doVideoMangle);
-        sim.cleanCache = true;
-        results{simIndex} = sim.simResults;
-        nodeLabels{simIndex} = sim.NodeLabels();
-
-        simIndex = simIndex + 1;
+        
+        if (di==0)
+            resultsBaseline = sim.simResults{1};
+        else
+            results{simIndex} = sim.simResults;
+            results{simIndex} = sim.simResults;
+            nodeLabels{simIndex} = sim.NodeLabels();
+            nNodes(simIndex) = nVidNodes + nDataNodes;
+            simIndex = simIndex + 1;
+        end
     end
 end
 
@@ -152,24 +159,17 @@ for i=1:nSimulations
             txBinnedHistory{i,j} = binned;
         end
 
-%         badPacketIndices = variationResults.nodeSlowWaitIndices{1};
-%         [allMangledPsnr{i, j}, allMangledSnr{i, j}] = vu.testMangle(badPacketIndices, 'sC', 'dC');
-
         allMangledPsnr{i, j} = variationResults.allMangledPsnr;
-        allMangledSnr{i, j} = variationResults.allMangledSnr;
-        allMangledSSIM{i, j} = variationResults.allMangledSSIM;
-                 
-        cleanPsnr = allMangledPsnr{i, j}( isfinite(allMangledPsnr{i, j}) );
-        cleanSnr = allMangledSnr{i, j}( isfinite(allMangledSnr{i, j}) );
-        cleanSSIM = allMangledSSIM{i, j}( isfinite(allMangledSSIM{i, j}) );
-         
-        meanMangledPsnr(i, j) = mean(cleanPsnr);
-        meanMangledSnr(i, j) = mean(cleanSnr);
-        medMangledPsnr(i, j) = median(cleanPsnr);
-        medMangledSnr(i, j) = median(cleanSnr);
-        medMangledSSIM(i, j) = median(cleanSSIM);
+        allMangledPsnr{i, j}( ~isfinite(allMangledPsnr{i, j}) ) = 0;
+        
+        meanMangledPsnr(i, j) = mean( allMangledPsnr{i, j} );
+        medMangledPsnr(i, j) = median( allMangledPsnr{i, j} );
     end
 end
+
+baselinePsnr = resultsBaseline.allMangledPsnr;
+baselinePsnr( ~isfinite(baselinePsnr) ) = 0;
+
 
 if (~exist('./../results/figures/', 'dir'))
     mkdir('./../results/figures/');
@@ -189,6 +189,7 @@ fprintf('Desired Data Speed: %.2fMbps\n', nDataNodes*(dataBps/1000000));
 
 % Late packets
 nPlots = 1;
+plotColors = distinguishable_colors(nVariations);
 plot_rundata( nPlots, [2 1], 1, 'Time spent waiting over threshold (lower better)', ...
     'Time (microseconds)', varLabels, plotColors, nVariations, nSimulations, overThresholdTime );
 plot_rundata( nPlots, [2 1], 2, 'Packets waiting over threshold (lower better)', ...
@@ -197,40 +198,84 @@ savefig( sprintf('./../results/figures/VN%d Late Packets.fig', nVidNodes) );
 
 
 % Data transfer
-for i=1:nSimulations
-    nPlots = 1 + nPlots;
-    plotIndex = 0;
-    
-    for j=1:nVariations
-        plotIndex = 1 + plotIndex;
-        binned = txBinnedHistory{i,j};
-        nNodes = size(binned, 1);
+if (plotTrafficSum)
+    for i=1:nSimulations
+        summedLabels = cell(1, 2);
+        summedLabels{1} = 'video node';
+        summedLabels{2} = sprintf('%dx data nodes', i);
         
-        plot_timedata( nPlots, [nVariations 1], plotIndex, 'Data Transfer', ...
-            'transfers', nodeLabels{i}, plotColors(nVariations+1:nVariations+nNodes,:), nNodes, nTxBins, binned);
+        nPlots = 1 + nPlots;
+        plotIndex = 0;
+        
+        for j=1:nVariations
+            binned = txBinnedHistory{i, j};
+            summedBin = zeros( 2, size(binned,2) );
+            % Copy over the 1st row, that's our video data history
+            summedBin(1,:) = binned(1,:);
+            
+            % Sum up the rest of the rows, that's our other data
+            summedBin(2,:) = sum( binned(2:end,:), 1 );
+            
+            plotIndex = 1 + plotIndex;
+            nNodes = size(summedBin, 1);
+
+            plotColors = distinguishable_colors(nNodes);
+            plot_timedata( nPlots, [nVariations 1], plotIndex, sprintf('Data Transfer %s', varLabels{j}), ...
+                'transfers', summedLabels, plotColors, nNodes, nTxBins, summedBin);
+        end
+    end
+else
+    % Regular, non-summed version
+    for i=1:nSimulations
+        nPlots = 1 + nPlots;
+        plotIndex = 0;
+
+        for j=1:nVariations
+            plotIndex = 1 + plotIndex;
+            binned = txBinnedHistory{i,j};
+            nNodes = size(binned, 1);
+
+            plotColors = distinguishable_colors(nNodes);
+            plot_timedata( nPlots, [nVariations 1], plotIndex, sprintf('Data Transfer %s', varLabels{j}), ...
+                'transfers', nodeLabels{i}, plotColors, nNodes, nTxBins, binned);
+        end
     end
 end
 
 if (doVideoMangle)
     % PSNR
     nPlots = 1 + nPlots;
+    plotColors = distinguishable_colors(nVariations);
     plot_rundata( nPlots, [2 1], 1, 'Mean PSNR with dropped packets (lower better)', ...
-        'PSNR', varLabels, plotColors(1:nVariations,:), nVariations, nSimulations, meanMangledPsnr);
+        'PSNR', varLabels, plotColors, nVariations, nSimulations, meanMangledPsnr);
     plot_rundata( nPlots, [2 1], 2, 'Median PSNR with dropped packets (lower better)', ...
-        'PSNR', varLabels, plotColors(1:nVariations,:), nVariations, nSimulations, medMangledPsnr);
+        'PSNR', varLabels, plotColors, nVariations, nSimulations, medMangledPsnr);
     savefig( sprintf('./../results/figures/VN%d PSNR.fig', nVidNodes) );
+    
+    allMovAvgPsnr = cell(1, nVariations);
+    
+    nTimeIndices = size(allMangledPsnr{i,j},2);
+    movAvgPsnr = zeros( nSimulations, nTimeIndices );
+    for j=1:nVariations
+        allMovAvgPsnr{j} = zeros( nSimulations, size(allMangledPsnr{i,j},2) );
+        for i=1:nSimulations
+            normalizedPsnr = allMangledPsnr{i,j} ./ baselinePsnr;
+            allMovAvgPsnr{j}(i,:) = normalizedPsnr;%smooth(normalizedPsnr, movAvgWindow);
+        end
+    end
+    
+    labels = cell(1, nSimulations);
+    for i=1:nSimulations
+        labels{i} = sprintf('%dx data nodes', i);
+    end
+    
+    plotIndex = 0;
+    plotColors = distinguishable_colors(nSimulations);
+    for j=1:nVariations
+        plotIndex = 1 + plotIndex;
+        movAvgPsnr = allMovAvgPsnr{j};
 
-    % SNR
-    nPlots = 1 + nPlots;
-    plot_rundata( nPlots, [2 1], 1, 'Mean SNR with dropped packets (lower better)', ...
-        'SNR', varLabels, plotColors(1:nVariations,:), nVariations, nSimulations, meanMangledSnr );
-    plot_rundata( nPlots, [2 1], 1, 'Median SNR with dropped packets (lower better)', ...
-        'SNR', varLabels, plotColors(1:nVariations,:), nVariations, nSimulations, medMangledSnr );
-    savefig( sprintf('./../results/figures/VN%d SNR.fig', nVidNodes) );
-
-    % SSIM
-    %nPlots = 1 + nPlots;
-    %plot_rundata( nPlots, 'Median SSIM Similarity with dropped packets(lower better)', ...
-        %'SNR', varLabels, plotColors(1:nVariations,:), nVariations, nSimulations, medMangledSSIM );
-    %savefig( sprintf('./../results/figures/VN%d SSIM.fig', nVidNodes) );
+        plot_timedata( nPlots, [nVariations 1], plotIndex, sprintf('Moving Average Normalized PSNR %s', varLabels{j}), ...
+            'transfers', labels, plotColors, nSimulations, nTimeIndices, movAvgPsnr);
+    end
 end
