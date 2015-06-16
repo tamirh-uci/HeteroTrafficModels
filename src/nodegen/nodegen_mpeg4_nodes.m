@@ -45,7 +45,7 @@ classdef nodegen_mpeg4_nodes < handle
             % fixed for multimedia nodes
             dcf_model.bFixedInterarrivalChain = true;
             dcf_model.bFixedPacketchain = true;
-            dcf_model.nPkt = 1;
+            dcf_model.nPkt = currentValues.packetSize;
             dcf_model.pEnterInterarrival = 1;
             
             % user changable values
