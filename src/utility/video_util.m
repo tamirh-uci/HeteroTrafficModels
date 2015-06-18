@@ -33,17 +33,25 @@ classdef video_util < handle
     
     methods (Static)
         function exe = ffmpeg_exe()
-            exe = 'E:\Downloads\ffmpeg-20150414-git-013498b-win64-static\bin\ffmpeg.exe';
-            %exe = 'C:\Users\rawkuts\Downloads\ffmpeg-20150605-git-7be0f48-win64-static\bin\ffmpeg.exe';
+            exeLocations = {'E:\Downloads\ffmpeg-20150414-git-013498b-win64-static\bin\ffmpeg.exe' 'C:\Users\rawkuts\Downloads\ffmpeg-20150605-git-7be0f48-win64-static\bin\ffmpeg.exe'};
+                        
+            for i=1:size(exeLocations,2)
+                exe = exeLocations{i};
+                if (exist(exe, 'file'))
+                    return;
+                end
+            end
+            
+            exe = 'FFMPEG EXECUTABLE NOT FOUND';
         end
         
-        function exe = xvid_encode()
-            exe = 'C:\Users\rawkuts\Downloads\xvidcore\build\win32\bin\xvid_encraw.exe';
-        end
+        %function exe = xvid_encode()
+            %exe = 'C:\Users\rawkuts\Downloads\xvidcore\build\win32\bin\xvid_encraw.exe';
+        %end
         
-        function exe = xvid_decode()
-            exe = 'C:\Users\rawkuts\Downloads\xvidcore\build\win32\bin\xvid_decraw.exe';
-        end
+        %function exe = xvid_decode()
+            %exe = 'C:\Users\rawkuts\Downloads\xvidcore\build\win32\bin\xvid_decraw.exe';
+        %end
         
         function [fNameOrig, fNameSrcU, fNameSrcC, fNameDstC] = subFilenames(folderIn, folderOut, fNameIn, frameStart, nFrames)
             fNameOrig = fullfile(folderIn, fNameIn);
