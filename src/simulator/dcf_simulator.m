@@ -12,6 +12,9 @@ classdef dcf_simulator < handle
         % mark all previous states in that chain a failure?
         bDoPacketchainBacktrack = true;
         
+        % What is the precision of our indexing into random indices
+        piPrecision = 32768;
+        
         % simulation nodes
         nodes;
         simSize;
@@ -45,6 +48,8 @@ classdef dcf_simulator < handle
             obj.physical_type = params.physical_type;
             obj.physical_payload = params.physical_payload;
             obj.physical_speed = params.physical_speed;
+            obj.piPrecision = params.piPrecision;
+            
             obj.cachedSuccess = -1;
             obj.cachedFailure = -1;
             obj.cachedWait = -1;
@@ -96,7 +101,7 @@ classdef dcf_simulator < handle
             for i=1:nNodes
                 node = this.nodes{i};
                 filename = this.NodeFilename(cachePrefix, i);
-                node.Setup(filename, loadCache, saveCache, bVerbose);
+                node.Setup(filename, loadCache, saveCache, this.piPrecision, bVerbose);
                 this.simSize(i) = node.simSize;
             end
             

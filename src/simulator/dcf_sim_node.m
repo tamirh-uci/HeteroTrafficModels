@@ -54,13 +54,13 @@ classdef dcf_sim_node < handle
     end
     
     methods (Static)
-        function pi = makepi(hist, chain)
+        function pi = makepi(hist, chain, precision)
             [rawPI, hist.txTypes, hist.stateTypes] = chain.TransitionTable();
             
             nStates = size(rawPI, 2);
             pi = cell(1, nStates);
             for i = 1:nStates
-                pi{i} = weighted_sample( rawPI(i,:) );
+                pi{i} = weighted_sample( precision, rawPI(i,:) );
             end
         end
     end
@@ -169,7 +169,7 @@ classdef dcf_sim_node < handle
             end 
         end
         
-        function Setup(this, cache, loadCache, saveCache, bVerbose)
+        function Setup(this, cache, loadCache, saveCache, piPrecision, bVerbose)
             isLoaded = false;
             loadedFromCache = false;
             filename = sprintf('%s.setup.mat', cache);
@@ -180,7 +180,7 @@ classdef dcf_sim_node < handle
             end
             
             if (~isLoaded)
-                this.SetupWithoutCache(bVerbose);
+                this.SetupWithoutCache(piPrecision, bVerbose);
             end
             
             if (saveCache && ~loadedFromCache)
@@ -219,19 +219,19 @@ classdef dcf_sim_node < handle
             end
         end
         
-        function SetupWithoutCache(this, bVerbose)
+        function SetupWithoutCache(this, piPrecision, bVerbose)
             this.dcfChainSingleTx = this.dcfChainBuilder.CreateMarkovChain(this.pSuccessSingleTransmit, false, bVerbose);
-            this.piSingleTransmit = dcf_sim_node.makepi(this.dcfHist, this.dcfChainSingleTx);
+            this.piSingleTransmit = dcf_sim_node.makepi(this.dcfHist, this.dcfChainSingleTx, piPrecision);
             this.simSize = size(this.piSingleTransmit, 2);
 
             this.dcfChainMultiTx = this.dcfChainBuilder.CreateMarkovChain(this.pSuccessMultiTransmit, true, bVerbose);
-            this.piMultiTransmit = dcf_sim_node.makepi(this.dcfHist, this.dcfChainMultiTx);
+            this.piMultiTransmit = dcf_sim_node.makepi(this.dcfHist, this.dcfChainMultiTx, piPrecision);
 
             this.dcfHist.Setup(this.dcfChainSingleTx, this.piSingleTransmit, 0);
 
             if (this.hasSecondary)
                 this.secChain = this.secChainBuilder.CreateMarkovChain(false);
-                this.piSecondary = dcf_sim_node.makepi(this.secHist, this.secChain);                
+                this.piSecondary = dcf_sim_node.makepi(this.secHist, this.secChain, piPrecision);
                 this.secHist.Setup(this.secChain, this.piSecondary, 1);
             end
         end

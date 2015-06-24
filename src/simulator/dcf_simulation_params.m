@@ -6,5 +6,6 @@ classdef dcf_simulation_params < handle
         physical_type = phys80211_type.B;
         physical_speed = 1.0;
         physical_payload = 8*1500;
+        piPrecision = 32768;
     end
 end

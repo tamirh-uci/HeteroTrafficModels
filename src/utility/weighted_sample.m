@@ -7,7 +7,7 @@ classdef weighted_sample < handle
         %pi;
         
         % Cumulative probabilities (slower than the direct index)
-        %piCumulative;
+        % piCumulative;
         
         % Directly index into value with given precision
         piIndexer;
@@ -21,11 +21,9 @@ classdef weighted_sample < handle
         % of getting any of the values
         % Example: weighted probabilities = [0.25 0.25 0.5], precision = 8
         % Resulting indexing array = [1 1 2 2 3 3 3 3]
-        function obj = weighted_sample(piIn)
-            PRECISION = 25000;
-            
+        function obj = weighted_sample(precision, piIn)
             obj = obj@handle();
-            obj.piPrecision = PRECISION;
+            obj.piPrecision = precision;
             
             % Loop through our probabilities, mapping them onto indices
             % Ignore 0 probability indicies
@@ -34,7 +32,7 @@ classdef weighted_sample < handle
             
             minP = min(piIn(piIn>0));
             minPrecision = 2 * ceil( 1.0 / minP );
-            if (minPrecision > PRECISION)
+            if (minPrecision > precision)
                 obj.piPrecision = minPrecision;
             end
             obj.piIndexer = zeros(1, obj.piPrecision);
@@ -61,19 +59,6 @@ classdef weighted_sample < handle
             
             % With leftover indices, map them onto the last valid index
             obj.piIndexer(indexerEnd:obj.piPrecision) = lastValidIndex;
-            
-            % Verify all indicies are valid
-            % Expensive operation, commented out for since it seems to work
-%             for i=1:PRECISION
-%                 index = obj.piIndexer(i);
-%                 if( index <= 0 || index > maxIndex || piIn(index) <= 0 )
-%                     fprintf('fast indexer creation failed\n');
-%                 end
-%                 
-%                 assert(index > 0);
-%                 assert(index <= maxIndex);
-%                 assert(piIn(index) > 0);
-%             end
         end
         
         function index = sample(this)
