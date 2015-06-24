@@ -1,6 +1,6 @@
 nBins = 100;
-binnedWeb = load_wireshark_trace('./../Wireshark Web Browsing - web_browsing.csv', nBins);
-binnedVid = load_wireshark_trace('./../Wireshark Youtube - streaming_video.csv', nBins);
+binnedWeb = load_wireshark_trace('./../Wireshark Web Browsing - web_browsing.csv', nBins, 100);
+binnedVid = load_wireshark_trace('./../Wireshark Youtube - streaming_video.csv', nBins, 100);
 time = 1:nBins-1;
 
 figure

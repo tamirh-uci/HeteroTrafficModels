@@ -1,8 +1,11 @@
-function binned = load_wireshark_trace(file, nBins)
+function binned = load_wireshark_trace(file, nBins, minPacketSize)
 
     wireshark = csvread(file);
-    minTime = wireshark(1,1);
-    maxTime = wireshark(end,1);
+    wiresharkTimes = wireshark(:,1);
+    wiresharkPacketSizes = wireshark(:,2);
+    
+    minTime = wiresharkTimes(1);
+    maxTime = wiresharkTimes(end);
     totTime = maxTime - minTime;
     deltaTime = totTime / nBins;
     binEdges = minTime:deltaTime:maxTime;
@@ -12,7 +15,7 @@ function binned = load_wireshark_trace(file, nBins)
         startTime = binEdges(i);
         endTime = binEdges(i+1);
 
-        indices = find(wireshark >= startTime & wireshark <= endTime);
-        binned(i) = sum( wireshark(indices,2) );
+        indices = find(wiresharkTimes >= startTime & wiresharkTimes <= endTime & wiresharkPacketSizes >= minPacketSize);
+        binned(i) = sum( wiresharkPacketSizes(indices) );
     end
 end
