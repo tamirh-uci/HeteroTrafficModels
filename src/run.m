@@ -3,7 +3,7 @@ close all;
 
 % Load in a real video file to test against
 fullStartFrame = 150;
-nTotalFrames = 800; % 250 is about 10 seconds
+nTotalFrames = 250; % 250 is about 10 seconds
 framesPerChunk = 30;
 nChunks = ceil(nTotalFrames/framesPerChunk);
 fullEndFrame = fullStartFrame + nTotalFrames - 1;
@@ -32,16 +32,16 @@ for i=1:nChunks
 end
 
 plotTrafficSum = true;
-cleanCache = false;
-doVideoMangle = true;
+cleanCache = true;
+doVideoMangle = false;
 slotsPerVPacket = 15;
-qualityThresholdMicrosec = 50000; % 50 miliseconds
+qualityThresholdMicrosec = 75000; % 75 miliseconds
 nTxBins = 100;
 movAvgWindow = 4;
 
 % max number of nodes in system
 nMaxVidNodes = 1;
-nMaxDataNodes = 5;
+nMaxDataNodes = 1;
 
 % Shared params
 simName = 'mp4-interference';
@@ -51,15 +51,16 @@ simParams.physical_type = phys80211_type.B;
 wMin = 8;
 wMax = 16;
 
-%simParams.pSingleSuccess = 1.0;
-%varLabels = ['p=1.0'];
+simParams.pSingleSuccess = 1.0;
+varLabels = cell(1,1);
+varLabels{1} = 'p=1.0';
 
-simParams.pSingleSuccess = [0.60, 0.80, 1.0];
-varLabels = cell(1,3);
-varLabels{1} = 'p=0.6';
-varLabels{2} = 'p=0.8';
-varLabels{3} = 'p=1.0';
-nVariations = 3; % TODO: Calculate this from simParams
+%simParams.pSingleSuccess = [0.60, 0.80, 1.0];
+%varLabels = cell(1,3);
+%varLabels{1} = 'p=0.6';
+%varLabels{2} = 'p=0.8';
+%varLabels{3} = 'p=1.0';
+nVariations = size(varLabels,2); % TODO: Calculate this from simParams
 
 % Video node stuff
 % Grab values from our actual loaded file

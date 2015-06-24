@@ -7,6 +7,6 @@ classdef nodegen_mpeg4_params < handle
         bps = 1000000 * 4;
         gopAnchorFrameDistance = 3;
         gopFullFrameDistance = 12;
-        packetSize = 3;
+        packetSize = 1;
     end
 end
