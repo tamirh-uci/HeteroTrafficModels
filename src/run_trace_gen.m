@@ -1,12 +1,11 @@
 run_set_path
 
 nVidNodes = 1;
-nDataNodes = 10;
+nDataNodes = 0;
 
 % Load in a real video file to test against
 vu = video_util();
-vu.setup();
-vu.nFrames = 150; % a bit over 30 seconds
+vu.nFrames = 150;
 vu.prep();
 
 slotsPerVPacket = 50;
@@ -16,7 +15,7 @@ qualityThresholdMicrosec = 50000; % 50 miliseconds
 simName = 'mp4-interference';
 simParams = dcf_simulation_params();
 simParams.pSingleSuccess = 1.0;
-simParams.pMultiSuccess = 1.0;
+simParams.pMultiSuccess = 1.0; % For this trace, we're not simulating failures so everything succeeds
 simParams.physical_type = phys80211_type.B;
 
 wMin = 8;
@@ -39,6 +38,7 @@ nSims = nVidNodes + nDataNodes;
 nSim = 1;
 simType = zeros(1, nSims);
 simResults = cell(1, nSims);
+
 for i=1:nVidNodes
     fprintf('\n==============\nSimulating video node %d of %d\n', i, nVidNodes);
     sim = setup_single_sim( simName, timesteps, simParams, dataParams, vidParams, vu, qualityThresholdMicrosec, 1, 0 );
@@ -83,17 +83,28 @@ for i=1:nSims
     packetHistory = packetHistories{1};
     sentPackets = find(packetHistory ~= 0);
     
+    if (simType(i)==10) % type (web=10, video=20's)
+        types = 10 * ones(1, size(sentPackets,2));
+    else
+        types = results{1}.nodeSecHistory{1}.stateTypeHistory( sentPackets );
+        types( types==21 ) = 20;
+        types( types==31 ) = 30;
+        types( types==41 ) = 40;
+    end
+    
+    dataRow = 1;
     for j=sentPackets
         time = deltaTime * j;
         packetSize = bytesPerPacket * packetHistory(j);
         
         csvData(csvRow, 1) = int32(i); % simulation #
-        csvData(csvRow, 2) = int32(simType(i)); % type (web=10, video=20's)
+        csvData(csvRow, 2) = int32(types(dataRow)); % IFrame(20,21) BFrame(30,31) PFrame(40,41)
         csvData(csvRow, 3) = int32(j); % packet index
         csvData(csvRow, 4) = time; % time (microseconds)
         csvData(csvRow, 5) = int32(packetSize); % packetsize (bytes)
         
         csvRow = csvRow + 1;
+        dataRow = dataRow + 1;
     end
 end
 
