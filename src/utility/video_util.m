@@ -42,7 +42,8 @@ classdef video_util < handle
                 end
             end
             
-            exe = 'FFMPEG EXECUTABLE NOT FOUND';
+            % Try it on the system path
+            exe = 'ffmpeg';
         end
         
         %function exe = xvid_encode()
