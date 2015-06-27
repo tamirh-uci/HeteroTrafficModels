@@ -243,4 +243,6 @@ if (doVideoMangle)
     for i=1:nSimulations
         timedataLabels{i} = sprintf('%dx data nodes', i);
     end
+    
+    plot_viddata(nPlots, allMangledPsnr, baselinePsnr, meanMangledPsnr, medMangledPsnr, varLabels, timedataLabels);
 end

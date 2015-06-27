@@ -1,3 +1,6 @@
+clear all;
+close all;
+
 % -----------------------------
 % CONSTANTS
 % -----------------------------
@@ -24,13 +27,20 @@ vu.nBytesPerPacket = BYTES_PER_PACKET;
 vu.baseFilename = VID_FILE;
 vu.prep();
 
-[mangledPsnr, mangledSnr] = vu.decodeMangled(badPacketChunk, COMPARE_AGAINST_UNCOMPRESSED_SRC);
+
+[mangledPsnr, ~] = vu.decodeMangled(badPackets, COMPARE_AGAINST_UNCOMPRESSED_SRC);
+[baselinePsnr, ~] = vu.decodeMangled([], COMPARE_AGAINST_UNCOMPRESSED_SRC);
 
 
 % -----------------------------
 % Plot results
 % -----------------------------
 mangledPsnrData = cell(1,1);
-mangledPsnrData{1,1} = mangledPsnr;
+psnrLabels = cell(1,1);
+timedataLabels = cell(1,1);
 
-plot_viddata(1, mangledPsnrData, 1, psnrLabsl, timedataLabels);
+mangledPsnrData{1,1} = mangledPsnr;
+psnrLabels{1} = '';
+timedataLabels{1} = '';
+
+plot_viddata(1, mangledPsnrData, baselinePsnr, [], [], psnrLabels, timedataLabels);
