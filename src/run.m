@@ -8,11 +8,6 @@ framesPerChunk = 30;
 nChunks = ceil(nTotalFrames/framesPerChunk);
 fullEndFrame = fullStartFrame + nTotalFrames - 1;
 
-vuWhole = video_util();
-vuWhole.frameStart = fullStartFrame;
-vuWhole.nFrames = nTotalFrames;
-vuWhole.prep();
-
 vuTotalPackets = 0;
 vuAvgBps = 0;
 vuCells = cell(1, nChunks);
@@ -33,7 +28,7 @@ end
 
 plotTrafficSum = true;
 cleanCache = true;
-doVideoMangle = false;
+doVideoMangle = true;
 slotsPerVPacket = 15;
 qualityThresholdMicrosec = 75000; % 75 miliseconds
 nTxBins = 100;
@@ -244,39 +239,8 @@ else
 end
 
 if (doVideoMangle)
-    % PSNR
-    nPlots = 1 + nPlots;
-    plotColors = distinguishable_colors(nVariations);
-    plot_rundata( nPlots, [2 1], 1, 'Mean PSNR with dropped packets (lower better)', ...
-        'PSNR', varLabels, plotColors, nVariations, nSimulations, meanMangledPsnr);
-    plot_rundata( nPlots, [2 1], 2, 'Median PSNR with dropped packets (lower better)', ...
-        'PSNR', varLabels, plotColors, nVariations, nSimulations, medMangledPsnr);
-    savefig( sprintf('./../results/figures/VN%d PSNR.fig', nVidNodes) );
-    
-    allMovAvgPsnr = cell(1, nVariations);
-    
-    nTimeIndices = size(allMangledPsnr{i,j},2);
-    movAvgPsnr = zeros( nSimulations, nTimeIndices );
-    for j=1:nVariations
-        allMovAvgPsnr{j} = zeros( nSimulations, size(allMangledPsnr{i,j},2) );
-        for i=1:nSimulations
-            normalizedPsnr = allMangledPsnr{i,j} ./ baselinePsnr;
-            allMovAvgPsnr{j}(i,:) = normalizedPsnr;%smooth(normalizedPsnr, movAvgWindow);
-        end
-    end
-    
-    labels = cell(1, nSimulations);
+    timedataLabels = cell(1, nSimulations);
     for i=1:nSimulations
-        labels{i} = sprintf('%dx data nodes', i);
-    end
-    
-    plotIndex = 0;
-    plotColors = distinguishable_colors(nSimulations);
-    for j=1:nVariations
-        plotIndex = 1 + plotIndex;
-        movAvgPsnr = allMovAvgPsnr{j};
-
-        plot_timedata( nPlots, [nVariations 1], plotIndex, sprintf('Moving Average Normalized PSNR %s', varLabels{j}), ...
-            'transfers', labels, plotColors, nSimulations, nTimeIndices, movAvgPsnr);
+        timedataLabels{i} = sprintf('%dx data nodes', i);
     end
 end
