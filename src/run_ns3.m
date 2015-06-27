@@ -1,5 +1,6 @@
 clear all;
 close all;
+run_set_path
 
 % -----------------------------
 % CONSTANTS
@@ -14,7 +15,7 @@ COMPARE_AGAINST_UNCOMPRESSED_SRC = true;
 % -----------------------------
 % TODO: Load in NS3 data
 % -----------------------------
-badPackets = [100, 101, 102, 157, 191, 222]; % placeholder data
+badPackets = [100, 101, 102, 157, 191, 222, 230, 255, 294, 347]; % placeholder data
 
 
 % -----------------------------
