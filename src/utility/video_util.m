@@ -21,6 +21,9 @@ classdef video_util < handle
         nFrames;
         nBytesPerPacket;
         resDst;
+        baseFilename;
+        inputFolder;
+        outputFolder;
     end
     
     properties
@@ -122,10 +125,9 @@ classdef video_util < handle
             fclose(dstFile);
         end
         
-        function [peaksnr, snr, similarity] = psnr_pics(srcPrefix, dstPrefix, nFrames)
+        function [peaksnr, snr] = psnr_pics(srcPrefix, dstPrefix, nFrames)
             peaksnr = zeros(1, nFrames);
             snr = zeros(1, nFrames);
-            similarity = zeros(1, nFrames);
             
             for i=1:nFrames
                 loaded = false;
@@ -147,14 +149,12 @@ classdef video_util < handle
                         % finally just give up and set values to NaN
                         peaksnr(i) = NaN;
                         snr(i) = NaN;
-                        similarity(i) = NaN;
                         printf('ERROR: Frame %d was not encoded');
                     end
                 end
                 
                 if (loaded)
                     [peaksnr(i), snr(i)] = psnr(dst, src);
-                    %[similarity(i), ~] = ssim(dst, src);
                 end
             end
         end
@@ -176,7 +176,7 @@ classdef video_util < handle
         end
         
         % Test the difference between two video files
-        function [peaksnr, snr, sims] = test_diff(fNameSrc, fNameDst, nFrames)
+        function [peaksnr, snr] = test_diff(fNameSrc, fNameDst, nFrames)
             fprintf('Generating source and mangled frames for: %s...\n', fNameDst);
             
             % Dump temp files into a folder so we can delete it after
@@ -199,7 +199,7 @@ classdef video_util < handle
             video_util.vid_to_pics(fNameDst, dstPrefix);
             
             fprintf('Calculating PSNR for: %s...\n', fNameDst);
-            [peaksnr, snr, sims] = video_util.psnr_pics(srcPrefix, dstPrefix, nFrames);
+            [peaksnr, snr] = video_util.psnr_pics(srcPrefix, dstPrefix, nFrames);
             
             % clean up our temp files
             rmdir(baseDir, 's');
@@ -242,10 +242,13 @@ classdef video_util < handle
             obj.frameStart = video_util.DEFAULT_START_FRAME;
             obj.nFrames = video_util.DEFAULT_NFRAMES;
             obj.nBytesPerPacket = video_util.DEFAULT_PACKETSIZE;
+            obj.baseFilename = video_util.DEFAULT_FILE;
+            obj.inputFolder = video_util.DEFAULT_INPUT_FOLDER;
+            obj.outputFolder = video_util.DEFAULT_OUTPUT_FOLDER;
         end
         
         function prep(this)
-            [this.fNameOrig, this.fNameSrcU, this.fNameSrcC, this.fNameDstC] = video_util.subFilenames(this.DEFAULT_INPUT_FOLDER, this.DEFAULT_OUTPUT_FOLDER, this.DEFAULT_FILE, this.frameStart, this.nFrames);
+            [this.fNameOrig, this.fNameSrcU, this.fNameSrcC, this.fNameDstC] = video_util.subFilenames(this.inputFolder, this.outputFolder, this.baseFilename, this.frameStart, this.nFrames);
             video_util.prepInput(this.fNameOrig, this.fNameSrcU, this.fNameSrcC, this.frameStart, this.nFrames);
             
             fileInfoSrcC = dir(this.fNameSrcC);
@@ -271,11 +274,17 @@ classdef video_util < handle
             end
         end
         
-        function [psnr, snr, sims] = decodeMangled(this, badPackets, srcType, dstType)
+        function [psnr, snr] = decodeMangled(this, badPackets, uncompressedSrc)
+            dstType = 'dC';
+            
+            if (uncompressedSrc)
+                srcType = 'sU';
+            else
+                srcType = 'sC';
+            end
+            
             video_util.mangle(this.fNameSrcC, this.fNameDstC, this.nFrames, badPackets, this.nBytesPerPacket);
-            [psnr, snr, sims] = video_util.test_diff( this.getFile(srcType), this.getFile(dstType), this.nFrames);
+            [psnr, snr] = video_util.test_diff( this.getFile(srcType), this.getFile(dstType), this.nFrames);
         end
-        
-        
     end
 end
