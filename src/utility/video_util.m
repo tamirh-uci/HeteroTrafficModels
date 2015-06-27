@@ -271,9 +271,11 @@ classdef video_util < handle
             end
         end
         
-        function [psnr, snr, sims] = testMangle(this, badPackets, srcType, dstType)
+        function [psnr, snr, sims] = decodeMangled(this, badPackets, srcType, dstType)
             video_util.mangle(this.fNameSrcC, this.fNameDstC, this.nFrames, badPackets, this.nBytesPerPacket);
             [psnr, snr, sims] = video_util.test_diff( this.getFile(srcType), this.getFile(dstType), this.nFrames);
         end
+        
+        
     end
 end

@@ -334,7 +334,7 @@ classdef dcf_simulation < handle
                     badPacketChunk = badPacketIndices( badPacketIndices>packetBoundaries(i) & badPacketIndices<=packetBoundaries(i+1) );
                     badPacketChunk = badPacketChunk - packetBoundaries(i);
                     
-                    [chunkPsnr, chunkSnr, chunkSSIM] = vu.testMangle(badPacketChunk, 'sU', 'dC');
+                    [chunkPsnr, chunkSnr, chunkSSIM] = vu.decodeMangled(badPacketChunk, 'sU', 'dC');
                     
                     simResult.allMangledPsnr = [simResult.allMangledPsnr chunkPsnr];
                     simResult.allMangledSnr = [simResult.allMangledSnr chunkSnr];
