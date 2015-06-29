@@ -338,7 +338,7 @@ classdef dcf_simulation < handle
                     
                     simResult.allMangledPsnr = [simResult.allMangledPsnr chunkPsnr];
                     simResult.allMangledSnr = [simResult.allMangledSnr chunkSnr];
-                    simResult.allMangledSSIM = [simResult.allMangledSSIM chunkSSIM];
+                    %simResult.allMangledSSIM = [simResult.allMangledSSIM chunkSSIM];
                 end
             end
             
