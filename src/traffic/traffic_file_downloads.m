@@ -1,4 +1,4 @@
-function [ nodegen ] = traffic_file_downloads(nNodes, wMin, wMax, nSizeTypes, nInterarrivalTypes, fileBigness, fileWaityness)
+function [ nodegen ] = traffic_file_downloads(nNodes, wMin, wMax, bps)
 %TRAFFIC_FILE_DOWNLOADS Create nodegen to simulate file downloading
     nodegen = nodegen_data_nodes();
     nodegen.name = 'file download';

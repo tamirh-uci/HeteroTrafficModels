@@ -30,4 +30,8 @@ function [ nodegen ] = traffic_video_stream(nNodes, wMin, wMax, bps, gopAnchorFr
     
     % There is always a packet in the buffer
     nodegen.params.pArrive = 1.0;
+    
+    % Stream has to sleep
+    nodegen.params.nSleep = 100;
+    nodegen.params.pEnterSleep = 0.01;
 end

@@ -63,12 +63,12 @@ timesteps = slotsPerVPacket * vuTotalPackets; % how many packets we'll need for 
 
 % File node stuff
 nSizeTypes = 1;
-nInterarrivalTypes = 1;
-fileBigness = 2.0;
-fileWaityness = 20.0;
+nInterarrivalTypes = 2;
+fileBigness = 1.0;
+fileWaityness = 1.0;
 
 vidParams = traffic_video_stream(1, wMin, wMax, vuAvgBps, [], []);
-dataParams = traffic_file_downloads(1, wMin, wMax, nSizeTypes, nInterarrivalTypes, fileBigness, fileWaityness);
+dataParams = traffic_web_browsing(1, wMin, wMax, nSizeTypes, nInterarrivalTypes, fileBigness, fileWaityness);
 
 nSoftMaxVidNodes = max(nMaxVidNodes, 1);
 nSoftMaxDataNodes = max(nMaxDataNodes, 1);

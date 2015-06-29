@@ -164,7 +164,7 @@ classdef dcf_markov_model < handle
             dcf.NewState( dcf_state(this.PacketsizeCalculateAttemptState(), dcf_state_type.CollapsiblePacketSize) );
             
             % interarival time 'calculation' states
-            for k = 1:this.nInterarrival
+            for k = 1:max(this.nInterarrival,this.nSleep)
                 % # states = max interarrival wait time
                 % jump randomly into any location in the chain
                 % with p=1 traverse down the chain
@@ -226,9 +226,7 @@ classdef dcf_markov_model < handle
             this.SetSuccessProbabilities(dcf);
             
             % Interarrival states, for when we have nothing to send
-            if (this.nInterarrival > 0)
-                this.SetInterarrivalProbabilities(dcf);
-            end
+            this.SetInterarrivalProbabilities(dcf);
             
             this.SetPacketsizeCalculateProbabilities(dcf);
             
@@ -271,15 +269,25 @@ classdef dcf_markov_model < handle
             if (this.pEnterInterarrival > 0)
                 assert( this.nInterarrival > 0 );
                 
+                pNormalInterarrival = 1.0 - this.pEnterSleep;
+                
+                % We have a chance to go into deep sleep interarrival
+                if (this.nSleep > 0)
+                    dst = this.InterarrivalState(this.nSleep);
+                    dcf.SetP( src, dst, this.pEnterSleep, dcf_transition_type.Collapsible );
+                else
+                    assert(this.pEnterSleep == 0);
+                end
+                
                 if (this.bFixedInterarrivalChain)
                     % We are always going to the end of the chain
                     dst = this.InterarrivalState(this.nInterarrival);
-                    dcf.SetP( src, dst, 1.0, dcf_transition_type.Collapsible );
+                    dcf.SetP( src, dst, pNormalInterarrival, dcf_transition_type.Collapsible );
                 else
-                    % Equal probabilities to go to any state in the interarrival chain
+                    % probabilities to go to any state in the interarrival chain
                     pInterarrivalState = zeros(1, this.nInterarrival);
                     if ( ~this.bCurvedInterarrivalChain || this.nInterarrival <= 2 )
-                        pInterarrivalState(:) = this.pEnterInterarrival / this.nInterarrival;
+                        pInterarrivalState(:) = pNormalInterarrival / this.nInterarrival;
                     else
                         %fprintf('Making curved interarival probabilities for chain of %d\n', this.nInterarrival);
                         % Make a parabola where the middle bottoms out at 0
@@ -301,13 +309,13 @@ classdef dcf_markov_model < handle
                         sol = solve( sum( a.*(X.^2) ) == 1 );
 
                         % Get the probabilities for each index
-                        pInterarrivalState = eval( this.pEnterInterarrival .* sol .* X.^2 );
+                        pInterarrivalState = eval( pNormalInterarrival .* sol .* X.^2 );
                     end
                     
                     for k = 1:this.nInterarrival
                         dst = this.InterarrivalState(k);
                         dcf.SetP( src, dst, pInterarrivalState(k), dcf_transition_type.Collapsible );
-                    end             
+                    end
                 end
             end
 
@@ -502,7 +510,7 @@ classdef dcf_markov_model < handle
         function SetInterarrivalProbabilities(this, dcf)
             % Traveling down the interarrival chain (no chance of
             % failure because we're not really doing anything)
-            for k = 2:this.nInterarrival
+            for k = 2:max(this.nInterarrival,this.nSleep)
                 src = this.InterarrivalState(k);
                 dst = this.InterarrivalState(k-1);
                 dcf.SetP( src, dst, 1.0, dcf_transition_type.Interarrival );
@@ -534,23 +542,34 @@ classdef dcf_markov_model < handle
             try
             assert( this.pRawSuccess >= 0 && this.pRawSuccess <= 1 );
             assert( this.pRawArrive > 0 && this.pRawArrive <= 1 ); % arrival rate of 0 means absolutely no packets will be sent
-            catch e
+            catch
                 assert( this.pRawSuccess >= 0 && this.pRawSuccess <= 1 );
                 assert( this.pRawArrive > 0 && this.pRawArrive <= 1 ); % arrival rate of 0 means absolutely no packets will be sent
             end
             
             assert( this.pEnterInterarrival >= 0 && this.pEnterInterarrival <= 1 );
+            assert( this.pEnterSleep >= 0 && this.pEnterSleep <= 1 );
             assert( this.m >= 1 );
             assert( this.wMin >= 0 );
             assert( this.nPkt >= 0 );
             assert( this.nInterarrival >= 0 );
+            assert( this.nSleep >= 0 );
             
             % Compute some useful variables based on our input params
             this.pRawFail = 1 - this.pRawSuccess;
             this.nStages = this.m + 1;
 
-            if (this.pEnterInterarrival < 0)
+            if (this.pEnterInterarrival <= 0)
                 this.pEnterInterarrival = 0;
+                this.nInterarrival = 0;
+                assert( this.pEnterSleep == 0 );
+            end
+            
+            if (this.pEnterSleep <= 0)
+                this.pEnterSleep = 0;
+                this.nSleep = 0;
+            else
+                assert(this.nSleep > 0);
             end
             
             % packetsize chain of 0 is just the regular model, the
@@ -595,9 +614,16 @@ classdef dcf_markov_model < handle
         % randomly with probability pEnterInterarrival
         nInterarrival = 0;
         
+        % longer sleep interarrival time
+        nSleep = 0;
+        
         % probability to enter the interarrival chain, so probability there is
         % not a packet immediately ready to send
         pEnterInterarrival = 0.0;
+        
+        % probability we enter a very long sleep time instead of normal
+        % interarrival
+        pEnterSleep = 0.0;
         
         % probability a packet shows up when it's supposed to
         pRawArrive = 1.0;
