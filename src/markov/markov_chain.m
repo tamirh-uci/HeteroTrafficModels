@@ -227,13 +227,17 @@ classdef markov_chain < handle
                 srcKey = ( eval(src.Key) );
                 
                 fprintf('\nFrom: %s (%s)\n', src.Key, char( dcf_state_type( srcKey(1) ) ) );
+                rowSum = 0;
                 % For all destination keys from this source
                 for j=1:nDst
                     dstKey = dstKeys{j};
                     type = char( dcf_transition_type( src.TX(dstKey) ) );
                     p = src.P(dstKey);
+                    rowSum = rowSum + p;
                     fprintf(' to: %s = %f (%s)\n', dstKey, p, type);
                 end
+                
+                fprintf('  Sum = %f\n', rowSum);
             end
         end
         

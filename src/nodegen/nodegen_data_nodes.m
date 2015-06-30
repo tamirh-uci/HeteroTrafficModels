@@ -41,14 +41,26 @@ classdef nodegen_data_nodes < handle
             
             dcf_model = dcf_markov_model();
             dcf_model.m = m;
+            
+            % fixed for now
+            dcf_model.bFixedInterarrivalChain = false;
+            dcf_model.bFixedPacketchain = false;
+            dcf_model.bCurvedInterarrivalChain = true;
+            
+            % user changable values
             dcf_model.wMin = currentValues.wMin;
             dcf_model.nPkt = currentValues.nMaxPackets;
-            dcf_model.nInterarrival = currentValues.nInterarrival;
-            dcf_model.pEnterInterarrival = currentValues.pEnter;
+            dcf_model.pInterarrival = currentValues.pInterarrival;
             dcf_model.pRawArrive = currentValues.pArrive;
-            dcf_model.bCurvedInterarrivalChain = true;
+            dcf_model.pSleep = currentValues.pSleep;
+            dcf_model.nInterarrival = currentValues.nInterarrival;
+            
+            % Calculate the rest of the params
+            bps = dcf_model.CalculateSleep(currentValues.bps, currentValues.nSleep, simulator.physical_type, simulator.physical_payload, simulator.physical_speed);
 
-            this.nodeName = sprintf('%s (%d)', this.name, this.cartesianParams.nVariations);
+            this.nodeName = sprintf('%s (%d @%.0fbps)', this.name, this.cartesianParams.nVariations, bps);
+            fprintf('Generated data node: %s\n', this.nodeName);
+            
             simulator.add_plain_node(this.nodeName, dcf_model);
         end
         

@@ -42,16 +42,21 @@ classdef nodegen_mpeg4_nodes < handle
             dcf_model = dcf_markov_model();
             dcf_model.m = m;
             
-            % fixed for multimedia nodes
-            dcf_model.bFixedInterarrivalChain = true;
-            dcf_model.bFixedPacketchain = true;
-            dcf_model.nPkt = currentValues.packetSize;
-            dcf_model.pEnterInterarrival = 1;
+            % fixed for now
+            dcf_model.bFixedInterarrivalChain = false;
+            dcf_model.bFixedPacketchain = false;
+            dcf_model.bCurvedInterarrivalChain = true;
             
             % user changable values
             dcf_model.wMin = currentValues.wMin;
+            dcf_model.nPkt = currentValues.nMaxPackets;
+            dcf_model.pInterarrival = currentValues.pInterarrival;
             dcf_model.pRawArrive = currentValues.pArrive;
-            dcf_model.CalculateInterarrival(currentValues.bps, simulator.physical_type, simulator.physical_payload, simulator.physical_speed);
+            dcf_model.pSleep = currentValues.pSleep;
+            dcf_model.nInterarrival = currentValues.nInterarrival;
+            
+            % Calculate the rest of the params
+            bps = dcf_model.CalculateSleep(currentValues.bps, currentValues.nSleep, simulator.physical_type, simulator.physical_payload, simulator.physical_speed);
 
             % MPEG4 stream variables
             mpeg4_model = mpeg4_frame_model();
@@ -62,7 +67,9 @@ classdef nodegen_mpeg4_nodes < handle
             mpeg4_model.physical_payload = simulator.physical_payload;
             mpeg4_model.physical_speed = simulator.physical_speed;
             
-            this.nodeName = sprintf('%s (%d)', this.name, this.cartesianParams.nVariations);
+            this.nodeName = sprintf('%s (%d @%.0fbps)', this.name, this.cartesianParams.nVariations, bps);
+            fprintf('Generated mpeg4 node: %s\n', this.nodeName);
+            
             simulator.add_video_node(this.nodeName, dcf_model, mpeg4_model);
         end
         

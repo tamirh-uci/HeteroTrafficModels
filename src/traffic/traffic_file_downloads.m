@@ -1,4 +1,4 @@
-function [ nodegen ] = traffic_file_downloads(nNodes, wMin, wMax, bps)
+function [ nodegen ] = traffic_file_downloads(nNodes, wMin, wMax, bps, nSleep)
 %TRAFFIC_FILE_DOWNLOADS Create nodegen to simulate file downloading
     nodegen = nodegen_data_nodes();
     nodegen.name = 'file download';
@@ -16,30 +16,22 @@ function [ nodegen ] = traffic_file_downloads(nNodes, wMin, wMax, bps)
         nodegen.params.wMax = wMax;
     end
     
-    % 2nd level params to be used later
-    if (isempty(fileBigness))
-        fileBigness = 1.0;
+    if (isempty(bps))
+        bps = -1;
     end
     
-    if (isempty(fileWaityness))
-        fileWaityness = 1.0;
-    end
-    
-    if (isempty(nSizeTypes))
-        nSizeTypes = 3;
-    end
-    
-    if (isempty(nInterarrivalTypes))
-        nInterarrivalTypes = 3;
+    if (isempty(nSleep))
+        nSleep = -1;
     end
     
     % There is always a packet in the buffer
     nodegen.params.pArrive = 1.0;
+    nodegen.params.pInterarrival = 1.0;
     
-    % We will always wait after sending a 'file'
-    nodegen.params.pEnter = 1.0;
+    nodegen.params.nInterarrival = 2;
+    nodegen.params.pSleep = 0.0;
     
-    % Generate some variation in our packet/interarrival sizes
-    nodegen.params.nMaxPackets = ceil( fileBigness * 5 * (2 .^ (0:nSizeTypes-1)) );
-    nodegen.params.nInterarrival = ceil( fileWaityness * 5 * (2 .^ (0:nInterarrivalTypes-1)) );
+    
+    nodegen.params.bps = bps;
+    nodegen.params.nSleep = nSleep;
 end

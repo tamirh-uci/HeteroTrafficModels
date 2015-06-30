@@ -263,20 +263,20 @@ classdef dcf_markov_model < handle
             
             % If we have no interarrival, we go straight to packetsize calc
             dst = this.PacketsizeCalculateAttemptState();
-            dcf.SetP( src, dst, 1.0 - this.pEnterInterarrival, dcf_transition_type.Collapsible );
+            dcf.SetP( src, dst, 1.0 - this.pInterarrival, dcf_transition_type.Collapsible );
             
             % If we do have interarrival
-            if (this.pEnterInterarrival > 0)
+            if (this.pInterarrival > 0)
                 assert( this.nInterarrival > 0 );
                 
-                pNormalInterarrival = 1.0 - this.pEnterSleep;
+                pNormalInterarrival = this.pInterarrival - this.pSleep;
                 
                 % We have a chance to go into deep sleep interarrival
                 if (this.nSleep > 0)
                     dst = this.InterarrivalState(this.nSleep);
-                    dcf.SetP( src, dst, this.pEnterSleep, dcf_transition_type.Collapsible );
+                    dcf.SetP( src, dst, this.pSleep, dcf_transition_type.Collapsible );
                 else
-                    assert(this.pEnterSleep == 0);
+                    assert(this.pSleep == 0);
                 end
                 
                 if (this.bFixedInterarrivalChain)
@@ -327,7 +327,10 @@ classdef dcf_markov_model < handle
             % Equal chance to go to any packetsize depth
             % If bFixedPacketChain, we basically always go to the max depth
             src = this.PacketsizeCalculateAttemptState();
+            
+            % Possible packet sizes to divide our probability over
             range = 1 + this.nPkt - this.packetStart;
+                        
             p = 1.0 / range;
             
             % Every valid packetsize depth has a 'initial transmit attempt'
@@ -525,16 +528,82 @@ classdef dcf_markov_model < handle
         
         % Calculate how long we need to wait between transmissions in order
         % to send the payload with a given bps at a given datarate
-        function CalculateInterarrival(this, desiredBps, physical_type, physical_payload, physical_speed)
+        % This means figuring out nSleep
+        function expectedBps = CalculateSleep(this, desiredBps, desiredSleep, physical_type, physical_payload, physical_speed)
             % what rate would be be sending if we have 0 interarrival
             maxDatarate = phys80211.EffectiveMaxDatarate(physical_type, physical_payload, physical_speed, this.wMin);
             
-            % at what speed do we want to send to get our desired bps?
-            percentTransmit = desiredBps / maxDatarate;
+            % probability of sleeping
+            sleepTime = (this.pInterarrival * this.pSleep);
+
+            % estimated time spent sending packets
+            if (this.bFixedPacketchain)
+                % we have a plain fixed size packetchain, always the
+                % same packetsize
+                estPkt = this.nPkt;
+            else
+                % evenly distribute packetsizes, so just the average
+                estPkt = sum(1:this.nPkt) / this.nPkt;
+            end
+
+            % how large are our interarrivals?
+            if (this.bFixedInterarrivalChain)
+                standardInterarrival = this.nInterarrival;
+            else
+                standardInterarrival = sum(1:this.nInterarrival)/this.nInterarrival;
+            end
+
+            % estimated time spent in interarrival with no sleep
+            estStdInt = this.pInterarrival * standardInterarrival;
+
+            % transmitting percent is just time sending over overall time
+            maxTransmittingPercent = estPkt / ( estPkt + estStdInt );
+
+            if( desiredBps > 0 )
+                % at what speed do we want to send to get our bps in the end?
+                desiredPercentTransmit = desiredBps / maxDatarate;
+
+                % Do we have a chance of reaching desired bps?
+                if (desiredPercentTransmit > maxTransmittingPercent)
+                    this.nSleep = this.nInterarrival + 1;
+                    fprintf('WARNING: Attempting to set BPS too high for current network configuration\n');
+                    fprintf('Desired: %fbps, Max Theoretical: %f\n', desiredBps, maxDatarate*maxTransmittingPercent);
+                    estStdInt = this.pInterarrival * (1-this.pSleep) * standardInterarrival;
+                else
+                    % estimated wait time for non-sleep interarrival
+                    estStdInt = this.pInterarrival * (1-this.pSleep) * standardInterarrival;
+
+                    if (sleepTime > 0)
+                        % calculate sleep required to get the desired FPS
+                        this.nSleep = floor( ((estPkt / desiredPercentTransmit) - estPkt - estStdInt) / sleepTime );
+
+                        assert( this.nSleep > 0 );
+                        if (this.nSleep < this.nInterarrival)
+                            % minimum sleep
+                            this.nSleep = this.nInterarrival + 1;
+                        end
+                    else
+                        % if we can't sleep, modify our nInterarrival value
+                        this.nInterarrival = ceil( ((estPkt/desiredPercentTransmit) - estPkt) / this.pInterarrival );
+
+                        % recalculate how our interarrival estimated values since
+                        % we just changed our interarrival time
+                        standardInterarrival = sum(1:this.nInterarrival)/this.nInterarrival;
+                        estStdInt = this.pInterarrival * standardInterarrival;
+                    end
+                end
+            else
+                % just use nSleep given
+                if (desiredSleep < this.nInterarrival)
+                    this.nSleep = this.nInterarrival + 1;
+                else
+                    this.nSleep = desiredSleep;
+                end
+            end
             
-            % NOTE: This is just assuming transmit time == 1x backoff time
-            % how many interarrival states should we make?
-            this.nInterarrival = ceil( 1/percentTransmit );
+            % calculate what our theoretical bps is
+            estSleep = sleepTime * this.nSleep;
+            expectedBps = maxDatarate * estPkt / (estPkt + estStdInt + estSleep);
         end
         
         function CalculateConstants(this)
@@ -547,8 +616,8 @@ classdef dcf_markov_model < handle
                 assert( this.pRawArrive > 0 && this.pRawArrive <= 1 ); % arrival rate of 0 means absolutely no packets will be sent
             end
             
-            assert( this.pEnterInterarrival >= 0 && this.pEnterInterarrival <= 1 );
-            assert( this.pEnterSleep >= 0 && this.pEnterSleep <= 1 );
+            assert( this.pInterarrival >= 0 && this.pInterarrival <= 1 );
+            assert( this.pSleep >= 0 && this.pSleep <= 1 );
             assert( this.m >= 1 );
             assert( this.wMin >= 0 );
             assert( this.nPkt >= 0 );
@@ -559,14 +628,14 @@ classdef dcf_markov_model < handle
             this.pRawFail = 1 - this.pRawSuccess;
             this.nStages = this.m + 1;
 
-            if (this.pEnterInterarrival <= 0)
-                this.pEnterInterarrival = 0;
+            if (this.pInterarrival <= 0)
+                this.pInterarrival = 0;
                 this.nInterarrival = 0;
-                assert( this.pEnterSleep == 0 );
+                assert( this.pSleep == 0 );
             end
             
-            if (this.pEnterSleep <= 0)
-                this.pEnterSleep = 0;
+            if (this.pSleep <= 0)
+                this.pSleep = 0;
                 this.nSleep = 0;
             else
                 assert(this.nSleep > 0);
@@ -611,7 +680,7 @@ classdef dcf_markov_model < handle
         nPkt = 1;
 
         % number of states in the interarrival chain, we will jump to one
-        % randomly with probability pEnterInterarrival
+        % randomly with probability pInterarrival
         nInterarrival = 0;
         
         % longer sleep interarrival time
@@ -619,12 +688,12 @@ classdef dcf_markov_model < handle
         
         % probability to enter the interarrival chain, so probability there is
         % not a packet immediately ready to send
-        pEnterInterarrival = 0.0;
+        pInterarrival = 0.0;
         
         % probability we enter a very long sleep time instead of normal
         % interarrival
-        pEnterSleep = 0.0;
-        
+        pSleep = 0.0;
+                
         % probability a packet shows up when it's supposed to
         pRawArrive = 1.0;
         

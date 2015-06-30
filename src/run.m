@@ -61,14 +61,9 @@ nVariations = size(varLabels,2); % TODO: Calculate this from simParams
 % Grab values from our actual loaded file
 timesteps = slotsPerVPacket * vuTotalPackets; % how many packets we'll need for our video (assume pretty good conditions)
 
-% File node stuff
-nSizeTypes = 1;
-nInterarrivalTypes = 2;
-fileBigness = 1.0;
-fileWaityness = 1.0;
 
-vidParams = traffic_video_stream(1, wMin, wMax, vuAvgBps, [], []);
-dataParams = traffic_web_browsing(1, wMin, wMax, nSizeTypes, nInterarrivalTypes, fileBigness, fileWaityness);
+vidParams = traffic_video_stream(1, wMin, wMax, vuAvgBps, []);
+dataParams = traffic_web_browsing(1, wMin, wMax, vuAvgBps, []);
 
 nSoftMaxVidNodes = max(nMaxVidNodes, 1);
 nSoftMaxDataNodes = max(nMaxDataNodes, 1);
@@ -174,14 +169,12 @@ end
 channelBps = phys80211.EffectiveMaxDatarate(simParams.physical_type, simParams.physical_payload, simParams.physical_speed, 1);
 maxSinglenodeBps = (channelBps/wMin);
 
-dataBps = ( fileBigness / (0.5*fileWaityness+wMin) ) * channelBps;
 elapsedMicroseconds = timesteps * phys80211.TransactionTime(simParams.physical_type, simParams.physical_payload, simParams.physical_speed);
 
 fprintf('Timesteps = %d, time=%f s\n', timesteps, (elapsedMicroseconds/1000000));
 fprintf('%s Channel Speed: %.2fMbps\n', phys80211.Name(simParams.physical_type), (channelBps/1000000));
 fprintf('Max Node Speed: %.2fMbps\n', (maxSinglenodeBps/1000000));
-fprintf('Desired Video Speed: %.2fMbps\n', nVidNodes*(vuAvgBps/1000000));
-fprintf('Desired Data Speed: %.2fMbps\n', nDataNodes*(dataBps/1000000));
+fprintf('Desired Node Speed: %.2fMbps\n', nVidNodes*(vuAvgBps/1000000));
 
 % Late packets
 nPlots = 1;

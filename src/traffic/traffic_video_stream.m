@@ -1,9 +1,13 @@
-function [ nodegen ] = traffic_video_stream(nNodes, wMin, wMax, bps, gopAnchorFrameDistance, gopFullFrameDistance)
+function [ nodegen ] = traffic_video_stream(nNodes, wMin, wMax, bps, nSleep)
 %TRAFFIC_VIDEO_STREAM Create nodegen to simulate mpeg4 video streaming
     nodegen = nodegen_mpeg4_nodes();
     nodegen.name = 'video stream';
     
     % user entered params
+    if (~isempty(nNodes))
+        nodegen.nGenerators = nNodes;
+    end
+    
     if (~isempty(wMin))
         nodegen.params.wMin = wMin;
     end
@@ -12,26 +16,20 @@ function [ nodegen ] = traffic_video_stream(nNodes, wMin, wMax, bps, gopAnchorFr
         nodegen.params.wMax = wMax;
     end
     
-    if (~isempty(bps))
-        nodegen.params.bps = bps;
+    if (isempty(bps))
+        bps = -1;
     end
     
-    if (~isempty(gopAnchorFrameDistance))
-        nodegen.params.gopAnchorFrameDistance = gopAnchorFrameDistance;
-    end
-    
-    if (~isempty(gopFullFrameDistance))
-        nodegen.params.gopFullFrameDistance = gopFullFrameDistance;
-    end
-    
-    if (~isempty(nNodes))
-        nodegen.nGenerators = nNodes;
+    if (isempty(nSleep))
+        nSleep = -1;
     end
     
     % There is always a packet in the buffer
     nodegen.params.pArrive = 1.0;
+    nodegen.params.pInterarrival = 1.0;
     
-    % Stream has to sleep
-    nodegen.params.nSleep = 100;
-    nodegen.params.pEnterSleep = 0.01;
+    nodegen.params.nInterarrival = 5;
+    nodegen.params.pSleep = 0.01;
+    nodegen.params.bps = bps;
+    nodegen.params.nSleep = nSleep;
 end

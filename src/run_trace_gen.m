@@ -1,14 +1,15 @@
 run_set_path
 
 nVidNodes = 1;
-nDataNodes = 0;
+nDataNodes = 1;
+nWebNodes = 1;
 
 % Load in a real video file to test against
 vu = video_util();
-vu.nFrames = 150;
+vu.nFrames = 60;
 vu.prep();
 
-slotsPerVPacket = 50;
+slotsPerVPacket = 10;
 qualityThresholdMicrosec = 50000; % 50 miliseconds
 
 % Shared params
@@ -25,16 +26,12 @@ wMax = 16;
 % Grab values from our actual loaded file
 timesteps = slotsPerVPacket * vu.nPacketsSrcC; % how many packets we'll need for our video (assume pretty good conditions)
 
-% File node stuff
-nSizeTypes = 1;
-nInterarrivalTypes = 1;
-fileBigness = 4.0;
-fileWaityness = 2.0;
 
-vidParams = traffic_video_stream(1, wMin, wMax, vu.bpsSrcC, [], []);
-dataParams = traffic_file_downloads(1, wMin, wMax, nSizeTypes, nInterarrivalTypes, fileBigness, fileWaityness);
+vidParams = traffic_video_stream(1, wMin, wMax, vu.bpsSrcC, []);
+dataParams = traffic_file_downloads(1, wMin, wMax, vu.bpsSrcC, []);
+webParams = traffic_web_browsing(1, wMin, wMax, vu.bpsSrcC, []);
 
-nSims = nVidNodes + nDataNodes;
+nSims = nVidNodes + nDataNodes + nWebNodes;
 nSim = 1;
 simType = zeros(1, nSims);
 simResults = cell(1, nSims);
@@ -61,6 +58,17 @@ for i=1:nDataNodes
     nSim = nSim + 1;
 end
 
+for i=1:nWebNodes
+    fprintf('\n==============\nSimulating web node %d of %d\n', i, nWebNodes);
+    sim = setup_single_sim( simName, timesteps, simParams, dataParams, vidParams, vu, qualityThresholdMicrosec, 0, 1 );
+    sim.cleanCache = true;
+    sim.Run(false);
+    
+    simType(nSim) = 30;
+    simResults{nSim} = sim.simResults;
+    nSim = nSim + 1;
+end
+
 fprintf('Dumping out history to file\n');
 bytesPerPacket = simParams.physical_payload / 8;
 deltaTime = phys80211.TransactionTime(simParams.physical_type, simParams.physical_payload, simParams.physical_speed);
@@ -83,10 +91,11 @@ for i=1:nSims
     packetHistory = packetHistories{1};
     sentPackets = find(packetHistory ~= 0);
     
-    if (simType(i)==10) % type (web=10, video=20's)
+    if (simType(i)~=20) % type (web=10, video=20's, file=30)
         types = 10 * ones(1, size(sentPackets,2));
     else
         types = results{1}.nodeSecHistory{1}.stateTypeHistory( sentPackets );
+
         types( types==21 ) = 20;
         types( types==31 ) = 30;
         types( types==41 ) = 40;
