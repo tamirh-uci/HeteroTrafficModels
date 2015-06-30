@@ -1,4 +1,4 @@
-function [ nodegen ] = traffic_web_browsing(nNodes, wMin, wMax, bps, nSleep)
+function [ nodegen ] = traffic_web_browsing(nNodes, wMin, wMax, bps)
 %TRAFFIC_WEB_BROWSING Create nodegen to simulate browsing webpages
     nodegen = nodegen_data_nodes();
     nodegen.name = 'file download';
@@ -16,20 +16,21 @@ function [ nodegen ] = traffic_web_browsing(nNodes, wMin, wMax, bps, nSleep)
         nodegen.params.wMax = wMax;
     end
     
+    % TODO: Add back in bps calc
     if (isempty(bps))
         bps = -1;
     end
     
-    if (isempty(nSleep))
-        nSleep = -1;
-    end
-    
     % There is always a packet in the buffer
-    nodegen.params.pArrive = 1.0;
-    nodegen.params.pInterarrival = 0.75;
-    
-    nodegen.params.nInterarrival = 20;
-    nodegen.params.pSleep = 0.5;
+    nodegen.params.pArrive = 1.0; % TODO: pArrive is broken
+    nodegen.params.pInterarrival = 0.05;
+    nodegen.params.nInterarrival = 15;
+    nodegen.params.pSleep = 0;
+    nodegen.params.bFixedInterarrival = false;
     nodegen.params.bps = bps;
-    nodegen.params.nSleep = nSleep;
+    nodegen.params.nSleep = 1;
+    nodegen.params.sleepProps1 = -50;
+    nodegen.params.sleepProps2 = 0.01;
+    nodegen.params.sleepProps3 = 25;
+    nodegen.params.sleepProps4 = 400;
 end

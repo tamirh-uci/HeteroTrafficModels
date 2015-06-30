@@ -45,6 +45,10 @@ classdef dcf_sim_node < handle
         % Array of states which we should never see
         txInvalidTypes@dcf_transition_type;
         
+        % [min wait time between sleep, chance to put node to sleep, min sleep time, sleep time range]
+        sleepProps = [-200, 0.01, 100, 1];
+        sleepTimer = 0;
+        
         % Results
         simSize;
         cachedSuccessCount;
@@ -66,11 +70,12 @@ classdef dcf_sim_node < handle
     end
     
     methods
-        function obj = dcf_sim_node(nameIn, dcfChainBuilderIn, secondaryChainBuilderIn, pSuccessSingleTransmitIn, pSuccessMultiTransmitIn)
+        function obj = dcf_sim_node(nameIn, sleepPropsIn, dcfChainBuilderIn, secondaryChainBuilderIn, pSuccessSingleTransmitIn, pSuccessMultiTransmitIn)
             obj = obj@handle();
             obj.name = nameIn;
-            
+            obj.sleepProps = sleepPropsIn;
             obj.dcfChainBuilder = dcfChainBuilderIn;
+            
             Reset(obj);
             
             obj.pSuccessSingleTransmit = pSuccessSingleTransmitIn;
@@ -271,8 +276,19 @@ classdef dcf_sim_node < handle
         end
         
         function Step(this)
-            % find the next state, assumin we'll succeed
-            this.dcfHist.Step(this.piSingleTransmit, false);
+            % BIG HACK!!!!
+            %if ()
+            if (this.sleepTimer < this.sleepProps(1) && rand() < this.sleepProps(2))
+                this.sleepTimer = this.sleepProps(3) + randi(this.sleepProps(4));
+                this.ForceFailure();
+            end
+            
+            % BIG HACK!!!!
+            this.sleepTimer = this.sleepTimer - 1;            
+            if (this.sleepTimer <= 0)
+                % find the next state, assumin we'll succeed
+                this.dcfHist.Step(this.piSingleTransmit, false);
+            end
         end
         
         function ForceFailure(this)

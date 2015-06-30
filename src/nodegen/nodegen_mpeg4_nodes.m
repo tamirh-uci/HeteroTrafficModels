@@ -69,8 +69,9 @@ classdef nodegen_mpeg4_nodes < handle
             
             this.nodeName = sprintf('%s (%d @%.0fbps)', this.name, this.cartesianParams.nVariations, bps);
             fprintf('Generated mpeg4 node: %s\n', this.nodeName);
-            
-            simulator.add_video_node(this.nodeName, dcf_model, mpeg4_model);
+       
+            sleepProps = [currentValues.sleepProps1, currentValues.sleepProps2, currentValues.sleepProps3, currentValues.sleepProps4];
+            simulator.add_video_node(this.nodeName, sleepProps, dcf_model, mpeg4_model);
         end
         
         function Reset(this)

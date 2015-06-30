@@ -309,8 +309,11 @@ classdef dcf_markov_model < handle
                         sol = solve( sum( a.*(X.^2) ) == 1 );
 
                         % Get the probabilities for each index
-                        pInterarrivalState = eval( pNormalInterarrival .* sol .* X.^2 );
+                        pInterarrivalState = eval( 0.5 .* pNormalInterarrival .* sol .* X.^2 );
                     end
+                    
+                    % make it more likely to hit high interarrivals
+                    pInterarrivalState(this.nInterarrival) = 0.5*pNormalInterarrival + pInterarrivalState(this.nInterarrival);
                     
                     for k = 1:this.nInterarrival
                         dst = this.InterarrivalState(k);
@@ -559,7 +562,7 @@ classdef dcf_markov_model < handle
             % transmitting percent is just time sending over overall time
             maxTransmittingPercent = estPkt / ( estPkt + estStdInt );
 
-            if( desiredBps > 0 )
+            if( desiredBps > 0 && (sleepTime>0 || this.nSleep>0) )
                 % at what speed do we want to send to get our bps in the end?
                 desiredPercentTransmit = desiredBps / maxDatarate;
 
@@ -604,6 +607,9 @@ classdef dcf_markov_model < handle
             % calculate what our theoretical bps is
             estSleep = sleepTime * this.nSleep;
             expectedBps = maxDatarate * estPkt / (estPkt + estStdInt + estSleep);
+            fprintf('CALCULATED nSleep = %d\n', this.nSleep);
+            fprintf('CALCULATED nInterarrival = %d\n', this.nInterarrival);
+            fprintf('CALCULATED Mbps = %0.2f Mbps\n', (expectedBps/1000000));
         end
         
         function CalculateConstants(this)

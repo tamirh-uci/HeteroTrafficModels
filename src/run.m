@@ -1,6 +1,10 @@
 run_set_path;
 close all;
 
+rng('shuffle');
+
+dataNodeIsWeb = true;
+
 % Load in a real video file to test against
 fullStartFrame = 150;
 nTotalFrames = 250; % 250 is about 10 seconds
@@ -62,8 +66,15 @@ nVariations = size(varLabels,2); % TODO: Calculate this from simParams
 timesteps = slotsPerVPacket * vuTotalPackets; % how many packets we'll need for our video (assume pretty good conditions)
 
 
-vidParams = traffic_video_stream(1, wMin, wMax, vuAvgBps, []);
-dataParams = traffic_web_browsing(1, wMin, wMax, vuAvgBps, []);
+vidParams = traffic_video_stream(1, wMin, wMax, vuAvgBps);
+webParams = traffic_web_browsing(1, wMin, wMax, vuAvgBps);
+filParams = traffic_file_downloads(1, wMin, wMax, vuAvgBps);
+
+if (dataNodeIsWeb)
+    dataParams = webParams;
+else
+    dataParams = filParams;
+end
 
 nSoftMaxVidNodes = max(nMaxVidNodes, 1);
 nSoftMaxDataNodes = max(nMaxDataNodes, 1);

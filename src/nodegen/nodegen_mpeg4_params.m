@@ -11,6 +11,10 @@ classdef nodegen_mpeg4_params < handle
         nInterarrival = 2;
         nMaxPackets = 2;
         nSleep = -1;
+        sleepProps1 = -200
+        sleepProps2 = 0.01;
+        sleepProps3 = 100;
+        sleepProps4 = 1;
         
         bps = 1000000 * 4;
         

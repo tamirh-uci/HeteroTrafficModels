@@ -43,7 +43,7 @@ classdef nodegen_data_nodes < handle
             dcf_model.m = m;
             
             % fixed for now
-            dcf_model.bFixedInterarrivalChain = false;
+            dcf_model.bFixedInterarrivalChain = currentValues.bFixedInterarrival;
             dcf_model.bFixedPacketchain = false;
             dcf_model.bCurvedInterarrivalChain = true;
             
@@ -61,7 +61,8 @@ classdef nodegen_data_nodes < handle
             this.nodeName = sprintf('%s (%d @%.0fbps)', this.name, this.cartesianParams.nVariations, bps);
             fprintf('Generated data node: %s\n', this.nodeName);
             
-            simulator.add_plain_node(this.nodeName, dcf_model);
+            sleepProps = [currentValues.sleepProps1, currentValues.sleepProps2, currentValues.sleepProps3, currentValues.sleepProps4];
+            simulator.add_plain_node(this.nodeName, sleepProps, dcf_model);
         end
         
         function Reset(this)

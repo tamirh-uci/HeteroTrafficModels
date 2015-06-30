@@ -1,12 +1,18 @@
 run_set_path
 
+rng('shuffle');
+
 nVidNodes = 1;
 nDataNodes = 1;
 nWebNodes = 1;
 
+videoBpsMultiplier = 0.5;
+dataBpsMultiplier = 0.5;
+webBpsMultiplier = 0.5;
+
 % Load in a real video file to test against
 vu = video_util();
-vu.nFrames = 60;
+vu.nFrames = 250;
 vu.prep();
 
 slotsPerVPacket = 10;
@@ -26,10 +32,13 @@ wMax = 16;
 % Grab values from our actual loaded file
 timesteps = slotsPerVPacket * vu.nPacketsSrcC; % how many packets we'll need for our video (assume pretty good conditions)
 
+vidBps = vu.bpsSrcC * videoBpsMultiplier;
+dataBps = vu.bpsSrcC * dataBpsMultiplier;
+webBps = vu.bpsSrcC * webBpsMultiplier;
 
-vidParams = traffic_video_stream(1, wMin, wMax, vu.bpsSrcC, []);
-dataParams = traffic_file_downloads(1, wMin, wMax, vu.bpsSrcC, []);
-webParams = traffic_web_browsing(1, wMin, wMax, vu.bpsSrcC, []);
+vidParams = traffic_video_stream(1, wMin, wMax, vu.bpsSrcC);
+dataParams = traffic_file_downloads(1, wMin, wMax, dataBps);
+webParams = traffic_web_browsing(1, wMin, wMax, webBps);
 
 nSims = nVidNodes + nDataNodes + nWebNodes;
 nSim = 1;
@@ -53,18 +62,18 @@ for i=1:nDataNodes
     sim.cleanCache = true;
     sim.Run(false);
     
-    simType(nSim) = 10;
+    simType(nSim) = 30;
     simResults{nSim} = sim.simResults;
     nSim = nSim + 1;
 end
 
 for i=1:nWebNodes
     fprintf('\n==============\nSimulating web node %d of %d\n', i, nWebNodes);
-    sim = setup_single_sim( simName, timesteps, simParams, dataParams, vidParams, vu, qualityThresholdMicrosec, 0, 1 );
+    sim = setup_single_sim( simName, timesteps, simParams, webParams, vidParams, vu, qualityThresholdMicrosec, 0, 1 );
     sim.cleanCache = true;
     sim.Run(false);
     
-    simType(nSim) = 30;
+    simType(nSim) = 10;
     simResults{nSim} = sim.simResults;
     nSim = nSim + 1;
 end
@@ -76,7 +85,7 @@ time = 0;
 
 
 % Col 1: 'Simulation #'
-% Col 2: 'Node Type (10=web, 20=generic video, 21=iframe, 22=pframe, 23=bframe)'
+% Col 2: 'Node Type (10=web, 20=generic video, 21=iframe, 22=pframe, 23=bframe, 30=data)'
 % Col 2: 'Packet Index'
 % Col 3: 'Time (microseconds)'
 % Col 4: 'Packet Size (bytes)'
@@ -91,6 +100,14 @@ for i=1:nSims
     packetHistory = packetHistories{1};
     sentPackets = find(packetHistory ~= 0);
     
+    if (simType(i)==10)
+        typename = 'web';
+    elseif (simType(i)==20)
+        typename = 'video';
+    else
+        typename = 'file';
+    end
+    
     if (simType(i)~=20) % type (web=10, video=20's, file=30)
         types = 10 * ones(1, size(sentPackets,2));
     else
@@ -101,6 +118,7 @@ for i=1:nSims
         types( types==41 ) = 40;
     end
     
+    clear simpleCsvData;
     dataRow = 1;
     for j=sentPackets
         time = deltaTime * j;
@@ -112,9 +130,16 @@ for i=1:nSims
         csvData(csvRow, 4) = time; % time (microseconds)
         csvData(csvRow, 5) = int32(packetSize); % packetsize (bytes)
         
+        simpleCsvData(dataRow, 1) = time/1000000; % time (seconds)
+        simpleCsvData(dataRow, 2) = int32(packetSize); % packetsize (bytes)
+        
         csvRow = csvRow + 1;
         dataRow = dataRow + 1;
     end
+    
+    csvwrite(sprintf('./../results/trace_%s.csv', typename), simpleCsvData);
 end
 
 csvwrite(csvFilename, csvData);
+
+run_wireshark_test

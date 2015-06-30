@@ -62,14 +62,14 @@ classdef dcf_simulator < handle
             end
         end
         
-        function add_plain_node(this, name, dcf_model)
+        function add_plain_node(this, name, sleepProps, dcf_model)
             nNodes = size(this.nodes, 2);
-            this.nodes{nNodes+1} = dcf_sim_node(name, dcf_model, [], this.pSuccessSingleTransmit, this.pSuccessMultiTransmit);
+            this.nodes{nNodes+1} = dcf_sim_node(name, sleepProps, dcf_model, [], this.pSuccessSingleTransmit, this.pSuccessMultiTransmit);
         end
         
-        function add_video_node(this, name, dcf_model, video_model)
+        function add_video_node(this, name, sleepProps, dcf_model, video_model)
             nNodes = size(this.nodes, 2);
-            this.nodes{nNodes+1} = dcf_sim_node(name, dcf_model, video_model, this.pSuccessSingleTransmit, this.pSuccessMultiTransmit);
+            this.nodes{nNodes+1} = dcf_sim_node(name, sleepProps, dcf_model, video_model, this.pSuccessSingleTransmit, this.pSuccessMultiTransmit);
         end
         
         function filename = NodeFilename(~, cachePrefix, index)

@@ -11,7 +11,7 @@ wMax = 4;
 
 qualityThresholdMicrosec = 75000;
 timesteps = 100;
-webParams = traffic_web_browsing(1, wMin, wMax, [], 1);
+webParams = traffic_web_browsing(1, wMin, wMax, 100000);
 
 % Load in a real video file to test against
 fullStartFrame = 150;
