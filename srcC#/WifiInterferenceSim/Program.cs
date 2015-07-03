@@ -18,7 +18,7 @@ namespace WifiInterferenceSim
         static double QUALITY_THRESHOLD = 0.10; // 100 milliseconds
         static int RANDOM_SEED = -1;
 
-        static int NUM_RUNS = 1000;
+        static int NUM_RUNS = 500;
 
         static double VID_STREAM_ARRIVAL_MULT = 1.0;
         static double VID_CALL_ARRIVAL_MULT = 1.0;
@@ -31,9 +31,9 @@ namespace WifiInterferenceSim
         static int MIN_FILE_NODES = 0;
         static int MAX_FILE_NODES = 0;
         static int MIN_WEB_NODES = 0;
-        static int MAX_WEB_NODES = 10;
+        static int MAX_WEB_NODES = 0;
         static int MIN_FULL_DATA_NODES = 0;
-        static int MAX_FULL_DATA_NODES = 0;
+        static int MAX_FULL_DATA_NODES = 9;
 
         // Measured max single node datarate
         static Int64 MAX_NODE_BPS = 1744600;
@@ -89,6 +89,8 @@ namespace WifiInterferenceSim
         {
             List<string> variations = new List<string>();
             List<List<Int64>> packetsOverThreshold = new List<List<Int64>>();
+            List<List<double>> throughput = new List<List<double>>();
+
             for (int iVidStreamNodes = MIN_VIDEO_STREAM_NODES; iVidStreamNodes <= MAX_VIDEO_STREAM_NODES; ++iVidStreamNodes)
             {
                 for (int iFileNodes = MIN_FILE_NODES; iFileNodes <= MAX_FILE_NODES; ++iFileNodes)
@@ -97,7 +99,9 @@ namespace WifiInterferenceSim
                     {
                         for (int iFullDataNodes = MIN_FULL_DATA_NODES; iFullDataNodes <= MAX_FULL_DATA_NODES; ++iFullDataNodes)
                         {
-                            List<Int64> variationResults = new List<Int64>(NUM_RUNS);
+                            List<Int64> variationResultsPacketsOverThreshold = new List<Int64>(NUM_RUNS);
+                            List<double> variationResultsThroughput = new List<double>(NUM_RUNS);
+
                             string variationName = String.Format("v{0}_f{1}_w{2}_d{3}", iVidStreamNodes, iFileNodes, iWebNodes, iFullDataNodes);
                             variations.Add(variationName);
 
@@ -114,11 +118,13 @@ namespace WifiInterferenceSim
 
                                 SimulationResults results = sim.GetResults(0);
 
-                                variationResults.Add(results.packetsOverThreshold);
+                                variationResultsPacketsOverThreshold.Add(results.packetsOverThreshold);
+                                variationResultsThroughput.Add(results.datarate);
                             }
 
                             Console.WriteLine();
-                            packetsOverThreshold.Add(variationResults);
+                            packetsOverThreshold.Add(variationResultsPacketsOverThreshold);
+                            throughput.Add(variationResultsThroughput);
                         }
                     }
                 }
@@ -130,24 +136,35 @@ namespace WifiInterferenceSim
             StreamWriter fullData = new StreamWriter(CSVFileBase(String.Format("{0}-cartesian-full.csv", csvName)));
             StreamWriter avgData = new StreamWriter(CSVFileBase(String.Format("{0}-cartesian-avg.csv", csvName)));
 
-            int variationIndex = 0;
-            foreach (List<Int64> variationResults in packetsOverThreshold)
+            
+            int numVariations = packetsOverThreshold.Count;
+            for (int variationIndex = 0; variationIndex < numVariations; ++variationIndex)
             {
-                Int64 total = 0;
-                int runIndex = 0;
-                foreach (Int64 runResult in variationResults)
+                Int64 totalPacketsOverThreshold = 0;
+                double totalThroughput = 0;
+
+                List<Int64> varResPacketsOverThreshold = packetsOverThreshold[variationIndex];
+                List<double> varResThroughput = throughput[variationIndex];
+
+                int numRuns = varResThroughput.Count;
+                for (int runIndex = 0; runIndex < numRuns; ++runIndex)
                 {
-                    total += runResult;
-                    fullData.WriteLine("{0},{1},{2}", variationIndex, runIndex, runResult);
-                    runIndex++;
+                    Int64 resPacketsOverThreshold = varResPacketsOverThreshold[runIndex];
+                    double resThroughput = varResThroughput[runIndex];
+
+                    totalPacketsOverThreshold += resPacketsOverThreshold;
+                    totalThroughput += resThroughput;
+
+                    fullData.WriteLine("{0},{1},{2},{3}", variationIndex, runIndex, resPacketsOverThreshold, resThroughput);
                 }
 
-                double avgResult = (double)total / runIndex;
-                avgData.WriteLine("{0},{1}", variationIndex, avgResult);
+                double avgPacketsOverThreshold = (double)totalPacketsOverThreshold / numRuns;
+                double avgThreshold = totalThroughput / numRuns;
+
+                avgData.WriteLine("{0},{1},{2}", variationIndex, avgPacketsOverThreshold, avgThreshold);
 
                 fullData.Flush();
                 avgData.Flush();
-                variationIndex++;
             }
 
 
