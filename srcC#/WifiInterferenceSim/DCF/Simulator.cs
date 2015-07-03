@@ -64,7 +64,7 @@ namespace WifiInterferenceSim.DCF
 
             foreach (DCFNode node in simnodes)
             {
-                node.CalculateResults(network, thresholdSeconds);
+                simresults.Add( node.CalculateResults(network, thresholdSeconds) );
             }
         }
 

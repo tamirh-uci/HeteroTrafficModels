@@ -20,12 +20,18 @@ namespace WifiInterferenceSim
 
         static int NUM_RUNS = 1000;
 
-        static int MIN_VIDEO_STREAM_NODES = 1;
-        static int MAX_VIDEO_STREAM_NODES = 1;
-        static int MIN_FILE_NODES = 1;
-        static int MAX_FILE_NODES = 1;
-        static int MIN_WEB_NODES = 1;
-        static int MAX_WEB_NODES = 5;
+        static double VID_STREAM_ARRIVAL_MULT = 1.0;
+        static double VID_CALL_ARRIVAL_MULT = 1.0;
+        static double FILE_ARRIVAL_MULT = 1.0;
+        static double WEB_ARRIVAL_MULT = 1.0;
+        static double FULL_DATA_ARRIVAL_MULT = 1.0;
+
+        static int MIN_VIDEO_STREAM_NODES = 0;
+        static int MAX_VIDEO_STREAM_NODES = 0;
+        static int MIN_FILE_NODES = 0;
+        static int MAX_FILE_NODES = 0;
+        static int MIN_WEB_NODES = 0;
+        static int MAX_WEB_NODES = 10;
         static int MIN_FULL_DATA_NODES = 0;
         static int MAX_FULL_DATA_NODES = 0;
 
@@ -47,7 +53,8 @@ namespace WifiInterferenceSim
 
             
             //DoSinglerunExample(network, cfgCal, cfgVid, cfgDat, cfgWeb, cfgFul);
-            DoMultirunExample(network, cfgCal, cfgVid, cfgDat, cfgWeb, cfgFul);
+            DoMultirunCartesian(network, cfgCal, cfgVid, cfgDat, cfgWeb, cfgFul);
+            //DoMultirunIncrement(network, cfgCal, cfgVid, cfgDat, cfgWeb, cfgFul);
 
             Console.WriteLine("\nDone\n");
         }
@@ -78,7 +85,7 @@ namespace WifiInterferenceSim
             sim.PrintResults();
         }
 
-        static void DoMultirunExample(Physical80211 network, DCFParams cfgCal, DCFParams cfgVid, DCFParams cfgDat, DCFParams cfgWeb, DCFParams cfgFul)
+        static void DoMultirunCartesian(Physical80211 network, DCFParams cfgCal, DCFParams cfgVid, DCFParams cfgDat, DCFParams cfgWeb, DCFParams cfgFul)
         {
             List<string> variations = new List<string>();
             List<List<Int64>> packetsOverThreshold = new List<List<Int64>>();
@@ -120,8 +127,8 @@ namespace WifiInterferenceSim
             Console.WriteLine("\nWriting out results to CSV...");
 
             string csvName = variations[variations.Count - 1];
-            StreamWriter fullData = new StreamWriter(CSVFileBase(String.Format("{0}-full.csv", csvName)));
-            StreamWriter avgData = new StreamWriter(CSVFileBase(String.Format("{0}-avg.csv", csvName)));
+            StreamWriter fullData = new StreamWriter(CSVFileBase(String.Format("{0}-cartesian-full.csv", csvName)));
+            StreamWriter avgData = new StreamWriter(CSVFileBase(String.Format("{0}-cartesian-avg.csv", csvName)));
 
             int variationIndex = 0;
             foreach (List<Int64> variationResults in packetsOverThreshold)
