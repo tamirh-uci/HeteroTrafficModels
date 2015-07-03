@@ -24,11 +24,14 @@ namespace WifiInterferenceSim.DCF
             cfg.pInterarrival = 0.0;
             
             // Approximately send half, sleep half
-            cfg.awakeTime = 200;
-            cfg.drowsyTime = 25;
-            cfg.pDrowsySleep = 0.1;
-            cfg.minSleep = 150;
-            cfg.maxSleep = 200;
+            cfg.awakeTime = 25;
+            cfg.drowsyTime = 100;
+            cfg.pDrowsySleep = 0.01;
+            cfg.minSleep = 1;
+            cfg.maxSleep = 25;
+
+            cfg.minBufferEmptySleep = 100;
+            cfg.maxBufferEmptySleep = 500;
 
             return cfg;
         }
@@ -46,16 +49,19 @@ namespace WifiInterferenceSim.DCF
             cfg.packetArrivalRate = network.PacketArrivalRate(bps);
 
             // Bursts have some gaps
-            cfg.pInterarrival = 0.025;
-            cfg.minInterarrival = 1;
-            cfg.maxInterarrival = 10;
+            cfg.pInterarrival = 0.65;
+            cfg.minInterarrival = 2;
+            cfg.maxInterarrival = 15;
 
-            // Probability to sleep at almost all times
-            cfg.awakeTime = 25;
-            cfg.drowsyTime = 300;
-            cfg.pDrowsySleep = 0.005;
-            cfg.minSleep = 25;
-            cfg.maxSleep = 400;
+            // Probability to sleep at almost all times, but bursty when there is data
+            cfg.awakeTime = 50;
+            cfg.drowsyTime = 150;
+            cfg.pDrowsySleep = 0.01;
+            cfg.minSleep = 1;
+            cfg.maxSleep = 100;
+
+            cfg.minBufferEmptySleep = 250;
+            cfg.maxBufferEmptySleep = 1750;
 
             return cfg;
         }
@@ -66,26 +72,61 @@ namespace WifiInterferenceSim.DCF
         /// <param name="network">802.11 network type</param>
         /// <param name="bps">Incoming BPS of source</param>
         /// <returns>params for DCFNode</returns>
-        public static DCFParams Video(Physical80211 network, double bps)
+        public static DCFParams VideoCall(Physical80211 network, double bps)
         {
             DCFParams cfg = new DCFParams();
 
             cfg.packetArrivalRate = network.PacketArrivalRate(bps);
 
             // Very often, and very short interarrivals
-            cfg.pInterarrival = 0.05;
+            cfg.pInterarrival = 0.25;
             cfg.minInterarrival = 1;
-            cfg.maxInterarrival = 4;
+            cfg.maxInterarrival = 8;
 
             // Even sleep schedule, sleeps are very short
-            cfg.awakeTime = 25;
-            cfg.drowsyTime = 25;
-            cfg.pDrowsySleep = 0.1;
+            cfg.awakeTime = 5;
+            cfg.drowsyTime = 200;
+            cfg.pDrowsySleep = 0.02;
             cfg.minSleep = 1;
-            cfg.maxSleep = 5;
+            cfg.maxSleep = 8;
+
+            cfg.minBufferEmptySleep = 1;
+            cfg.maxBufferEmptySleep = 100;
 
             // We have many more full data packets for video
             cfg.pSmallPayload = 0.26;
+
+            return cfg;
+        }
+
+        /// <summary>
+        /// Video streaming traffic takes long sleeps, assumes longer buffer
+        /// </summary>
+        /// <param name="network">802.11 network type</param>
+        /// <param name="bps">Incoming BPS of source</param>
+        /// <returns>params for DCFNode</returns>
+        public static DCFParams VideoStream(Physical80211 network, double bps)
+        {
+            DCFParams cfg = new DCFParams();
+
+            cfg.packetArrivalRate = network.PacketArrivalRate(bps);
+
+            // Very often, and very short interarrivals
+            cfg.pInterarrival = 0.7;
+            cfg.minInterarrival = 1;
+            cfg.maxInterarrival = 10;
+
+            // Even sleep schedule, sleeps are very short
+            cfg.awakeTime = 500;
+            cfg.drowsyTime = 500;
+            cfg.pDrowsySleep = 0.001;
+            cfg.minSleep = 100;
+            cfg.maxSleep = 200;
+
+            cfg.minBufferEmptySleep = 2400;
+            cfg.maxBufferEmptySleep = 2600;
+
+            cfg.pSmallPayload = 0.56;
 
             return cfg;
         }

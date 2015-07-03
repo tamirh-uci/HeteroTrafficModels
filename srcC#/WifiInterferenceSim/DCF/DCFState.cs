@@ -10,9 +10,9 @@ namespace WifiInterferenceSim.DCF
     {
         Null = 0,
 
+        Interarrival,
         BufferEmpty,
         Transmit,
-        Interarrival,
         Backoff,
         Sleep,
     }

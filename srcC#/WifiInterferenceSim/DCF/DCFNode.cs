@@ -50,7 +50,6 @@ namespace WifiInterferenceSim.DCF
             packetLeftovers = 0;
             currPacket.Invalidate();
             
-
             if (randseed < 0)
                 rand = new Random();
             else
@@ -62,6 +61,11 @@ namespace WifiInterferenceSim.DCF
             historyStates = new List<DCFState>(steps);
             historyPackets = new Queue<Packet>();
             packetQueue = new Queue<Packet>();
+
+            if (cfg.minInterarrival <= 0)
+            {
+                cfg.pInterarrival = 0;
+            }
 
             int backoffStages = 1 + (int)Math.Log((double)cfg.maxBackoff / cfg.minBackoff, 2.0);
             backoffs = new int[backoffStages];
@@ -115,13 +119,12 @@ namespace WifiInterferenceSim.DCF
             packetLeftovers = rand.NextDouble();
         }
 
-        private bool SetStateTransmit()
+        private void SetStateTransmit()
         {
             if (currPacket.IsValid())
             {
                 // Coming back from a failed transmission, pick up where we left off
                 curr.type = DCFStateType.Transmit;
-                return true;
             }
             else
             {
@@ -129,18 +132,23 @@ namespace WifiInterferenceSim.DCF
                 {
                     // Empty buffer
                     SetStateBufferEmpty();
-                    return false;
                 }
                 else
                 {
-                    // Attempt transmission of packet from buffer
-                    currPacket = packetQueue.Dequeue();
-                    currPacket.txAttempt = curStep;
+                    // Are we going into interarrival?
+                    if (packetQueue.Count < cfg.interarrivalCutoff && rand.NextDouble() < cfg.pInterarrival)
+                    {
+                        SetStateInterarrival();
+                    }
+                    else
+                    {
+                        // Attempt transmission of packet from buffer
+                        currPacket = packetQueue.Dequeue();
+                        currPacket.txAttempt = curStep;
 
-                    curr.type = DCFStateType.Transmit;
-                    curr.payloadTimer = currPacket.payloadSize;
-
-                    return true;
+                        curr.type = DCFStateType.Transmit;
+                        curr.payloadTimer = currPacket.payloadSize;
+                    }
                 }
             }
         }
@@ -182,19 +190,31 @@ namespace WifiInterferenceSim.DCF
 
         private void SetStateBufferEmpty()
         {
-            // stage/timer variables unused in this state
+            // Buffer is empty, go into a sleep to wait for it to fill up
             curr.type = DCFStateType.BufferEmpty;
+            curr.sleepStage = 0;
+            curr.sleepTimer = rand.Next(cfg.minBufferEmptySleep, cfg.maxBufferEmptySleep);
 
             Debug.Assert( !currPacket.IsValid() );
         }
 
         private void StepBufferEmpty()
         {
-            // Check if buffer is still empty, if not then proceed in transmission attempt
-            if (packetQueue.Count != 0)
+            curr.sleepTimer--;
+
+            if (curr.sleepTimer <= 0)
             {
-                // TODO: Do we transmit immediately, or go into stage=1 backoff?
-                SetStateBackoff(1);
+                // Check if buffer is still empty, if not then proceed in transmission attempt
+                if (packetQueue.Count != 0)
+                {
+                    // TODO: Do we transmit immediately, or go into stage=1 backoff?
+                    SetStateBackoff(1);
+                }
+                else
+                {
+                    // If buffer was still empty, go back to sleep
+                    SetStateBufferEmpty();
+                }
             }
         }
 
@@ -217,7 +237,8 @@ namespace WifiInterferenceSim.DCF
 
             if (curr.interarrivalTimer <= 0)
             {
-
+                // Attempt to transmit again once our interarrival is over
+                SetStateTransmit();
             }
         }
 
@@ -280,11 +301,11 @@ namespace WifiInterferenceSim.DCF
             // Step forward based on what state type we're in
             switch (curr.type)
             {
-                case DCFStateType.Transmit:     StepTransmit(); break;
-                case DCFStateType.BufferEmpty:  StepBufferEmpty(); break;
+                case DCFStateType.Transmit: StepTransmit(); break;
+                case DCFStateType.BufferEmpty: StepBufferEmpty(); break;
                 case DCFStateType.Interarrival: StepInterarrival(); break;
-                case DCFStateType.Backoff:      StepBackoff(); break;
-                case DCFStateType.Sleep:        StepSleep(); break;
+                case DCFStateType.Backoff: StepBackoff(); break;
+                case DCFStateType.Sleep: StepSleep(); break;
                 default:
                     Debug.Assert(false);
                     break;
@@ -307,6 +328,7 @@ namespace WifiInterferenceSim.DCF
                     FailTransmit();
                     break;
 
+                case DCFStateType.Interarrival:
                 case DCFStateType.BufferEmpty:
                 case DCFStateType.Backoff:
                 case DCFStateType.Sleep:
@@ -319,7 +341,7 @@ namespace WifiInterferenceSim.DCF
             }
         }
 
-        public void EvalPacketHistory(Int64 thresholdTimeSlots, out Int64 packetsSent, out Int64 packetsUnsent, out Int64 packetsOverThreshold, out Int64 timeSlotsOverThreshold, out Int64 maxTimeSlotsOverThreshold, out double avgTimeSlotsOverThreshold)
+        private void EvalPacketHistory(Int64 thresholdTimeSlots, out Int64 packetsSent, out Int64 packetsUnsent, out Int64 packetsOverThreshold, out Int64 timeSlotsOverThreshold, out Int64 maxTimeSlotsOverThreshold, out double avgTimeSlotsOverThreshold)
         {
             packetsSent = 0;
             packetsUnsent = 0;
@@ -354,6 +376,24 @@ namespace WifiInterferenceSim.DCF
             }
         }
 
+        private void EvalStateHistory(out int maxSleepStage, out double avgSleepStage)
+        {
+            maxSleepStage = 0;
+            avgSleepStage = 0;
+
+            Int64 totalSleepStage = 0;
+            foreach (DCFState state in historyStates)
+            {
+                maxSleepStage = Math.Max(maxSleepStage, state.sleepStage);
+                totalSleepStage += state.sleepStage;
+            }
+
+            if (historyStates.Count > 0)
+            {
+                avgSleepStage = totalSleepStage / historyStates.Count;
+            }
+        }
+
         public void PrintResults(Physical80211 network, bool overviewInfo, double thresholdSeconds)
         {
             double secondsPerSlot = Physical80211.TransactionTime(network.type, network.payloadBits) / 1000000.0;
@@ -373,6 +413,10 @@ namespace WifiInterferenceSim.DCF
             double avgTimeSlotsOverThreshold;
             EvalPacketHistory(thresholdSlots, out packetsSent, out packetsUnsent, out packetsOverThreshold, out timeSlotsOverThreshold, out maxTimeSlotsOverThreshold, out avgTimeSlotsOverThreshold);
 
+            int maxSleepStage;
+            double avgSleepStage;
+            EvalStateHistory(out maxSleepStage, out avgSleepStage);
+
             Int64 bitsSent = packetsSent * network.payloadBits;
             double datarate = bitsSent / timeSpent;
 
@@ -384,7 +428,7 @@ namespace WifiInterferenceSim.DCF
             Console.WriteLine(" Time spent over threshold: {0:F2} milliseconds ({1} slots)", secondsPerSlot * timeSlotsOverThreshold * 1000.0, timeSlotsOverThreshold);
             Console.WriteLine(" Time spent over threshold per packet: {0:F2} milliseconds ({1:F2} slots)", secondsPerSlot * avgTimeSlotsOverThreshold * 1000.0, avgTimeSlotsOverThreshold);
             Console.WriteLine(" Max time spent over threshold: {0:F2} milliseconds ({1} slots)", secondsPerSlot * maxTimeSlotsOverThreshold * 1000.0, maxTimeSlotsOverThreshold);
-
+            Console.WriteLine(" Average sleep stage: {0:F2} (max {1})", avgSleepStage, maxSleepStage);
         }
 
         public void WriteCSVResults(Physical80211 network, string filebase)

@@ -28,15 +28,16 @@ namespace WifiInterferenceSim
             Physical80211 network = new Physical80211(NetworkType.B, PAYLOAD_BITS);
 
             double arrivalBps = 1000000 * ARRIVAL_MBPS;
-            DCFParams vidCfg = Traffic.Video(network, arrivalBps);
+            DCFParams vidCfg = Traffic.VideoStream(network, arrivalBps);
+            DCFParams calCfg = Traffic.VideoCall(network, arrivalBps);
             DCFParams datCfg = Traffic.File(network, arrivalBps);
             DCFParams webCfg = Traffic.Web(network, arrivalBps);
             DCFParams fulCfg = Traffic.Full(network, arrivalBps);
 
-            SingleNodeTests(network, 1, vidCfg, 1, datCfg, 1, webCfg, 1, fulCfg);
+            SingleNodeTests(network, 1, vidCfg, 1, calCfg, 1, datCfg, 1, webCfg, 1, fulCfg);
 
-            //Simulator sim = MultiNodeTests(network, 1, vidCfg, 0, datCfg, 1, webCfg, 0, fulCfg);
-            //sim.PrintResults(QUALITY_THRESHOLD);
+            Simulator sim = MultiNodeTests(network, 1, vidCfg, 1, calCfg, 0, datCfg, 1, webCfg, 0, fulCfg);
+            sim.PrintResults(QUALITY_THRESHOLD);
             
             Console.WriteLine("\n");
         }
@@ -58,7 +59,7 @@ namespace WifiInterferenceSim
             }
         }
 
-        static Simulator MultiNodeTests(Physical80211 network, int nVid, DCFParams cfgVid, int nDat, DCFParams cfgDat, int nWeb, DCFParams cfgWeb, int nFul, DCFParams cfgFul)
+        static Simulator MultiNodeTests(Physical80211 network, int nVid, DCFParams cfgVid, int nCal, DCFParams cfgCal, int nDat, DCFParams cfgDat, int nWeb, DCFParams cfgWeb, int nFul, DCFParams cfgFul)
         {
             Simulator sim = new Simulator(network);
 
@@ -66,6 +67,11 @@ namespace WifiInterferenceSim
             for (int i=0; i<nVid; ++i)
             {
                 sim.AddNode(new DCFNode("video", cfgVid, RandSeed()));
+            }
+
+            for (int i = 0; i < nCal; ++i)
+            {
+                sim.AddNode(new DCFNode("call", cfgCal, RandSeed()));
             }
 
             for (int i=0; i<nDat; ++i)
@@ -89,7 +95,7 @@ namespace WifiInterferenceSim
             return sim;
         }
 
-        static void SingleNodeTests(Physical80211 network, int nVid, DCFParams cfgVid, int nDat, DCFParams cfgDat, int nWeb, DCFParams cfgWeb, int nFul, DCFParams cfgFul)
+        static void SingleNodeTests(Physical80211 network, int nVid, DCFParams cfgVid, int nCal, DCFParams cfgCal, int nDat, DCFParams cfgDat, int nWeb, DCFParams cfgWeb, int nFul, DCFParams cfgFul)
         {
             for (int i=0; i<nVid; ++i)
             {
@@ -99,6 +105,16 @@ namespace WifiInterferenceSim
 
                 sim.Steps(STEPS);
                 sim.WriteCSVResults(CSVFileBase( String.Format("{0}", i) ));
+            }
+
+            for (int i = 0; i < nCal; ++i)
+            {
+                Simulator sim = new Simulator(network);
+
+                sim.AddNode(new DCFNode("call", cfgCal, RandSeed()));
+
+                sim.Steps(STEPS);
+                sim.WriteCSVResults(CSVFileBase(String.Format("{0}", i)));
             }
 
             for (int i=0; i<nDat; ++i)

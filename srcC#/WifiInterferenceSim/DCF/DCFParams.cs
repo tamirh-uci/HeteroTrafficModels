@@ -20,6 +20,9 @@ namespace WifiInterferenceSim.DCF
         // min/max duration of deep sleeps
         public int minSleep, maxSleep;
 
+        // min/max durations of sleep when buffer is empty
+        public int minBufferEmptySleep, maxBufferEmptySleep;
+
         // min/max values of backoff, should be powers of 2
         public int minBackoff, maxBackoff;
 
@@ -28,6 +31,9 @@ namespace WifiInterferenceSim.DCF
 
         // min/max number of steps to not send once we reach a transmit state
         public int minInterarrival, maxInterarrival;
+
+        // interarrival only applies below this value of data in the buffer
+        public int interarrivalCutoff;
 
         // Probability to sleep while we're drowsy
         public double pDrowsySleep;
@@ -45,14 +51,18 @@ namespace WifiInterferenceSim.DCF
             minPayload = 1;
             maxPayload = 2;
 
+            interarrivalCutoff = 5;
             minInterarrival = 1;
             maxInterarrival = 4;
 
             awakeTime = 300;
             drowsyTime = 100;
 
-            minSleep = 150;
+            minSleep = 1;
             maxSleep = 200;
+
+            minBufferEmptySleep = 10;
+            maxBufferEmptySleep = 50;
             
             minBackoff = 8;
             maxBackoff = 32;
