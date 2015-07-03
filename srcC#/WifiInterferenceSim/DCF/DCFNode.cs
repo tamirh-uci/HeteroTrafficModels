@@ -10,6 +10,8 @@ namespace WifiInterferenceSim.DCF
 {
     class DCFNode
     {
+        static int NEXT_UID = 1;
+
         // How many packets are in the queue ready to be transmitted
         Queue<Packet> packetQueue;
 
@@ -41,8 +43,13 @@ namespace WifiInterferenceSim.DCF
         // All user modifyable parameters
         DCFParams cfg;
 
+        SimulationResults results;
+        int uid;
+
         public DCFNode(string _name, DCFParams _cfg, int randseed)
         {
+            uid = NEXT_UID++;
+
             name = _name;
             cfg = _cfg;
 
@@ -51,7 +58,7 @@ namespace WifiInterferenceSim.DCF
             currPacket.Invalidate();
             
             if (randseed < 0)
-                rand = new Random();
+                rand = new Random(uid + ((int)DateTime.Now.Ticks & 0x0000FFFF));
             else
                 rand = new Random(randseed);
         }
@@ -376,7 +383,7 @@ namespace WifiInterferenceSim.DCF
             }
         }
 
-        private void EvalStateHistory(out int maxSleepStage, out double avgSleepStage)
+        private void EvalStateHistory(out Int64 maxSleepStage, out double avgSleepStage)
         {
             maxSleepStage = 0;
             avgSleepStage = 0;
@@ -396,39 +403,24 @@ namespace WifiInterferenceSim.DCF
 
         public void PrintResults(Physical80211 network, bool overviewInfo, double thresholdSeconds)
         {
-            double secondsPerSlot = Physical80211.TransactionTime(network.type, network.payloadBits) / 1000000.0;
-            double timeSpent = curStep * secondsPerSlot;
-            Int64 thresholdSlots = (Int64)(( thresholdSeconds / secondsPerSlot ) + 0.5);
-
             if (overviewInfo)
             {
                 Console.WriteLine("Steps: {0}", curStep);
-                Console.WriteLine("Slot Duration: {0:F2} milliseconds", secondsPerSlot * 1000.0);
-                Console.WriteLine("Threshold: {0:F2} milliseconds (~{1} slots)", thresholdSeconds * 1000.0, thresholdSlots);
-                Console.WriteLine("Time elapsed: {0:F3} seconds", timeSpent);
+                Console.WriteLine("Slot Duration: {0:F2} milliseconds", results.secondsPerSlot * 1000.0);
+                Console.WriteLine("Threshold: {0:F2} milliseconds (~{1} slots)", thresholdSeconds * 1000.0, results.thresholdSlots);
+                Console.WriteLine("Time elapsed: {0:F3} seconds", results.timeSpent);
                 Console.WriteLine("\n");
             }
 
-            Int64 packetsSent, packetsUnsent, packetsOverThreshold, timeSlotsOverThreshold, maxTimeSlotsOverThreshold;
-            double avgTimeSlotsOverThreshold;
-            EvalPacketHistory(thresholdSlots, out packetsSent, out packetsUnsent, out packetsOverThreshold, out timeSlotsOverThreshold, out maxTimeSlotsOverThreshold, out avgTimeSlotsOverThreshold);
-
-            int maxSleepStage;
-            double avgSleepStage;
-            EvalStateHistory(out maxSleepStage, out avgSleepStage);
-
-            Int64 bitsSent = packetsSent * network.payloadBits;
-            double datarate = bitsSent / timeSpent;
-
             Console.WriteLine(" ==Sim Node '{0}'==", name);
-            Console.WriteLine(" Packets Sent: {0} ({1} still in buffer)", packetsSent, packetsUnsent);
-            Console.WriteLine(" Data Sent: {0:F1} bits ({1:F2} Mbits)", bitsSent, bitsSent / 1000000.0);
-            Console.WriteLine(" Datarate: {0:F1} bps ({1:F2} Mbps)", datarate, datarate / 1000000.0);
-            Console.WriteLine(" Packets over threshold: {0}", packetsOverThreshold);
-            Console.WriteLine(" Time spent over threshold: {0:F2} milliseconds ({1} slots)", secondsPerSlot * timeSlotsOverThreshold * 1000.0, timeSlotsOverThreshold);
-            Console.WriteLine(" Time spent over threshold per packet: {0:F2} milliseconds ({1:F2} slots)", secondsPerSlot * avgTimeSlotsOverThreshold * 1000.0, avgTimeSlotsOverThreshold);
-            Console.WriteLine(" Max time spent over threshold: {0:F2} milliseconds ({1} slots)", secondsPerSlot * maxTimeSlotsOverThreshold * 1000.0, maxTimeSlotsOverThreshold);
-            Console.WriteLine(" Average sleep stage: {0:F2} (max {1})", avgSleepStage, maxSleepStage);
+            Console.WriteLine(" Packets Sent: {0} ({1} still in buffer)", results.packetsSent, results.packetsUnsent);
+            Console.WriteLine(" Data Sent: {0:F1} bits ({1:F2} Mbits)", results.bitsSent, results.bitsSent / 1000000.0);
+            Console.WriteLine(" Datarate: {0:F1} bps ({1:F2} Mbps)", results.datarate, results.datarate / 1000000.0);
+            Console.WriteLine(" Packets over threshold: {0}", results.packetsOverThreshold);
+            Console.WriteLine(" Time spent over threshold: {0:F2} milliseconds ({1} slots)", results.secondsPerSlot * results.timeSlotsOverThreshold * 1000.0, results.timeSlotsOverThreshold);
+            Console.WriteLine(" Time spent over threshold per packet: {0:F2} milliseconds ({1:F2} slots)", results.secondsPerSlot * results.avgTimeSlotsOverThreshold * 1000.0, results.avgTimeSlotsOverThreshold);
+            Console.WriteLine(" Max time spent over threshold: {0:F2} milliseconds ({1} slots)", results.secondsPerSlot * results.maxTimeSlotsOverThreshold * 1000.0, results.maxTimeSlotsOverThreshold);
+            Console.WriteLine(" Average sleep stage: {0:F2} (max {1})", results.avgSleepStage, results.maxSleepStage);
         }
 
         public void WriteCSVResults(Physical80211 network, string filebase)
@@ -445,6 +437,21 @@ namespace WifiInterferenceSim.DCF
 
             w.Flush();
             w.Close();
+        }
+
+        public SimulationResults CalculateResults(Physical80211 network, double thresholdSeconds)
+        {
+            results.secondsPerSlot = Physical80211.TransactionTime(network.type, network.payloadBits) / 1000000.0;
+            results.timeSpent = curStep * results.secondsPerSlot;
+            results.thresholdSlots = (Int64)((thresholdSeconds / results.secondsPerSlot) + 0.5);
+
+            EvalPacketHistory(results.thresholdSlots, out results.packetsSent, out results.packetsUnsent, out results.packetsOverThreshold, out results.timeSlotsOverThreshold, out results.maxTimeSlotsOverThreshold, out results.avgTimeSlotsOverThreshold);
+            EvalStateHistory(out results.maxSleepStage, out results.avgSleepStage);
+
+            results.bitsSent = results.packetsSent * network.payloadBits;
+            results.datarate = results.bitsSent / results.timeSpent;
+
+            return results;
         }
     }
 }

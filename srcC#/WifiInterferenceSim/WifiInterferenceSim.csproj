@@ -44,6 +44,7 @@
     <Compile Include="DCF\DCFParams.cs" />
     <Compile Include="DCF\DCFState.cs" />
     <Compile Include="DCF\Packet.cs" />
+    <Compile Include="DCF\SimulationResults.cs" />
     <Compile Include="DCF\Traffic.cs" />
     <Compile Include="Physical80211.cs" />
     <Compile Include="Program.cs" />

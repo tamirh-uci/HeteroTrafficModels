@@ -10,11 +10,14 @@ namespace WifiInterferenceSim.DCF
     class Simulator
     {
         List<DCFNode> simnodes;
+        List<SimulationResults> simresults;
         Physical80211 network;
+        double thresholdSeconds;
 
         public Simulator(Physical80211 _network)
         {
             simnodes = new List<DCFNode>();
+            simresults = new List<SimulationResults>();
             network = _network;
         }
 
@@ -23,8 +26,10 @@ namespace WifiInterferenceSim.DCF
             simnodes.Add(node);
         }
 
-        public void Steps(int nSteps)
+        public void Steps(int nSteps, double _thresholdSeconds)
         {
+            thresholdSeconds = _thresholdSeconds;
+
             foreach (DCFNode node in simnodes)
             {
                 node.Init(nSteps);
@@ -56,16 +61,34 @@ namespace WifiInterferenceSim.DCF
                     node.PostStep();
                 }
             }
+
+            foreach (DCFNode node in simnodes)
+            {
+                node.CalculateResults(network, thresholdSeconds);
+            }
         }
 
-        public void PrintResults(double qualityThreshold)
+        public SimulationResults GetResults(int nodeIndex)
+        {
+            return simresults[nodeIndex];
+        }
+
+        public void CalculateResults()
+        {
+            foreach(DCFNode node in simnodes)
+            {
+                simresults.Add(node.CalculateResults(network, thresholdSeconds));
+            }
+        }
+
+        public void PrintResults()
         {
             Console.WriteLine("Nodes: {0}", simnodes.Count);
 
             bool first = true;
             foreach(DCFNode node in simnodes)
             {
-                node.PrintResults(network, first, qualityThreshold);
+                node.PrintResults(network, first, thresholdSeconds);
                 first = false;
                 Console.WriteLine("\n");
             }
