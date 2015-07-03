@@ -17,25 +17,25 @@ if (graphWireshark)
 
     %figure
     %plot(time, binnedWeb, 'r', time, binnedVid, 'g', time, binnedFil, 'b');
-    %title('web (red) vs. video (green) vs. file (blue)');
+    %title('web vs. video vs. file');
     
     figure
     
     subplot(4,1,1);
     plot(time, binnedWeb, 'r');
-    title('Wireshark web (red)');
+    title('Wireshark web (browsing text+images)');
 
     subplot(4,1,2);
     plot(time, binnedVid, 'g');
-    title('Wireshark video stream (green)');
+    title('Wireshark video stream (YouTube)');
     
     subplot(4,1,3);
     plot(time, binnedCal, 'm');
-    title('Wireshark Video Call (magenta');
+    title('Wireshark Video Call (Skype)');
 
     subplot(4,1,4);
     plot(time, binnedFil, 'b');
-    title('Wireshark file (blue)');
+    title('Wireshark file (BitTorrent)');
     
     fprintf('Wireshark Web Traffic: %0.2f Mbps\n', bpsWeb/1000000);
     fprintf('Wireshark Vid Traffic: %0.2f Mbps\n', bpsVid/1000000);
@@ -62,17 +62,21 @@ if (graphGenerated)
     
     figure
     
-    subplot(3,1,1);
+    subplot(4,1,1);
     plot(time, binnedWeb, 'r');
-    title('matlab web (red)');
+    title('Original DCF web');
 
-    subplot(3,1,2);
+    subplot(4,1,2);
     plot(time, binnedVid, 'g');
-    title('matlab video (green)');
-
-    subplot(3,1,3);
+    title('Original DCF video');
+    
+    subplot(4,1,3);
+    plot(time, zeros(size(binnedWeb,1), size(binnedWeb,2)), 'm');
+    title('Did not simulate');
+    
+    subplot(4,1,4);
     plot(time, binnedFil, 'b');
-    title('matlab file (blue)');
+    title('Original DCF file');
 end
 
 if (graphCSharpGenerated)
@@ -94,21 +98,21 @@ if (graphCSharpGenerated)
     
     subplot(4,1,1);
     plot(time, binnedWeb, 'r');
-    title('C# web (red)');
+    title('Buffer Sim w/ Sleep web (browsing text+images)');
 
     subplot(4,1,2);
     plot(time, binnedVid, 'g');
-    title('C# video stream (green)');
+    title('Buffer Sim w/ Sleep video stream (YouTube)');
     
     subplot(4,1,3);
     plot(time, binnedCal, 'm');
-    title('C# video call (magenta)');
+    title('Buffer Sim w/ Sleep video call (Skype)');
 
     subplot(4,1,4);
     plot(time, binnedFil, 'b');
-    title('C# file (blue)');
+    title('Buffer Sim w/ Sleep file (BitTorrent)');
     
     %figure
     %plot(time, binnedFul, 'm');
-    %title('full (magenta)');
+    %title('full');
 end
