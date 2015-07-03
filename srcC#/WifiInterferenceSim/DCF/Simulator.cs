@@ -38,7 +38,7 @@ namespace WifiInterferenceSim.DCF
                 foreach (DCFNode node in simnodes)
                 {
                     node.Step();
-                    numTransmitting++;
+                    numTransmitting += node.IsTransmitting() ? 1 : 0;
                 }
 
                 // If multiple nodes are transmitting, they will be forced to all fail

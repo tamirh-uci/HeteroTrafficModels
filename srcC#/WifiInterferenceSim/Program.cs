@@ -9,8 +9,8 @@ namespace WifiInterferenceSim
 {
     class Program
     {
-        //static int STEPS = 20000; // 32 seconds
-        static int STEPS = 645; // 1 second
+        static int STEPS = 20000; // 32 seconds
+        //static int STEPS = 645; // 1 second
 
         static double ARRIVAL_MBPS = 0.5;
         static Int64 PAYLOAD_BITS = 1500 * 8;
@@ -33,10 +33,10 @@ namespace WifiInterferenceSim
             DCFParams webCfg = Traffic.Web(network, arrivalBps);
             DCFParams fulCfg = Traffic.Full(network, arrivalBps);
 
-            //SingleNodeTests(network, 1, vidCfg, 1, datCfg, 1, webCfg, 1, fulCfg);
-            Simulator sim = MultiNodeTests(network, 1, vidCfg, 0, datCfg, 1, webCfg, 0, fulCfg);
+            SingleNodeTests(network, 1, vidCfg, 1, datCfg, 1, webCfg, 1, fulCfg);
 
-            sim.PrintResults(QUALITY_THRESHOLD);
+            //Simulator sim = MultiNodeTests(network, 1, vidCfg, 0, datCfg, 1, webCfg, 0, fulCfg);
+            //sim.PrintResults(QUALITY_THRESHOLD);
             
             Console.WriteLine("\n");
         }
