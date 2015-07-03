@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,10 +10,12 @@ namespace WifiInterferenceSim.DCF
     class Simulator
     {
         List<DCFNode> simnodes;
+        Physical80211 network;
 
-        public Simulator()
+        public Simulator(Physical80211 _network)
         {
             simnodes = new List<DCFNode>();
+            network = _network;
         }
 
         public void AddNode(DCFNode node)
@@ -55,7 +58,7 @@ namespace WifiInterferenceSim.DCF
             }
         }
 
-        public void PrintResults(Physical80211 network, double qualityThreshold)
+        public void PrintResults(double qualityThreshold)
         {
             Console.WriteLine("Nodes: {0}", simnodes.Count);
 
@@ -65,6 +68,15 @@ namespace WifiInterferenceSim.DCF
                 node.PrintResults(network, first, qualityThreshold);
                 first = false;
                 Console.WriteLine("\n");
+            }
+        }
+
+        public void WriteCSVResults(string filebase)
+        {
+            foreach(DCFNode node in simnodes)
+            {
+                node.WriteCSVResults(network, filebase);
+                
             }
         }
     }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using System.IO;
 
 namespace WifiInterferenceSim.DCF
 {
@@ -83,7 +84,7 @@ namespace WifiInterferenceSim.DCF
             // Force sleep if we went over entire drowsy period without sleeping
             sleepCycles[i] = 1.0;
 
-            RandomizeStartState();
+            StartState();
         }
 
         public bool IsTransmitting()
@@ -105,60 +106,42 @@ namespace WifiInterferenceSim.DCF
             packetQueue.Enqueue(new Packet(curStep, payloadSize));
         }
 
-        private void RandomizeStartState()
+        private void StartState()
         {
-            // Not the best random start state because we're giving equal weight to each state which doesn't make sense
-            DCFStateType startState = (DCFStateType)rand.Next(1, Enum.GetValues(typeof(DCFStateType)).Length - 1);
-            switch(startState)
-            {
-                case DCFStateType.Transmit:
-                    if (SetStateTransmit())
-                    {
-                        // Overwrite with a random location in completion of payload
-                        curr.payloadTimer = rand.Next(1, currPacket.payloadSize);
-                    }
-                    break;
+            // Tamest state to set, will find out soon if the buffer is not empty
+            SetStateBufferEmpty();
 
-                case DCFStateType.Interarrival:
-                    SetStateInterarrival();
-                    break;
-
-                // For empty buffer, just pretend we're in backoff, it makes more sense for an initial condition
-                case DCFStateType.BufferEmpty:
-                case DCFStateType.Backoff: 
-                    SetStateBackoff(rand.Next(1, backoffs.Length));
-                    break;
-
-                case DCFStateType.Sleep:
-                    SetStateSleep();
-                    break;
-
-                default:
-                    Debug.Assert(false);
-                    break;
-            }
+            // Randomize our 'start' time a bit
+            packetLeftovers = rand.NextDouble();
         }
 
         private bool SetStateTransmit()
         {
-            if (packetQueue.Count == 0)
+            if (currPacket.IsValid())
             {
-                // Empty buffer
-                SetStateBufferEmpty();
-                return false;
+                // Coming back from a failed transmission, pick up where we left off
+                curr.type = DCFStateType.Transmit;
+                return true;
             }
             else
             {
-                Debug.Assert(!currPacket.IsValid());
+                if (packetQueue.Count == 0)
+                {
+                    // Empty buffer
+                    SetStateBufferEmpty();
+                    return false;
+                }
+                else
+                {
+                    // Attempt transmission of packet from buffer
+                    currPacket = packetQueue.Dequeue();
+                    currPacket.txAttempt = curStep;
 
-                // Attempt transmission of packet from buffer
-                currPacket = packetQueue.Dequeue();
-                currPacket.txAttempt = curStep;
+                    curr.type = DCFStateType.Transmit;
+                    curr.payloadTimer = currPacket.payloadSize;
 
-                curr.type = DCFStateType.Transmit;
-                curr.payloadTimer = currPacket.payloadSize;
-                
-                return true;
+                    return true;
+                }
             }
         }
 
@@ -177,8 +160,7 @@ namespace WifiInterferenceSim.DCF
                 historyPackets.Enqueue(currPacket);
                 currPacket.Invalidate();
 
-                
-                if (rand.NextDouble() < sleepCycles[ Math.Max(curr.sleepStage, sleepCycles.Length-1) ])
+                if (cfg.minSleep > 0 && rand.NextDouble() < sleepCycles[Math.Min(curr.sleepStage, sleepCycles.Length - 1)])
                 {
                     // Go into a long sleep instead of normal short backoff
                     SetStateSleep();
@@ -195,7 +177,7 @@ namespace WifiInterferenceSim.DCF
         private void FailTransmit()
         {
             // We keep the same packet data, but we will backoff at a longer stage
-            SetStateBackoff(backoffs.Length);
+            SetStateBackoff(curr.backoffStage + 1);
         }
 
         private void SetStateBufferEmpty()
@@ -241,6 +223,11 @@ namespace WifiInterferenceSim.DCF
 
         private void SetStateBackoff(int backoffStage)
         {
+            if (backoffStage > backoffs.Length)
+            {
+                backoffStage = backoffs.Length;
+            }
+
             // Even distribution over interarrival stage
             curr.type = DCFStateType.Backoff;
             curr.backoffStage = backoffStage;
@@ -284,7 +271,10 @@ namespace WifiInterferenceSim.DCF
             while(packetLeftovers >= 1.0)
             {
                 GeneratePacket();
-                packetLeftovers -= 1.0;
+
+                // For larger packets, we need to eb the datarate accordingly
+                // Allow the 'leftovers' to dip into negative vales for this
+                packetLeftovers -= packetQueue.Peek().payloadSize;
             }
 
             // Step forward based on what state type we're in
@@ -292,6 +282,7 @@ namespace WifiInterferenceSim.DCF
             {
                 case DCFStateType.Transmit:     StepTransmit(); break;
                 case DCFStateType.BufferEmpty:  StepBufferEmpty(); break;
+                case DCFStateType.Interarrival: StepInterarrival(); break;
                 case DCFStateType.Backoff:      StepBackoff(); break;
                 case DCFStateType.Sleep:        StepSleep(); break;
                 default:
@@ -328,22 +319,38 @@ namespace WifiInterferenceSim.DCF
             }
         }
 
-        public void EvalPacketHistory(Int64 thresholdTimeSlots, out Int64 packetsSent, out Int64 packetsOverThreshold, out Int64 timeSlotsOverThreshold)
+        public void EvalPacketHistory(Int64 thresholdTimeSlots, out Int64 packetsSent, out Int64 packetsUnsent, out Int64 packetsOverThreshold, out Int64 timeSlotsOverThreshold, out Int64 maxTimeSlotsOverThreshold, out double avgTimeSlotsOverThreshold)
         {
             packetsSent = 0;
+            packetsUnsent = 0;
             packetsOverThreshold = 0;
             timeSlotsOverThreshold = 0;
+            maxTimeSlotsOverThreshold = 0;
+            avgTimeSlotsOverThreshold = 0;
 
             foreach(Packet p in historyPackets)
             {
                 packetsSent += p.payloadSize;
                 int wait = p.txSuccess - p.queueArrival;
                 Debug.Assert(wait > 0);
+
+                maxTimeSlotsOverThreshold = Math.Max(maxTimeSlotsOverThreshold, wait);
+
                 if (wait > thresholdTimeSlots)
                 {
                     packetsOverThreshold++;
                     timeSlotsOverThreshold += wait - thresholdTimeSlots;
                 }
+            }
+
+            if (historyPackets.Count > 0)
+            {
+                avgTimeSlotsOverThreshold = timeSlotsOverThreshold / historyPackets.Count;
+            }
+
+            foreach(Packet p in packetQueue)
+            {
+                packetsUnsent += p.payloadSize;
             }
         }
 
@@ -362,17 +369,38 @@ namespace WifiInterferenceSim.DCF
                 Console.WriteLine("\n");
             }
 
-            Int64 packetsSent, packetsOverThreshold, timeSlotsOverThreshold;
-            EvalPacketHistory(thresholdSlots, out packetsSent, out packetsOverThreshold, out timeSlotsOverThreshold);
+            Int64 packetsSent, packetsUnsent, packetsOverThreshold, timeSlotsOverThreshold, maxTimeSlotsOverThreshold;
+            double avgTimeSlotsOverThreshold;
+            EvalPacketHistory(thresholdSlots, out packetsSent, out packetsUnsent, out packetsOverThreshold, out timeSlotsOverThreshold, out maxTimeSlotsOverThreshold, out avgTimeSlotsOverThreshold);
 
             Int64 bitsSent = packetsSent * network.payloadBits;
             double datarate = bitsSent / timeSpent;
 
             Console.WriteLine(" ==Sim Node '{0}'==", name);
+            Console.WriteLine(" Packets Sent: {0} ({1} still in buffer)", packetsSent, packetsUnsent);
             Console.WriteLine(" Data Sent: {0:F1} bits ({1:F2} Mbits)", bitsSent, bitsSent / 1000000.0);
             Console.WriteLine(" Datarate: {0:F1} bps ({1:F2} Mbps)", datarate, datarate / 1000000.0);
             Console.WriteLine(" Packets over threshold: {0}", packetsOverThreshold);
-            Console.WriteLine(" Time spent over threshold: {0:F2}", secondsPerSlot * timeSlotsOverThreshold);
+            Console.WriteLine(" Time spent over threshold: {0:F2} milliseconds ({1} slots)", secondsPerSlot * timeSlotsOverThreshold * 1000.0, timeSlotsOverThreshold);
+            Console.WriteLine(" Time spent over threshold per packet: {0:F2} milliseconds ({1:F2} slots)", secondsPerSlot * avgTimeSlotsOverThreshold * 1000.0, avgTimeSlotsOverThreshold);
+            Console.WriteLine(" Max time spent over threshold: {0:F2} milliseconds ({1} slots)", secondsPerSlot * maxTimeSlotsOverThreshold * 1000.0, maxTimeSlotsOverThreshold);
+
+        }
+
+        public void WriteCSVResults(Physical80211 network, string filebase)
+        {
+            string filename = String.Format("{0}-{1}.csv", filebase, name);
+            StreamWriter w = new StreamWriter(filename);
+
+            double secondsPerSlot = Physical80211.TransactionTime(network.type, network.payloadBits) / 1000000.0;
+            foreach (Packet p in historyPackets)
+            {
+                double time = p.txSuccess * secondsPerSlot;
+                w.WriteLine("{0},{1}", time, p.payloadSize*network.payloadBits/8);
+            }
+
+            w.Flush();
+            w.Close();
         }
     }
 }

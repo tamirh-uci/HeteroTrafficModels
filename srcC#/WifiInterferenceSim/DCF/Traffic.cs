@@ -81,11 +81,41 @@ namespace WifiInterferenceSim.DCF
             cfg.awakeTime = 25;
             cfg.drowsyTime = 25;
             cfg.pDrowsySleep = 0.1;
-            cfg.minSleep = 5;
-            cfg.maxSleep = 10;
+            cfg.minSleep = 1;
+            cfg.maxSleep = 5;
 
             // We have many more full data packets for video
             cfg.pSmallPayload = 0.26;
+
+            return cfg;
+        }
+
+        /// <summary>
+        /// Full traffic saturation
+        /// </summary>
+        /// <param name="network">802.11 network type</param>
+        /// <param name="bps">Incoming BPS of source</param>
+        /// <returns>params for DCFNode</returns>
+        public static DCFParams Full(Physical80211 network, double bps)
+        {
+            DCFParams cfg = new DCFParams();
+
+            cfg.packetArrivalRate = network.PacketArrivalRate(bps);
+
+            // Never have interarrivals
+            cfg.pInterarrival = 0;
+
+            // Even sleep schedule, sleeps are very short
+            cfg.awakeTime = 0;
+            cfg.drowsyTime = 0;
+            cfg.pDrowsySleep = 0;
+            cfg.minSleep = 0;
+            cfg.maxSleep = 0;
+
+            // Always send single
+            cfg.minPayload = 1;
+            cfg.maxPayload = 1;
+            cfg.pSmallPayload = 1.00;
 
             return cfg;
         }
