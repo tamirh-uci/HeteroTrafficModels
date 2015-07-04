@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using System.IO;
+using WifiInterferenceSim.Simulation;
 
 namespace WifiInterferenceSim.DCF
 {
@@ -42,16 +43,19 @@ namespace WifiInterferenceSim.DCF
 
         // All user modifyable parameters
         DCFParams cfg;
+        double qualityThreshold;
 
-        SimulationResults results;
+        // Internal result stuff
+        SimulationNodeResults results;
         int uid;
 
-        public DCFNode(string _name, DCFParams _cfg, int randseed)
+        public DCFNode(string _name, DCFParams _cfg, int randseed, double _qualityThreshold)
         {
             uid = NEXT_UID++;
 
             name = _name;
             cfg = _cfg;
+            qualityThreshold = _qualityThreshold;
 
             curStep = 0;
             packetLeftovers = 0;
@@ -401,13 +405,13 @@ namespace WifiInterferenceSim.DCF
             }
         }
 
-        public void PrintResults(Physical80211 network, bool overviewInfo, double thresholdSeconds)
+        public void PrintResults(Physical80211 network, bool overviewInfo)
         {
             if (overviewInfo)
             {
                 Console.WriteLine("Steps: {0}", curStep);
                 Console.WriteLine("Slot Duration: {0:F2} milliseconds", results.secondsPerSlot * 1000.0);
-                Console.WriteLine("Threshold: {0:F2} milliseconds (~{1} slots)", thresholdSeconds * 1000.0, results.thresholdSlots);
+                Console.WriteLine("Threshold: {0:F2} milliseconds (~{1} slots)", qualityThreshold * 1000.0, results.thresholdSlots);
                 Console.WriteLine("Time elapsed: {0:F3} seconds", results.timeSpent);
                 Console.WriteLine("\n");
             }
@@ -439,11 +443,13 @@ namespace WifiInterferenceSim.DCF
             w.Close();
         }
 
-        public SimulationResults CalculateResults(Physical80211 network, double thresholdSeconds)
+        public SimulationNodeResults CalculateResults(Physical80211 network)
         {
+            results = new SimulationNodeResults();
+
             results.secondsPerSlot = Physical80211.TransactionTime(network.type, network.payloadBits) / 1000000.0;
             results.timeSpent = curStep * results.secondsPerSlot;
-            results.thresholdSlots = (Int64)((thresholdSeconds / results.secondsPerSlot) + 0.5);
+            results.thresholdSlots = (Int64)((qualityThreshold / results.secondsPerSlot) + 0.5);
 
             EvalPacketHistory(results.thresholdSlots, out results.packetsSent, out results.packetsUnsent, out results.packetsOverThreshold, out results.timeSlotsOverThreshold, out results.maxTimeSlotsOverThreshold, out results.avgTimeSlotsOverThreshold);
             EvalStateHistory(out results.maxSleepStage, out results.avgSleepStage);

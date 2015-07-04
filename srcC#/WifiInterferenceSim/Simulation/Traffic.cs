@@ -6,17 +6,73 @@ using System.Threading.Tasks;
 
 namespace WifiInterferenceSim.DCF
 {
+    enum TrafficType
+    {
+        Custom,
+        //SkypeAudio,
+        SkypeVideo,
+        YouTube,
+        BitTorrent,
+        WebBrowsing,
+        ConstantStream,
+    }
+
     class Traffic
     {
+        public static string ShortName(TrafficType type)
+        {
+            switch (type)
+            {
+                case TrafficType.SkypeVideo: return "SV";
+                case TrafficType.YouTube: return "YT";
+                case TrafficType.BitTorrent: return "BT";
+                case TrafficType.WebBrowsing: return "WB";
+                case TrafficType.ConstantStream: return "CS";
+                case TrafficType.Custom: return "XX";
+                default:
+                    throw new NotSupportedException();
+            }
+        }
+
+        public static string Name(TrafficType type)
+        {
+            switch (type)
+            {
+                case TrafficType.SkypeVideo: return "SkypeVideo";
+                case TrafficType.YouTube: return "YouTube";
+                case TrafficType.BitTorrent: return "BitTorrent";
+                case TrafficType.WebBrowsing: return "WebBrowsing";
+                case TrafficType.ConstantStream: return "ConstantStream";
+                case TrafficType.Custom: return "Custom";
+                default:
+                    throw new NotSupportedException();
+            }
+        }
+
+        public static DCFParams MakeTraffic(TrafficType type, Physical80211 network, double bps)
+        {
+            switch (type)
+            {
+                case TrafficType.SkypeVideo: return SkypeVideo(network, bps);
+                case TrafficType.YouTube: return YouTube(network, bps);
+                case TrafficType.BitTorrent: return BitTorrent(network, bps);
+                case TrafficType.WebBrowsing: return WebBrowsing(network, bps);
+                case TrafficType.ConstantStream: return ConstantStream(network, bps);
+                case TrafficType.Custom: throw new NotSupportedException();
+                default:
+                    throw new NotSupportedException();
+            }
+        }
+
         /// <summary>
-        /// File download traffic, very steady and low variability
+        /// BitTorrent download traffic, very steady and low variability
         /// </summary>
         /// <param name="network">802.11 network type</param>
         /// <param name="bps">Incoming BPS of source</param>
         /// <returns>params for DCFNode</returns>
-        public static DCFParams File(Physical80211 network, double bps)
+        public static DCFParams BitTorrent(Physical80211 network, double bps)
         {
-            DCFParams cfg = new DCFParams();
+            DCFParams cfg = new DCFParams(TrafficType.BitTorrent);
 
             cfg.packetArrivalRate = network.PacketArrivalRate(bps);
             
@@ -42,9 +98,9 @@ namespace WifiInterferenceSim.DCF
         /// <param name="network">802.11 network type</param>
         /// <param name="bps">Incoming BPS of source</param>
         /// <returns>params for DCFNode</returns>
-        public static DCFParams Web(Physical80211 network, double bps)
+        public static DCFParams WebBrowsing(Physical80211 network, double bps)
         {
-            DCFParams cfg = new DCFParams();
+            DCFParams cfg = new DCFParams(TrafficType.WebBrowsing);
 
             cfg.packetArrivalRate = network.PacketArrivalRate(bps);
 
@@ -72,9 +128,9 @@ namespace WifiInterferenceSim.DCF
         /// <param name="network">802.11 network type</param>
         /// <param name="bps">Incoming BPS of source</param>
         /// <returns>params for DCFNode</returns>
-        public static DCFParams VideoCall(Physical80211 network, double bps)
+        public static DCFParams SkypeVideo(Physical80211 network, double bps)
         {
-            DCFParams cfg = new DCFParams();
+            DCFParams cfg = new DCFParams(TrafficType.SkypeVideo);
 
             cfg.packetArrivalRate = network.PacketArrivalRate(bps);
 
@@ -105,9 +161,9 @@ namespace WifiInterferenceSim.DCF
         /// <param name="network">802.11 network type</param>
         /// <param name="bps">Incoming BPS of source</param>
         /// <returns>params for DCFNode</returns>
-        public static DCFParams VideoStream(Physical80211 network, double bps)
+        public static DCFParams YouTube(Physical80211 network, double bps)
         {
-            DCFParams cfg = new DCFParams();
+            DCFParams cfg = new DCFParams(TrafficType.YouTube);
 
             cfg.packetArrivalRate = network.PacketArrivalRate(bps);
 
@@ -137,9 +193,9 @@ namespace WifiInterferenceSim.DCF
         /// <param name="network">802.11 network type</param>
         /// <param name="bps">Incoming BPS of source</param>
         /// <returns>params for DCFNode</returns>
-        public static DCFParams Full(Physical80211 network, double bps)
+        public static DCFParams ConstantStream(Physical80211 network, double bps)
         {
-            DCFParams cfg = new DCFParams();
+            DCFParams cfg = new DCFParams(TrafficType.ConstantStream);
 
             cfg.packetArrivalRate = network.PacketArrivalRate(bps);
 

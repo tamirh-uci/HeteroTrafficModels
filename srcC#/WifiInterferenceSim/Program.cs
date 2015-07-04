@@ -5,57 +5,112 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WifiInterferenceSim.DCF;
+using WifiInterferenceSim.Simulation;
 
 namespace WifiInterferenceSim
 {
     class Program
     {
-        static int STEPS = 20000; // 32 seconds
-        //static int STEPS = 645; // 1 second
-
-        static double ARRIVAL_MBPS = 0.5;
-        static Int64 PAYLOAD_BITS = 1500 * 8;
-        static double QUALITY_THRESHOLD = 0.10; // 100 milliseconds
-        static int RANDOM_SEED = -1;
-
-        static int NUM_RUNS = 500;
-
-        static double VID_STREAM_ARRIVAL_MULT = 1.0;
-        static double VID_CALL_ARRIVAL_MULT = 1.0;
-        static double FILE_ARRIVAL_MULT = 1.0;
-        static double WEB_ARRIVAL_MULT = 1.0;
-        static double FULL_DATA_ARRIVAL_MULT = 1.0;
-
-        static int MIN_VIDEO_STREAM_NODES = 0;
-        static int MAX_VIDEO_STREAM_NODES = 0;
-        static int MIN_FILE_NODES = 0;
-        static int MAX_FILE_NODES = 0;
-        static int MIN_WEB_NODES = 0;
-        static int MAX_WEB_NODES = 0;
-        static int MIN_FULL_DATA_NODES = 0;
-        static int MAX_FULL_DATA_NODES = 9;
-
-        // Measured max single node datarate
-        static Int64 MAX_NODE_BPS = 1744600;
+        // Precalculated numbers
+        static int STEPS_PER_SECOND = 645;
+        static Int64 MAX_NODE_BPS = 1744600; // Measured max single node datarate (based on wMin=8, payload=1500bytes)
         static double MAX_NODE_MBPS = MAX_NODE_BPS / 1000000;
 
-        static string CSV_BASE = "./../../../../results/newsim_";
+        // -----------------------------
+        // User variables
+        // -----------------------------
 
+        // negative: random seeds, positive: fixed seeds for testing
+        static int RANDOM_SEED = -1;
+
+        // How many seconds are we simulating
+        static int SIMULATION_SECONDS = 32;
+
+        // The type of the main node
+        static TrafficType MAIN_NODE_TYPE = TrafficType.SkypeVideo;
+
+        // Main node arrival rate
+        static double MAIN_ARRIVAL_MBPS = 0.5;
+
+        // Quality threshold for the main node
+        static double MAIN_THRESHOLD = 0.1;
+
+        // Bytes per packet
+        static Int64 PAYLOAD_BITS = 1500 * 8;
+
+        // How many times to repeat each variation of simulation
+        static int NUM_RUNS = 500;
+
+        // How many seconds for a packet to be 'too late'
+        static double THRESHOLD_SKYPE_VIDEO = 0.10;
+        static double THRESHOLD_YOUTUBE = 2.00;
+        static double THRESHOLD_BITTORRENT = 2.00;
+        static double THRESHOLD_WEBBROWSING = 0.50;
+        static double THRESHOLD_FULLSTREAM = 0.25;
+
+        // multipliers for the global arrival rate
+        static double MULT_SKYPE_VIDEO = 1.0;
+        static double MULT_YOUTUBE = 1.0;
+        static double MULT_BITTORRENT = 1.0;
+        static double MULT_WEBBROWSING = 1.0;
+        static double MULT_FULLSTREAM = 1.0;
+
+        // Do we have a cartesian product of competing nodes? Or just a single sim
+        static bool RUN_CARTESIAN = false;
+
+        // Do we have a run where we iterate through and run one of each?
+        static bool RUN_SINGLES = true;
+
+        // How many of each type of competing node
+        static int MIN_SKYPE_VIDEO = 0;
+        static int MAX_SKYPE_VIDEO = 9;
+        static int MIN_YOUTUBE = 0;
+        static int MAX_YOUTUBE = 9;
+        static int MIN_BITTORRENT = 0;
+        static int MAX_BITTORRENT = 9;
+        static int MIN_WEBBROWSING = 0;
+        static int MAX_WEBBROWSING = 9;
+        static int MIN_CONSTANT = 0;
+        static int MAX_CONSTANT = 9;
+
+        // Storage for final file
+        static string CSV_BASE = "./../../../../results/newsim_";
+        
         static void Main(string[] args)
         {
-            double arrivalBps = 1000000 * ARRIVAL_MBPS;
+            double mainArrivalBps = 1000000 * MAIN_ARRIVAL_MBPS;
             Physical80211 network = new Physical80211(NetworkType.B, PAYLOAD_BITS);
-            DCFParams cfgCal = Traffic.VideoCall(network, arrivalBps);
-            DCFParams cfgVid = Traffic.VideoStream(network, arrivalBps);
-            DCFParams cfgDat = Traffic.File(network, arrivalBps);
-            DCFParams cfgWeb = Traffic.Web(network, arrivalBps);
-            DCFParams cfgFul = Traffic.Full(network, arrivalBps);
+            int steps = STEPS_PER_SECOND * SIMULATION_SECONDS;
 
+            // TODO: Writing to CSV
+
+            if (RUN_SINGLES)
+            {
+                SimRunner simRunner = new SimRunner(network, false);
+
+                simRunner.AddCompetingSim(new SimParams(TrafficType.SkypeVideo, 0, 1, mainArrivalBps * MULT_SKYPE_VIDEO, THRESHOLD_SKYPE_VIDEO, RANDOM_SEED));
+                simRunner.AddCompetingSim(new SimParams(TrafficType.YouTube, 0, 1, mainArrivalBps * MULT_SKYPE_VIDEO, THRESHOLD_SKYPE_VIDEO, RANDOM_SEED));
+                simRunner.AddCompetingSim(new SimParams(TrafficType.BitTorrent, 0, 1, mainArrivalBps * MULT_SKYPE_VIDEO, THRESHOLD_SKYPE_VIDEO, RANDOM_SEED));
+                simRunner.AddCompetingSim(new SimParams(TrafficType.WebBrowsing, 0, 1, mainArrivalBps * MULT_SKYPE_VIDEO, THRESHOLD_SKYPE_VIDEO, RANDOM_SEED));
+                simRunner.AddCompetingSim(new SimParams(TrafficType.ConstantStream, 0, 1, mainArrivalBps * MULT_SKYPE_VIDEO, THRESHOLD_SKYPE_VIDEO, RANDOM_SEED));
+
+                simRunner.RunSims(1, steps);
+            }
+
+            if (RUN_CARTESIAN)
+            {
+                SimRunner simRunner = new SimRunner(network, true);
+                simRunner.SetMainSim(new SimParams(MAIN_NODE_TYPE, 1, mainArrivalBps, MAIN_THRESHOLD, RANDOM_SEED));
+
+                simRunner.AddCompetingSim(new SimParams(TrafficType.SkypeVideo, MIN_SKYPE_VIDEO, MAX_SKYPE_VIDEO, mainArrivalBps * MULT_SKYPE_VIDEO, THRESHOLD_SKYPE_VIDEO, RANDOM_SEED));
+                simRunner.AddCompetingSim(new SimParams(TrafficType.YouTube, MIN_SKYPE_VIDEO, MAX_SKYPE_VIDEO, mainArrivalBps * MULT_SKYPE_VIDEO, THRESHOLD_SKYPE_VIDEO, RANDOM_SEED));
+                simRunner.AddCompetingSim(new SimParams(TrafficType.BitTorrent, MIN_SKYPE_VIDEO, MAX_SKYPE_VIDEO, mainArrivalBps * MULT_SKYPE_VIDEO, THRESHOLD_SKYPE_VIDEO, RANDOM_SEED));
+                simRunner.AddCompetingSim(new SimParams(TrafficType.WebBrowsing, MIN_SKYPE_VIDEO, MAX_SKYPE_VIDEO, mainArrivalBps * MULT_SKYPE_VIDEO, THRESHOLD_SKYPE_VIDEO, RANDOM_SEED));
+                simRunner.AddCompetingSim(new SimParams(TrafficType.ConstantStream, MIN_SKYPE_VIDEO, MAX_SKYPE_VIDEO, mainArrivalBps * MULT_SKYPE_VIDEO, THRESHOLD_SKYPE_VIDEO, RANDOM_SEED));
+
+                simRunner.RunSims(NUM_RUNS, steps);
+            }
             
-            //DoSinglerunExample(network, cfgCal, cfgVid, cfgDat, cfgWeb, cfgFul);
-            DoMultirunCartesian(network, cfgCal, cfgVid, cfgDat, cfgWeb, cfgFul);
-            //DoMultirunIncrement(network, cfgCal, cfgVid, cfgDat, cfgWeb, cfgFul);
-
             Console.WriteLine("\nDone\n");
         }
 
@@ -64,28 +119,8 @@ namespace WifiInterferenceSim
             return String.Format("{0}{1}", CSV_BASE, index);
         }
 
-        static int RandSeed()
-        {
-            if (RANDOM_SEED > 0)
-            {
-                return RANDOM_SEED++;
-            }
-            else
-            {
-                return RANDOM_SEED;
-            }
-        }
-
-        static void DoSinglerunExample(Physical80211 network, DCFParams cfgCal, DCFParams cfgVid, DCFParams cfgDat, DCFParams cfgWeb, DCFParams cfgFul)
-        {
-            SingleNodeTests(network, 1, cfgCal, 1, cfgVid, 1, cfgDat, 1, cfgWeb, 1, cfgFul);
-
-            Simulator sim = MakeMultiNodeSim(network, 0, cfgCal, 0, cfgVid, 0, cfgDat, 0, cfgWeb, 1, cfgFul);
-            sim.Steps(STEPS, QUALITY_THRESHOLD);
-            sim.PrintResults();
-        }
-
-        static void DoMultirunCartesian(Physical80211 network, DCFParams cfgCal, DCFParams cfgVid, DCFParams cfgDat, DCFParams cfgWeb, DCFParams cfgFul)
+        /*
+        static void DoMultirunCartesian(Physical80211 network, int minCal, int maxCal, DCFParams cfgCal, int minVid, int maxVid, DCFParams cfgVid, int minDat, int maxDat, DCFParams cfgDat, int minWeb, int maxWeb, DCFParams cfgWeb, int minFul, int maxFul, DCFParams cfgFul)
         {
             List<string> variations = new List<string>();
             List<List<Int64>> packetsOverThreshold = new List<List<Int64>>();
@@ -167,94 +202,8 @@ namespace WifiInterferenceSim
                 avgData.Flush();
             }
 
-
             fullData.Close();
             avgData.Close();
-        }
-
-        static Simulator MakeMultiNodeSim(Physical80211 network, int nCal, DCFParams cfgCal, int nVid, DCFParams cfgVid, int nDat, DCFParams cfgDat, int nWeb, DCFParams cfgWeb, int nFul, DCFParams cfgFul)
-        {
-            Simulator sim = new Simulator(network);
-
-            for (int i = 0; i < nCal; ++i)
-            {
-                sim.AddNode(new DCFNode(String.Format("call {0}", i), cfgCal, RandSeed()));
-            }
-
-            for (int i = 0; i < nVid; ++i)
-            {
-                sim.AddNode(new DCFNode(String.Format("video {0}", i), cfgVid, RandSeed()));
-            }
-
-            for (int i=0; i<nDat; ++i)
-            {
-                sim.AddNode(new DCFNode(String.Format("files {0}", i), cfgDat, RandSeed()));
-            }
-
-            for (int i=0; i<nWeb; ++i)
-            {
-                sim.AddNode(new DCFNode(String.Format("web {0}", i), cfgWeb, RandSeed()));
-            }
-
-            for (int i=0; i<nFul; ++i)
-            {
-                sim.AddNode(new DCFNode(String.Format("full {0}", i), cfgFul, RandSeed()));
-            }
-
-            return sim;
-        }
-
-        static void SingleNodeTests(Physical80211 network, int nCal, DCFParams cfgCal, int nVid, DCFParams cfgVid, int nDat, DCFParams cfgDat, int nWeb, DCFParams cfgWeb, int nFul, DCFParams cfgFul)
-        {
-            for (int i = 0; i < nCal; ++i)
-            {
-                Simulator sim = new Simulator(network);
-
-                sim.AddNode(new DCFNode("call", cfgCal, RandSeed()));
-
-                sim.Steps(STEPS, QUALITY_THRESHOLD);
-                sim.WriteCSVResults(CSVFileBase(String.Format("{0}", i)));
-            }
-
-            for (int i = 0; i < nVid; ++i)
-            {
-                Simulator sim = new Simulator(network);
-
-                sim.AddNode(new DCFNode("video", cfgVid, RandSeed()));
-
-                sim.Steps(STEPS, QUALITY_THRESHOLD);
-                sim.WriteCSVResults(CSVFileBase(String.Format("{0}", i)));
-            }
-
-            for (int i=0; i<nDat; ++i)
-            {
-                Simulator sim = new Simulator(network);
-
-                sim.AddNode(new DCFNode("files", cfgDat, RandSeed()));
-
-                sim.Steps(STEPS, QUALITY_THRESHOLD);
-                sim.WriteCSVResults(CSVFileBase( String.Format("{0}", i) ));
-            }
-
-            for (int i=0; i<nWeb; ++i)
-            {
-                Simulator sim = new Simulator(network);
-
-                sim.AddNode(new DCFNode("web", cfgWeb, RandSeed()));
-
-                sim.Steps(STEPS, QUALITY_THRESHOLD);
-                sim.WriteCSVResults(CSVFileBase( String.Format("{0}", i) ));
-            }
-
-            for (int i=0; i<nFul; ++i)
-            {
-                Simulator sim = new Simulator(network);
-
-                sim.AddNode(new DCFNode("full", cfgFul, RandSeed()));
-
-                sim.Steps(STEPS, QUALITY_THRESHOLD);
-                sim.WriteCSVResults(CSVFileBase( String.Format("{0}", i) ));
-            }
-        }
+        }*/
     }
 }

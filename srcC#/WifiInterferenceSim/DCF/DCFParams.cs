@@ -44,8 +44,12 @@ namespace WifiInterferenceSim.DCF
         // Probability we use minPayload, other values for payload are evenly distributed
         public double pSmallPayload;
 
-        public DCFParams()
+        public TrafficType type;
+
+        public DCFParams(TrafficType _type)
         {
+            type = _type;
+
             packetArrivalRate = 0.1;
 
             minPayload = 1;

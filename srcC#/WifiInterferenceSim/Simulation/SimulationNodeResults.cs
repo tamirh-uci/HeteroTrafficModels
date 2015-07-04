@@ -4,14 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WifiInterferenceSim.DCF
+namespace WifiInterferenceSim.Simulation
 {
-    struct SimulationResults
+    struct SimulationNodeResults
     {
         public double secondsPerSlot;
         public double timeSpent;
         public Int64 thresholdSlots;
-        
+
         public Int64 packetsSent;
         public Int64 packetsUnsent;
         public Int64 packetsOverThreshold;

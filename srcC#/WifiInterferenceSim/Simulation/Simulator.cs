@@ -10,15 +10,17 @@ namespace WifiInterferenceSim.DCF
     class Simulator
     {
         List<DCFNode> simnodes;
-        List<SimulationResults> simresults;
+        SimulationResults simResults;
         Physical80211 network;
-        double thresholdSeconds;
+        string name;
 
-        public Simulator(Physical80211 _network)
+        public Simulator(Physical80211 _network, string _name)
         {
-            simnodes = new List<DCFNode>();
-            simresults = new List<SimulationResults>();
             network = _network;
+            name = _name;
+
+            simnodes = new List<DCFNode>();
+            simResults = new SimulationResults();
         }
 
         public void AddNode(DCFNode node)
@@ -26,10 +28,8 @@ namespace WifiInterferenceSim.DCF
             simnodes.Add(node);
         }
 
-        public void Steps(int nSteps, double _thresholdSeconds)
+        public void Steps(int nSteps)
         {
-            thresholdSeconds = _thresholdSeconds;
-
             foreach (DCFNode node in simnodes)
             {
                 node.Init(nSteps);
@@ -62,23 +62,16 @@ namespace WifiInterferenceSim.DCF
                 }
             }
 
+            // Stats
             foreach (DCFNode node in simnodes)
             {
-                simresults.Add( node.CalculateResults(network, thresholdSeconds) );
+                simResults.Add(node.CalculateResults(network));
             }
         }
 
-        public SimulationResults GetResults(int nodeIndex)
+        public SimulationResults GetResults()
         {
-            return simresults[nodeIndex];
-        }
-
-        public void CalculateResults()
-        {
-            foreach(DCFNode node in simnodes)
-            {
-                simresults.Add(node.CalculateResults(network, thresholdSeconds));
-            }
+            return simResults;
         }
 
         public void PrintResults()
@@ -88,7 +81,7 @@ namespace WifiInterferenceSim.DCF
             bool first = true;
             foreach(DCFNode node in simnodes)
             {
-                node.PrintResults(network, first, thresholdSeconds);
+                node.PrintResults(network, first);
                 first = false;
                 Console.WriteLine("\n");
             }
