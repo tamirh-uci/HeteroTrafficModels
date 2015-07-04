@@ -12,7 +12,8 @@ namespace WifiInterferenceSim.DCF
         List<DCFNode> simnodes;
         SimulationResults simResults;
         Physical80211 network;
-        string name;
+
+        public string name;
 
         public Simulator(Physical80211 _network, string _name)
         {

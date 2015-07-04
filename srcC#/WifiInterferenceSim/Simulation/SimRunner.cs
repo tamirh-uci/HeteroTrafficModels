@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,8 +13,8 @@ namespace WifiInterferenceSim.Simulation
         Physical80211 network;
         bool cartesian;
 
-        SimParams mainSimParams;
-        List<SimParams> competingSimParams;
+        SimParams mainParams;
+        List<SimParams> competingParams;
 
         List<Simulator> simulators;
         List<List<SimulationResults>> results;
@@ -23,29 +24,30 @@ namespace WifiInterferenceSim.Simulation
             network = _network;
             cartesian = _cartesian;
 
+            mainParams = null;
             simulators = new List<Simulator>();
             results = new List<List<SimulationResults>>();
-            competingSimParams = new List<SimParams>();
+            competingParams = new List<SimParams>();
         }
 
-        public void SetMainSim(SimParams _mainSim)
+        public void SetMain(SimParams _main)
         {
-            mainSimParams = _mainSim;
+            mainParams = _main;
         }
 
-        public void AddCompetingSim(SimParams competingSim)
+        public void AddCompeting(SimParams competing)
         {
-            competingSimParams.Add(competingSim);
+            competingParams.Add(competing);
         }
 
         public string SimulatorName(List<int> numNodes)
         {
             StringBuilder s = new StringBuilder();
-            s.AppendFormat("{0}main", Traffic.ShortName(mainSimParams.type));
+            s.AppendFormat("main-{0}_", Traffic.ShortName(mainParams.type));
 
-            for (int i=0; i<competingSimParams.Count; ++i)
+            for (int i=0; i<competingParams.Count; ++i)
             {
-                s.AppendFormat("-{0}{1}", Traffic.ShortName(competingSimParams[i].type), numNodes[i]);
+                s.AppendFormat("_{0}-{1}", Traffic.ShortName(competingParams[i].type), numNodes[i]);
             }
 
             return s.ToString();
@@ -54,11 +56,14 @@ namespace WifiInterferenceSim.Simulation
         private void AddSimulator(List<int> numNodes)
         {
             Simulator sim = new Simulator(network, SimulatorName(numNodes));
-            AddNode(sim, mainSimParams, "main", 1);
-
-            for (int i = 0; i < competingSimParams.Count; ++i )
+            if (mainParams != null)
             {
-                AddNode(sim, competingSimParams[i], "node", numNodes[i]);
+                AddNode(sim, mainParams, "main", 1);
+            }
+
+            for (int i = 0; i < competingParams.Count; ++i )
+            {
+                AddNode(sim, competingParams[i], "node", numNodes[i]);
             }
 
             simulators.Add(sim);
@@ -77,84 +82,178 @@ namespace WifiInterferenceSim.Simulation
             }
         }
 
-        public void RunSims(int repititions, int steps)
+        /// <summary>
+        /// We have a single main node
+        /// Competing nodes go from min-max, and we get every cartesian product of possible combinations
+        /// </summary>
+        private void GenerateCartesianSimulators()
         {
-            int length = competingSimParams.Count;
-            if (cartesian && length > 0)
+            // Limits
+            List<int> min = new List<int>();
+            List<int> max = new List<int>();
+            List<int> cur = new List<int>();
+            int length = competingParams.Count;
+            for (int i = 0; i < length; ++i)
             {
-                // Limits
-                List<int> min = new List<int>();
-                List<int> max = new List<int>();
-                List<int> cur = new List<int>();
-                for (int i=0; i<length; ++i)
+                min.Add(competingParams[i].minNodes);
+                max.Add(competingParams[i].maxNodes);
+                cur.Add(competingParams[i].minNodes);
+            }
+
+            // Create a cartesian product of all variations
+            // Loop through min-max at every level
+            while (cur[0] <= max[0])
+            {
+                // Add a simulation with the current set of params
+                AddSimulator(cur);
+
+                // Increment the last param by one
+                int cartesianIndex = length - 1;
+                cur[length - 1]++;
+
+                // Cascade any overflow
+                while (cur[cartesianIndex] > max[cartesianIndex])
                 {
-                    min.Add(competingSimParams[i].minNodes);
-                    max.Add(competingSimParams[i].maxNodes);
-                    cur.Add(competingSimParams[i].minNodes);
-                }
+                    // Reset current overflowed value to minimum
+                    cur[cartesianIndex] = min[cartesianIndex];
 
-                // Create a cartesian product of all variations
-                // Loop through min-max at every level
-                while (cur[0] <= max[0])
-                {
-                    // Add a simulation with the current set of params
-                    AddSimulator(cur);
-
-                    // Increment the last param by one
-                    int cartesianIndex = length - 1;
-                    cur[length - 1]++;
-
-                    // Cascade any overflow
-                    while( cur[cartesianIndex] > max[cartesianIndex] )
+                    // Go to previous index, and increment
+                    if (--cartesianIndex >= 0)
                     {
-                        // Reset current overflowed value to minimum
-                        cur[cartesianIndex] = min[cartesianIndex];
-
-                        // Go to previous index, and increment
-                        if (--cartesianIndex >= 0)
-                        {
-                            cur[cartesianIndex]++;
-                        }
+                        cur[cartesianIndex]++;
                     }
                 }
+            }
+
+        }
+
+        /// <summary>
+        /// We cycle through all types and let each one be the 'main', use the maxNodes value to see how many of this node type there are
+        /// We use the minNodes of each type to see how many of the competing nodes there are
+        /// For example, if we wanted to test each type by itself, we would set all minNodes=0, maxNodes=1
+        /// </summary>
+        private void GenerateSinglesSimulators()
+        {
+            int length = competingParams.Count;
+
+            // Iterate over all the types and allow each one of them to be the main one
+            for (int mainIndex = 0; mainIndex < length; ++mainIndex)
+            {
+                mainParams = competingParams[mainIndex];
+
+                List<int> cur = new List<int>();
+                for (int competingIndex = 0; competingIndex < length; ++competingIndex)
+                {
+                    if (mainIndex == competingIndex)
+                    {
+                        // See how many more copies of the main node we're adding
+                        // Subtract one because we already have one as the 'main'
+                        cur.Add(competingParams[mainIndex].maxNodes - 1);
+                    }
+                    else
+                    {
+                        // Other nodes get their min value of nodes
+                        cur.Add(competingParams[competingIndex].minNodes);
+                    }
+                }
+
+                AddSimulator(cur);
+            }
+
+            mainParams = null;
+        }
+
+        private void GenerateIncrementalSimulators()
+        {
+            // Limits
+            List<int> min = new List<int>();
+            List<int> max = new List<int>();
+            List<int> cur = new List<int>();
+            int length = competingParams.Count;
+            for (int i = 0; i < length; ++i)
+            {
+                min.Add(competingParams[i].minNodes);
+                max.Add(competingParams[i].maxNodes);
+                cur.Add(0);
+            }
+
+            // Iterate over all the types, allow each one be the competing type
+            for (int competingIndex = 0; competingIndex < length; ++competingIndex)
+            {
+                // Reset all other nodes to have 0
+                for (int i=0; i<length; ++i)
+                {
+                    cur[i] = 0;
+                }
+
+                // Iterate over all possible values of the current type
+                for (int numCompeting = min[competingIndex]; numCompeting < max[competingIndex]; ++numCompeting)
+                {
+                    cur[competingIndex] = numCompeting;
+                    AddSimulator(cur);
+                }
+            }
+        }
+
+        private void GenerateSimulators()
+        {
+            int length = competingParams.Count;
+            if (cartesian && length > 0)
+            {
+                Debug.Assert(mainParams != null);
+                GenerateCartesianSimulators();
             }
             else
             {
-                // use maxNodes as number of nodes to add as main
-                for (int i=0; i<length; ++i)
+                if (mainParams == null)
                 {
-                    mainSimParams = competingSimParams[i];
-
-                    List<int> cur = new List<int>();
-                    for (int j = 0; j < length; ++j)
-                    {
-                        if (i==j)
-                        {
-                            // See how many more copies of the main node we're adding
-                            cur.Add(competingSimParams[j].maxNodes - 1);
-                        }
-                        else
-                        {
-                            // Other nodes get their min value of nodes
-                            cur.Add(competingSimParams[i].minNodes);
-                        }
-                    }
-
-                    AddSimulator(cur);
+                    GenerateSinglesSimulators();
+                }
+                else
+                {
+                    GenerateIncrementalSimulators();
                 }
             }
+        }
+
+        public void RunSims(bool verbose, int repititions, int steps)
+        {
+            GenerateSimulators();
 
             foreach (Simulator sim in simulators)
             {
+                if (verbose)
+                {
+                    Console.Write("Running: {0}", sim.name);
+                }
+
                 List<SimulationResults> variationResults = new List<SimulationResults>();
                 for (int run=0; run<repititions; ++run)
                 {
+                    if (verbose && run%25 == 0)
+                    {
+                        Console.Write('.');
+                    }
+
                     sim.Steps(steps);
                     variationResults.Add(sim.GetResults());
                 }
 
+                if (verbose)
+                {
+                    Console.WriteLine();
+                }
+
                 results.Add(variationResults);
             }
+        }
+
+        public void SaveTracesCSV(string folder)
+        {            
+        }
+
+        public void SaveOverviewCSV(string folder)
+        {
         }
     }
 }
