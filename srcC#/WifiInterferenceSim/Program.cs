@@ -75,7 +75,7 @@ namespace WifiInterferenceSim
         static bool RUN_SINGLES = true;
 
         // Do we have a run where we run the main node against one type of the other nodes
-        static bool RUN_INCREMENTAL = true;
+        static bool RUN_INCREMENTAL = false;
 
         // Spit out stuff to console so we know we're not dead during long calculations
         static bool VERBOSE = true;
@@ -95,26 +95,29 @@ namespace WifiInterferenceSim
             // Run each type of node completely by itself
             if (RUN_SINGLES)
             {
-                RunSimSet("Singleton Traces", CSV_BASE_SINGLES, network, steps, 1, false, false, true);
+                RunSimSet("Singleton Traces", CSV_BASE_SINGLES, network, true, steps, 1, false, false, true);
             }
 
             // Run one type of main node against different numbers of a single type of competing node
             if (RUN_INCREMENTAL)
             {
-                RunSimSet("Incremental Simulations", CSV_BASE_INCREMENTAL, network, steps, NUM_RUNS, false, true, false);
+                RunSimSet("Incremental Simulations", CSV_BASE_INCREMENTAL, network, false, steps, NUM_RUNS, false, true, false);
             }
 
             // Run one type of main node against every combination of competing nodes
             if (RUN_CARTESIAN)
             {
-                RunSimSet("Cartesian Simulations", CSV_BASE_CARTESIAN, network, steps, NUM_RUNS, true, true, false);
+                RunSimSet("Cartesian Simulations", CSV_BASE_CARTESIAN, network, false, steps, NUM_RUNS, true, true, false);
             }
             
             Console.WriteLine("\nDone\n");
         }
 
-        static void RunSimSet(string name, string csvBase, Physical80211 network, int steps, int repitions, bool isCartesian, bool useMain, bool isSingles)
+        static void RunSimSet(string name, string csvBase, Physical80211 network, bool keepTrace, int steps, int repitions, bool isCartesian, bool useMain, bool isSingles)
         {
+            // make sure directory exists for csv files
+            System.IO.Directory.CreateDirectory(csvBase);
+
             if (VERBOSE)
             {
                 Console.WriteLine("---------------------");
@@ -142,7 +145,7 @@ namespace WifiInterferenceSim
             {
                 Console.WriteLine("Running...");
             }
-            simRunner.RunSims(VERBOSE, repitions, steps);
+            simRunner.RunSims(VERBOSE, keepTrace, repitions, steps);
 
 
             if (VERBOSE)

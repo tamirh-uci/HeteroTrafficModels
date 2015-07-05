@@ -47,6 +47,7 @@
     <Compile Include="Simulation\SimParams.cs" />
     <Compile Include="Simulation\SimulationNodeResults.cs" />
     <Compile Include="Simulation\SimulationResults.cs" />
+    <Compile Include="Simulation\SimulationTrace.cs" />
     <Compile Include="Simulation\Traffic.cs" />
     <Compile Include="Physical80211.cs" />
     <Compile Include="Program.cs" />

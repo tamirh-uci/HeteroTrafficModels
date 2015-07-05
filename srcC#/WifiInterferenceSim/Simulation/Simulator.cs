@@ -15,6 +15,19 @@ namespace WifiInterferenceSim.DCF
 
         public string name;
 
+        public Simulator(Simulator referenceSim, int runIndex)
+        {
+            network = referenceSim.network;
+            name = String.Format("{0}-run{1}", referenceSim.name, runIndex);
+
+            simResults = new SimulationResults();
+            simnodes = new List<DCFNode>(referenceSim.simnodes.Count);
+            foreach (DCFNode referenceNode in referenceSim.simnodes)
+            {
+                simnodes.Add(referenceNode);
+            }
+        }
+
         public Simulator(Physical80211 _network, string _name)
         {
             network = _network;
@@ -29,11 +42,11 @@ namespace WifiInterferenceSim.DCF
             simnodes.Add(node);
         }
 
-        public void Steps(int nSteps)
+        public void Steps(int nSteps, bool keepTrace)
         {
             foreach (DCFNode node in simnodes)
             {
-                node.Init(nSteps);
+                node.Init(nSteps, network);
             }
 
             int numTransmitting;
@@ -66,35 +79,13 @@ namespace WifiInterferenceSim.DCF
             // Stats
             foreach (DCFNode node in simnodes)
             {
-                simResults.Add(node.CalculateResults(network));
+                simResults.Add(node.CalculateResults(keepTrace));
             }
         }
 
         public SimulationResults GetResults()
         {
             return simResults;
-        }
-
-        public void PrintResults()
-        {
-            Console.WriteLine("Nodes: {0}", simnodes.Count);
-
-            bool first = true;
-            foreach(DCFNode node in simnodes)
-            {
-                node.PrintResults(network, first);
-                first = false;
-                Console.WriteLine("\n");
-            }
-        }
-
-        public void WriteCSVResults(string filebase)
-        {
-            foreach(DCFNode node in simnodes)
-            {
-                node.WriteCSVResults(network, filebase);
-                
-            }
         }
     }
 }

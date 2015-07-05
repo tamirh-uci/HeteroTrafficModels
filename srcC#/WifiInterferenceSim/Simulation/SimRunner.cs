@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -40,7 +41,7 @@ namespace WifiInterferenceSim.Simulation
             competingParams.Add(competing);
         }
 
-        public string SimulatorName(List<int> numNodes)
+        private string SimulatorName(List<int> numNodes)
         {
             StringBuilder s = new StringBuilder();
             s.AppendFormat("main-{0}_", Traffic.ShortName(mainParams.type));
@@ -56,10 +57,9 @@ namespace WifiInterferenceSim.Simulation
         private void AddSimulator(List<int> numNodes)
         {
             Simulator sim = new Simulator(network, SimulatorName(numNodes));
-            if (mainParams != null)
-            {
-                AddNode(sim, mainParams, "main", 1);
-            }
+            Debug.Assert(mainParams != null);
+
+            AddNode(sim, mainParams, "main", 1);
 
             for (int i = 0; i < competingParams.Count; ++i )
             {
@@ -127,11 +127,7 @@ namespace WifiInterferenceSim.Simulation
 
         }
 
-        /// <summary>
-        /// We cycle through all types and let each one be the 'main', use the maxNodes value to see how many of this node type there are
-        /// We use the minNodes of each type to see how many of the competing nodes there are
-        /// For example, if we wanted to test each type by itself, we would set all minNodes=0, maxNodes=1
-        /// </summary>
+        
         private void GenerateSinglesSimulators()
         {
             int length = competingParams.Count;
@@ -216,15 +212,15 @@ namespace WifiInterferenceSim.Simulation
             }
         }
 
-        public void RunSims(bool verbose, int repititions, int steps)
+        public void RunSims(bool verbose, bool keepTrace, int repititions, int steps)
         {
             GenerateSimulators();
 
-            foreach (Simulator sim in simulators)
+            foreach (Simulator referenceSim in simulators)
             {
                 if (verbose)
                 {
-                    Console.Write("Running: {0}", sim.name);
+                    Console.Write("Running: {0}", referenceSim.name);
                 }
 
                 List<SimulationResults> variationResults = new List<SimulationResults>();
@@ -235,8 +231,9 @@ namespace WifiInterferenceSim.Simulation
                         Console.Write('.');
                     }
 
-                    sim.Steps(steps);
-                    variationResults.Add(sim.GetResults());
+                    Simulator runSim = new Simulator(referenceSim, run);
+                    runSim.Steps(steps, keepTrace);
+                    variationResults.Add(runSim.GetResults());
                 }
 
                 if (verbose)
@@ -249,11 +246,24 @@ namespace WifiInterferenceSim.Simulation
         }
 
         public void SaveTracesCSV(string folder)
-        {            
+        {
+            foreach(List<SimulationResults> variationResults in results)
+            {
+                foreach(SimulationResults runResult in variationResults)
+                {
+                    SimulationNodeResults mainResult = runResult.GetResults(0);
+
+                    string filename = String.Format("{0}{1}.csv", folder, mainResult.name);
+                    StreamWriter writer = new StreamWriter(filename);
+
+                    mainResult.trace.WritePacketTraceCSV(writer);
+                }
+            }
         }
 
         public void SaveOverviewCSV(string folder)
         {
+            // TODO: Write me
         }
     }
 }

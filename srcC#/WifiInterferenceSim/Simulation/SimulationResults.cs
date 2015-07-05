@@ -21,12 +21,7 @@ namespace WifiInterferenceSim.DCF
             results.Add(nodeResults);
         }
 
-        public SimulationNodeResults GetMain()
-        {
-            return Get(0);
-        }
-
-        public SimulationNodeResults Get(int index)
+        public SimulationNodeResults GetResults(int index)
         {
             return results[index];
         }
