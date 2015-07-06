@@ -106,19 +106,28 @@ classdef video_util < handle
         function mangle(fNameSrcC, fNameDstC, ~, badPackets, bytesPerPacket)
             copyfile(fNameSrcC, fNameDstC, 'f');
             
-            % Overwrite portion of packet with zeros
-            data = zeros(1, floor(0.05 * bytesPerPacket));
-            
             % Open the destination as a byte stream
             dstFile = fopen(fNameDstC, 'r+');
             
+            % Make sure the header stuff is all in tact
+            % assume first 8KB are protected
+            protectedPackets = ceil(8192.0/bytesPerPacket);
+            
             for badPkt = badPackets
-                % Make sure the header stuff is all in tact
-                if (badPkt > 100)
-                    % Override each bad packet with 0's
+                if (badPkt > protectedPackets)
+                    % Seek to bad packet location
                     offset = (badPkt-1)*bytesPerPacket;
                     fseek(dstFile, offset, 'bof');
-                    fwrite(dstFile, data, 'uint8');
+                    data = fread(dstFile, bytesPerPacket);
+                    
+                    % Overwrite 75% of the packet with zeros 
+                    overwrite = rand(bytesPerPacket, 1) > 0.75;
+                    
+                    fseek(dstFile, offset, 'bof');
+                    fwrite(dstFile, data .* overwrite, 'uint8');
+                    
+                    fseek(dstFile, offset, 'bof');
+                    dataOut = fread(dstFile, bytesPerPacket);
                 end
             end
             

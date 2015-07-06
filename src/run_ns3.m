@@ -1,4 +1,3 @@
-clear all;
 close all;
 run_set_path
 
@@ -6,7 +5,7 @@ run_set_path
 % CONSTANTS
 % -----------------------------
 VID_FILE = 'serenity_480p_trailer.mp4';
-START_FRAME = 100;
+START_FRAME = 250;
 END_FRAME = 500;
 BYTES_PER_PACKET = 1500;
 COMPARE_AGAINST_UNCOMPRESSED_SRC = true;
@@ -15,8 +14,18 @@ COMPARE_AGAINST_UNCOMPRESSED_SRC = true;
 % -----------------------------
 % TODO: Load in NS3 data
 % -----------------------------
-badPackets = [100, 101, 102, 157, 191, 222, 230, 255, 294, 347]; % placeholder data
+NUM_TRACES = 3;
+badPackets = cell(1, NUM_TRACES);
 
+% placeholder data
+badPackets{1} = 100:200; 
+badPackets{2} = 500:600;
+badPackets{3} = [15, 16, 25, 55, 82];
+
+labels = cell(1, NUM_TRACES);
+labels{1} = 'bad packets 100-200';
+labels{2} = 'bad packets 500-600';
+labels{3} = 'bad packets 15, 16, 25, 55, 82';
 
 % -----------------------------
 % Prep the video files
@@ -28,20 +37,14 @@ vu.nBytesPerPacket = BYTES_PER_PACKET;
 vu.baseFilename = VID_FILE;
 vu.prep();
 
-
-[mangledPsnr, ~] = vu.decodeMangled(badPackets, COMPARE_AGAINST_UNCOMPRESSED_SRC);
 [baselinePsnr, ~] = vu.decodeMangled([], COMPARE_AGAINST_UNCOMPRESSED_SRC);
 
+mangledPsnr = cell(1, NUM_TRACES);
+for i = 1:NUM_TRACES
+    [mangledPsnr{i}, ~] = vu.decodeMangled(badPackets{i}, COMPARE_AGAINST_UNCOMPRESSED_SRC);
+end
 
 % -----------------------------
 % Plot results
 % -----------------------------
-mangledPsnrData = cell(1,1);
-psnrLabels = cell(1,1);
-timedataLabels = cell(1,1);
-
-mangledPsnrData{1,1} = mangledPsnr;
-psnrLabels{1} = '';
-timedataLabels{1} = '';
-
-plot_viddata(1, mangledPsnrData, baselinePsnr, [], [], psnrLabels, timedataLabels);
+plot_viddata(1, mangledPsnr, baselinePsnr, [], [], labels, []);

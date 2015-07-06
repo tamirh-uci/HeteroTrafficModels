@@ -1,4 +1,4 @@
-function plot_timedata( figNum, subplotSize, subplotIndex, figTitle, figYLabel, labels, plotColors, nPlots, nX, data )
+function plot_timedata( figNum, subplotSize, subplotIndex, figTitle, figYLabel, labels, plotColors, nPlots, nX, data, limits )
     figure(figNum);
     
     ax = subplot(subplotSize(1), subplotSize(2), subplotIndex);
@@ -27,5 +27,12 @@ function plot_timedata( figNum, subplotSize, subplotIndex, figTitle, figYLabel, 
     title(ax, figTitle);
     xlabel(ax, 'Simulation Time');
     ylabel(ax, figYLabel);
-    legend(ax, labels, 'Location', 'southeast');
+    
+    if (~isempty(limits))
+        axis(limits);
+    end
+    
+    if (~isempty(labels))
+        legend(ax, labels, 'Location', 'southeast');
+    end
 end
