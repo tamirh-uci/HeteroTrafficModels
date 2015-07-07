@@ -245,7 +245,7 @@ namespace WifiInterferenceSim.Simulation
             }
         }
 
-        public void SaveTracesCSV(string folder)
+        public void SaveTracesCSV(string folder, string prefix, bool simpleFilename)
         {
             foreach(List<SimulationResults> variationResults in results)
             {
@@ -253,9 +253,17 @@ namespace WifiInterferenceSim.Simulation
                 {
                     SimulationNodeResults mainResult = runResult.GetResults(0);
 
-                    string filename = String.Format("{0}{1}.csv", folder, mainResult.name);
-                    StreamWriter writer = new StreamWriter(filename);
+                    string filename;
+                    if (simpleFilename)
+                    {
+                        filename = Traffic.Name(mainResult.type);
+                    }
+                    else
+                    {
+                        filename = mainResult.name;
+                    }
 
+                    StreamWriter writer = new StreamWriter(String.Format("{0}{1}{2}.csv", folder, prefix, filename));
                     mainResult.trace.WritePacketTraceCSV(writer);
                 }
             }

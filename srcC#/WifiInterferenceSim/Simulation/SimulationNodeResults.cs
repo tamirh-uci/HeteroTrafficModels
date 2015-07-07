@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WifiInterferenceSim.DCF;
 
 namespace WifiInterferenceSim.Simulation
 {
     class SimulationNodeResults
     {
+        public TrafficType type;
         public string name;
         public double qualityThreshold;
 

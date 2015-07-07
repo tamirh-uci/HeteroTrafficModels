@@ -6,8 +6,8 @@ MIN_PACKETSIZE = 1;
 
 types = enumeration('trace_type');
     
-GRAPH_WIRESHARK = false;
-GRAPH_V1SIM = true;
+GRAPH_WIRESHARK = true;
+GRAPH_V1SIM = false;
 GRAPH_V2SIM = false;
 
 if (GRAPH_WIRESHARK)

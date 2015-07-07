@@ -14,6 +14,7 @@ namespace WifiInterferenceSim.DCF
         Physical80211 network;
 
         public string name;
+        public TrafficType mainType;
 
         public Simulator(Simulator referenceSim, int runIndex)
         {
@@ -26,6 +27,8 @@ namespace WifiInterferenceSim.DCF
             {
                 simnodes.Add(referenceNode);
             }
+
+            mainType = referenceSim.mainType;
         }
 
         public Simulator(Physical80211 _network, string _name)
@@ -39,6 +42,11 @@ namespace WifiInterferenceSim.DCF
 
         public void AddNode(DCFNode node)
         {
+            if (simnodes.Count == 0)
+            {
+                mainType = node.cfg.type;
+            }
+
             simnodes.Add(node);
         }
 

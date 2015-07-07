@@ -36,7 +36,7 @@ namespace WifiInterferenceSim.DCF
         string name;
 
         // All user modifyable parameters
-        DCFParams cfg;
+        public DCFParams cfg;
         double qualityThreshold;
 
         // Internal result stuff
@@ -400,6 +400,7 @@ namespace WifiInterferenceSim.DCF
         public SimulationNodeResults CalculateResults(bool keepTrace)
         {
             results = new SimulationNodeResults();
+            results.type = cfg.type;
             results.name = name;
 
             if (keepTrace)
