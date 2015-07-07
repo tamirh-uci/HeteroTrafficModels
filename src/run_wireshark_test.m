@@ -1,45 +1,31 @@
-clear all;
+run_set_path
 close all;
 
 nBins = 200;
 time = 1:nBins-1;
-minPacketsize = 25;
+minPacketsize = 1;
 
 graphWireshark=true;
 graphGenerated=false;
-graphCSharpGenerated=true;
+graphCSharpGenerated=false;
 
 if (graphWireshark)
-    [binnedWeb, bpsWeb] = load_wireshark_trace('./../Wireshark Web Browsing - web_browsing.csv', nBins, minPacketsize);
-    [binnedVid, bpsVid] = load_wireshark_trace('./../Wireshark Youtube - streaming_video.csv', nBins, minPacketsize);
-    [binnedFil, bpsFil] = load_wireshark_trace('./../Wireshark Bittorrent Download - bittorrent.csv', nBins, minPacketsize);
-    [binnedCal, bpsCal] = load_wireshark_trace('./../Wireshark Video Call - vidcall.csv', nBins, minPacketsize);
-
-    %figure
-    %plot(time, binnedWeb, 'r', time, binnedVid, 'g', time, binnedFil, 'b');
-    %title('web vs. video vs. file');
+    types = enumeration('trace_type');
+    numTypes = size(types, 1);
+    binned = cell(1, numTypes);
+    bps = cell(1, numTypes);
+    
+    for i = 1:numTypes
+        filename = sprintf('%s.csv', trace.Name('./../traces/wireshark_', types(i)));
+        [binned{i}, bps{i}] = load_wireshark_trace(filename, nBins, minPacketsize);
+    end
     
     figure
+    plot_traces(types, 'wireshark ', time, binned);
     
-    subplot(4,1,1);
-    plot(time, binnedWeb, 'r');
-    title('Wireshark web (browsing text+images)');
-
-    subplot(4,1,2);
-    plot(time, binnedVid, 'g');
-    title('Wireshark video stream (YouTube)');
-    
-    subplot(4,1,3);
-    plot(time, binnedCal, 'm');
-    title('Wireshark Video Call (Skype)');
-
-    subplot(4,1,4);
-    plot(time, binnedFil, 'b');
-    title('Wireshark file (BitTorrent)');
-    
-    fprintf('Wireshark Web Traffic: %0.2f Mbps\n', bpsWeb/1000000);
-    fprintf('Wireshark Vid Traffic: %0.2f Mbps\n', bpsVid/1000000);
-    fprintf('Wireshark Fil Traffic: %0.2f Mbps\n', bpsFil/1000000);
+    for i = 1:numTypes
+        fprintf('%s: %0.2f Mbps\n', trace.Name('wireshark ', types(i)), bps{i}/1000000);
+    end
 end
 
 if (graphGenerated)
