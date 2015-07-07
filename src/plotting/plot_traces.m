@@ -1,10 +1,12 @@
-function plot_traces( types, prefix, nBins, minPacketsize, plotEmpty )
+function plot_traces( types, prefix, nBins, minPacketsize, plotEmpty, scaleGraph )
     numTypes = size(types, 1);
     time = 1:nBins-1;
     
+    colors = distinguishable_colors(numTypes);
     binned = cell(1, numTypes);
     bps = cell(1, numTypes);
     typename = cell(1, numTypes);
+    overallMax = 0;
     
     numValid = 0;
     for i = 1:numTypes
@@ -12,9 +14,19 @@ function plot_traces( types, prefix, nBins, minPacketsize, plotEmpty )
         filename = sprintf('./../traces/%s_%s.csv', prefix, typename{i});
         
         if (exist(filename, 'file') == 2)
-            %binnedWeb(binnedWeb>mean(binnedWeb)+4*std(binnedWeb))=2*mean(binnedWeb);
+            %
             [binned{i}, bps{i}] = load_trace_csv(filename, nBins, minPacketsize);
+            binned{i} = binned{i} / 1000; % kpbs
+            
+            % get rid of extreme outliers
+            outlierEdge = mean(binned{i})+4*std(binned{i});
+            binned{i}( binned{i} > outlierEdge) = outlierEdge;
+            
+            binMax = max(binned{i});
+            overallMax = max(binMax, overallMax);
+            
             fprintf('%s %s: %0.2f Mbps\n', prefix, typename{i}, bps{i}/1000000);
+            
             numValid = numValid + 1;
         else
             if (plotEmpty)
@@ -36,8 +48,14 @@ function plot_traces( types, prefix, nBins, minPacketsize, plotEmpty )
         if (size(typename{i}, 2) ~= 0)
             numPlots = numPlots + 1;
             subplot(rows, cols, numPlots);
-            plot(time, binned{i});
+            
+            plot(time, binned{i}, 'LineWidth', 1.5, 'Color', colors(i, :));
+            ylabel('kpbs');
             title(sprintf('%s %s', prefix, strrep(typename{i}, '_', ' ')));
+            
+            if (scaleGraph)
+                axis([0 nBins 0 overallMax]);            
+            end
         end
     end
 end

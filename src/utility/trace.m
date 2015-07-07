@@ -20,6 +20,9 @@ classdef trace < handle
                 case trace_type.web_videocall
                     typename = 'web_videocall';
                     
+                case trace_type.web_ftp_download
+                    typename = 'web_ftp-download';
+                    
                 case trace_type.youtube_audio_video
                     typename = 'youtube_audio-video';
                     

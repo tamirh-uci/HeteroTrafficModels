@@ -6,6 +6,7 @@ classdef trace_type
         skype_audio_video,
         web_multiple_new_tabs,
         web_videocall,
+        web_ftp_download,
         youtube_audio_video,
     end
 end
