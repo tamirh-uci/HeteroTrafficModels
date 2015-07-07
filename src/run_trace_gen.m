@@ -101,11 +101,11 @@ for i=1:nSims
     sentPackets = find(packetHistory ~= 0);
     
     if (simType(i)==10)
-        typename = 'web';
+        typename = 'web_multiple-new-tabs';
     elseif (simType(i)==20)
-        typename = 'video';
+        typename = 'youtube_audio-video';
     else
-        typename = 'file';
+        typename = 'bittorrent_leeching';
     end
     
     if (simType(i)~=20) % type (web=10, video=20's, file=30)
@@ -137,7 +137,7 @@ for i=1:nSims
         dataRow = dataRow + 1;
     end
     
-    csvwrite(sprintf('./../results/trace_%s.csv', typename), simpleCsvData);
+    csvwrite(sprintf('./../traces/v1sim_%s.csv', typename), simpleCsvData);
 end
 
 csvwrite(csvFilename, csvData);

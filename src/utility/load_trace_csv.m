@@ -1,4 +1,4 @@
-function [binned, bps] = load_wireshark_trace(file, nBins, minPacketSize)
+function [binned, bps] = load_trace_csv(file, nBins, minPacketSize)
 
     wireshark = csvread(file);
     wiresharkTimes = wireshark(:,1);

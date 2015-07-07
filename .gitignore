@@ -17,3 +17,4 @@ src/sim_data_10
 *.fig
 *.pdb
 *.suo
+results/trace.csv
