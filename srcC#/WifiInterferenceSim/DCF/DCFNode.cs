@@ -23,7 +23,7 @@ namespace WifiInterferenceSim.DCF
         double[] sleepCycles;
 
         // History of everything that happend to this node
-        SimulationTrace trace;
+        SimTrace trace;
 
         // How many steps we have taken in the simulation
         int curStep;
@@ -40,7 +40,7 @@ namespace WifiInterferenceSim.DCF
         double qualityThreshold;
 
         // Internal result stuff
-        SimulationNodeResults results;
+        SimNodeResult results;
         int uid;
 
         public DCFNode(string _name, DCFParams _cfg, int randseed, double _qualityThreshold)
@@ -63,7 +63,7 @@ namespace WifiInterferenceSim.DCF
 
         public void Init(int steps, Physical80211 network)
         {
-            trace = new SimulationTrace(steps, network);
+            trace = new SimTrace(steps, network);
 
             if (cfg.minInterarrival <= 0)
             {
@@ -397,9 +397,9 @@ namespace WifiInterferenceSim.DCF
             }
         }
         
-        public SimulationNodeResults CalculateResults(bool keepTrace)
+        public SimNodeResult CalculateResults(bool keepTrace)
         {
-            results = new SimulationNodeResults();
+            results = new SimNodeResult();
             results.type = cfg.type;
             results.name = name;
 
@@ -423,7 +423,7 @@ namespace WifiInterferenceSim.DCF
             return results;
         }
 
-        public SimulationTrace GetTrace()
+        public SimTrace GetTrace()
         {
             return trace;
         }

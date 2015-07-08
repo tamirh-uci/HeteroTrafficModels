@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using WifiInterferenceSim.DCF;
 
@@ -18,7 +19,7 @@ namespace WifiInterferenceSim.Simulation
         List<SimParams> competingParams;
 
         List<Simulator> simulators;
-        List<List<SimulationResults>> results;
+        SimResults results;
 
         public SimRunner(Physical80211 _network, bool _cartesian)
         {
@@ -27,8 +28,8 @@ namespace WifiInterferenceSim.Simulation
 
             mainParams = null;
             simulators = new List<Simulator>();
-            results = new List<List<SimulationResults>>();
             competingParams = new List<SimParams>();
+            results = new SimResults();
         }
 
         public void SetMain(SimParams _main)
@@ -44,19 +45,19 @@ namespace WifiInterferenceSim.Simulation
         private string SimulatorName(List<int> numNodes)
         {
             StringBuilder s = new StringBuilder();
-            s.AppendFormat("main-{0}_", Traffic.ShortName(mainParams.type));
+            s.AppendFormat("main-{0}_", TrafficUtil.ShortName(mainParams.type));
 
             for (int i=0; i<competingParams.Count; ++i)
             {
-                s.AppendFormat("_{0}-{1}", Traffic.ShortName(competingParams[i].type), numNodes[i]);
+                s.AppendFormat("_{0}-{1}", TrafficUtil.ShortName(competingParams[i].type), numNodes[i]);
             }
 
             return s.ToString();
         }
 
-        private void AddSimulator(List<int> numNodes)
+        private void AddSimulator(List<int> numNodes, string groupName)
         {
-            Simulator sim = new Simulator(network, SimulatorName(numNodes));
+            Simulator sim = new Simulator(network, SimulatorName(numNodes), groupName==null?SimulatorName(numNodes):groupName);
             Debug.Assert(mainParams != null);
 
             AddNode(sim, mainParams, "main", 1);
@@ -77,7 +78,7 @@ namespace WifiInterferenceSim.Simulation
             DCFParams dcfParams = Traffic.MakeTraffic(simParams.type, network, simParams.arrivalBps);
             for (int i=1; i<=numNodes; ++i)
             {
-                string name = String.Format("{0}{1}-{2}", namePrefix, Traffic.Name(simParams.type), i);
+                string name = String.Format("{0}{1}-{2}", namePrefix, TrafficUtil.Name(simParams.type), i);
                 sim.AddNode(new DCFNode(name, dcfParams, simParams.randSeed, simParams.qualityThreshold));
             }
         }
@@ -105,7 +106,7 @@ namespace WifiInterferenceSim.Simulation
             while (cur[0] <= max[0])
             {
                 // Add a simulation with the current set of params
-                AddSimulator(cur);
+                AddSimulator(cur, null);
 
                 // Increment the last param by one
                 int cartesianIndex = length - 1;
@@ -153,7 +154,7 @@ namespace WifiInterferenceSim.Simulation
                     }
                 }
 
-                AddSimulator(cur);
+                AddSimulator(cur, TrafficUtil.Name(mainParams.type));
             }
 
             mainParams = null;
@@ -182,11 +183,14 @@ namespace WifiInterferenceSim.Simulation
                     cur[i] = 0;
                 }
 
+                // group name is the competing type we're iterating over
+                string groupName = TrafficUtil.Name(competingParams[competingIndex].type);
+
                 // Iterate over all possible values of the current type
                 for (int numCompeting = min[competingIndex]; numCompeting < max[competingIndex]; ++numCompeting)
                 {
                     cur[competingIndex] = numCompeting;
-                    AddSimulator(cur);
+                    AddSimulator(cur, groupName);
                 }
             }
         }
@@ -220,10 +224,9 @@ namespace WifiInterferenceSim.Simulation
             {
                 if (verbose)
                 {
-                    Console.Write("Running: {0}", referenceSim.name);
+                    Console.Write("Running: {0} ({1})", referenceSim.SimName, referenceSim.GroupName);
                 }
 
-                List<SimulationResults> variationResults = new List<SimulationResults>();
                 for (int run=0; run<repititions; ++run)
                 {
                     if (verbose && run%25 == 0)
@@ -233,45 +236,60 @@ namespace WifiInterferenceSim.Simulation
 
                     Simulator runSim = new Simulator(referenceSim, run);
                     runSim.Steps(steps, keepTrace);
-                    variationResults.Add(runSim.GetResults());
+                    results.Add(runSim.GetResults());
                 }
 
                 if (verbose)
                 {
                     Console.WriteLine();
                 }
-
-                results.Add(variationResults);
             }
         }
 
         public void SaveTracesCSV(string folder, string prefix, bool simpleFilename)
         {
-            foreach(List<SimulationResults> variationResults in results)
+            // Results grouped by the main node type
+            Dictionary<string, List<SimRunResult>> groupNameResults = results.GroupNameResults;
+
+            // For every variation type
+            foreach (string groupName in groupNameResults.Keys)
             {
-                foreach(SimulationResults runResult in variationResults)
+                List<SimRunResult> multirunResults = groupNameResults[groupName];
+
+                // Just assume there's 1 run for now
+                Debug.Assert(multirunResults.Count == 1);
+                SimRunResult runResult = multirunResults[0];
+                SimNodeResult mainResult = runResult.Get(0);
+                
+                string filename;
+                if (simpleFilename)
                 {
-                    SimulationNodeResults mainResult = runResult.GetResults(0);
-
-                    string filename;
-                    if (simpleFilename)
-                    {
-                        filename = Traffic.Name(mainResult.type);
-                    }
-                    else
-                    {
-                        filename = mainResult.name;
-                    }
-
-                    StreamWriter writer = new StreamWriter(String.Format("{0}{1}{2}.csv", folder, prefix, filename));
-                    mainResult.trace.WritePacketTraceCSV(writer);
+                    // Assuming there's just 1 run to make filenames easier
+                    filename = groupName;
                 }
+                else
+                {
+                    // Otherwise we use the result name which will include run #
+                    filename = mainResult.name;
+                }
+
+                // Dump out entire trace
+                StreamWriter writer = new StreamWriter(String.Format("{0}{1}{2}.csv", folder, prefix, filename));
+                mainResult.trace.WritePacketTraceCSV(writer);
             }
         }
 
-        public void SaveOverviewCSV(string folder)
+        public void SaveIncrementalOverviewCSV(string folder, string prefix)
         {
-            // TODO: Write me
+            // Results grouped by sets of runs
+            Dictionary<string, List<SimRunResult>> groupedResults = results.UnindexedNameResults;
+
+            // For every set of runs
+            foreach (string simName in groupedResults.Keys)
+            {
+                // Aggregate runs
+                SimResultAggregate aggregate = new SimResultAggregate(groupedResults[simName]);
+            }
         }
     }
 }

@@ -44,10 +44,13 @@
     <Compile Include="DCF\DCFParams.cs" />
     <Compile Include="DCF\DCFState.cs" />
     <Compile Include="DCF\Packet.cs" />
+    <Compile Include="DCF\TrafficType.cs" />
     <Compile Include="Simulation\SimParams.cs" />
-    <Compile Include="Simulation\SimulationNodeResults.cs" />
-    <Compile Include="Simulation\SimulationResults.cs" />
-    <Compile Include="Simulation\SimulationTrace.cs" />
+    <Compile Include="Simulation\SimNodeResult.cs" />
+    <Compile Include="Simulation\SimResultAggregate.cs" />
+    <Compile Include="Simulation\SimResults.cs" />
+    <Compile Include="Simulation\SimRunResult.cs" />
+    <Compile Include="Simulation\SimTrace.cs" />
     <Compile Include="Simulation\Traffic.cs" />
     <Compile Include="Physical80211.cs" />
     <Compile Include="Program.cs" />

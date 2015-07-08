@@ -4,24 +4,25 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WifiInterferenceSim.DCF;
 
-namespace WifiInterferenceSim.DCF
+namespace WifiInterferenceSim.Simulation
 {
     class Simulator
     {
         List<DCFNode> simnodes;
-        SimulationResults simResults;
+        SimRunResult simRunResult;
         Physical80211 network;
 
-        public string name;
+        string simName;
+        string groupName;
         public TrafficType mainType;
 
         public Simulator(Simulator referenceSim, int runIndex)
         {
             network = referenceSim.network;
-            name = String.Format("{0}-run{1}", referenceSim.name, runIndex);
 
-            simResults = new SimulationResults();
+            simRunResult = new SimRunResult(referenceSim.simName, referenceSim.groupName, runIndex);
             simnodes = new List<DCFNode>(referenceSim.simnodes.Count);
             foreach (DCFNode referenceNode in referenceSim.simnodes)
             {
@@ -31,14 +32,18 @@ namespace WifiInterferenceSim.DCF
             mainType = referenceSim.mainType;
         }
 
-        public Simulator(Physical80211 _network, string _name)
+        public Simulator(Physical80211 _network, string _simName, string _groupName)
         {
             network = _network;
-            name = _name;
+            simName = _simName;
+            groupName = _groupName;
 
             simnodes = new List<DCFNode>();
-            simResults = new SimulationResults();
+            simRunResult = new SimRunResult(_simName, _groupName , - 1);
         }
+
+        public string SimName { get { return simName; } }
+        public string GroupName { get { return groupName; } }
 
         public void AddNode(DCFNode node)
         {
@@ -87,13 +92,13 @@ namespace WifiInterferenceSim.DCF
             // Stats
             foreach (DCFNode node in simnodes)
             {
-                simResults.Add(node.CalculateResults(keepTrace));
+                simRunResult.Add(node.CalculateResults(keepTrace));
             }
         }
 
-        public SimulationResults GetResults()
+        public SimRunResult GetResults()
         {
-            return simResults;
+            return simRunResult;
         }
     }
 }

@@ -7,7 +7,7 @@ using WifiInterferenceSim.DCF;
 
 namespace WifiInterferenceSim.Simulation
 {
-    class SimulationNodeResults
+    class SimNodeResult
     {
         public TrafficType type;
         public string name;
@@ -29,7 +29,7 @@ namespace WifiInterferenceSim.Simulation
         public Int64 bitsSent;
         public double datarate;
 
-        public SimulationTrace trace;
+        public SimTrace trace;
 
         public void PrintResults(Physical80211 network, bool overviewInfo)
         {

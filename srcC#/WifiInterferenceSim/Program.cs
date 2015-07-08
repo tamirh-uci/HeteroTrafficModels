@@ -55,52 +55,52 @@ namespace WifiInterferenceSim
         static Int64 PAYLOAD_BITS = 1500 * 8;
 
         // How many times to repeat each variation of simulation
-        static int NUM_RUNS = 500;
+        static int NUM_RUNS = 4;
 
         static TrafficNodeParams WEB_VIDEOCALL = new TrafficNodeParams(
-            0, 3,   // min/max nodes to simulate
+            0, 10,   // min/max nodes to simulate
             1.0,    // multiplier against the main arrival rate
             0.1     // threshold in seconds to consider packet late
             );
 
         static TrafficNodeParams WEB_MULTIPLENEWTABS = new TrafficNodeParams(
-            0, 3,   // min/max nodes to simulate
+            0, 0,   // min/max nodes to simulate
             1.0,    // multiplier against the main arrival rate
             1.0     // threshold in seconds to consider packet late
             );
 
         static TrafficNodeParams WEB_FTPDOWNLOAD = new TrafficNodeParams(
-            0, 3,   // min/max nodes to simulate
+            0, 0,   // min/max nodes to simulate
             1.0,    // multiplier against the main arrival rate
             4.0     // threshold in seconds to consider packet late
             );
 
         static TrafficNodeParams YOUTUBE_AUDIOVIDEO = new TrafficNodeParams(
-            0, 3,   // min/max nodes to simulate
+            0, 10,   // min/max nodes to simulate
             1.0,    // multiplier against the main arrival rate
             1.5     // threshold in seconds to consider packet late
             );
 
         static TrafficNodeParams SKYPE_AUDIO = new TrafficNodeParams(
-            0, 3,   // min/max nodes to simulate
+            0, 0,   // min/max nodes to simulate
             1.0,    // multiplier against the main arrival rate
             0.1     // threshold in seconds to consider packet late
             );
 
         static TrafficNodeParams SKYPE_VIDEO = new TrafficNodeParams(
-            0, 3,   // min/max nodes to simulate
+            0, 0,   // min/max nodes to simulate
             1.0,    // multiplier against the main arrival rate
             0.1     // threshold in seconds to consider packet late
             );
 
         static TrafficNodeParams SKYPE_AUDIOVIDEO = new TrafficNodeParams(
-            0, 3,   // min/max nodes to simulate
+            0, 0,   // min/max nodes to simulate
             1.0,    // multiplier against the main arrival rate
             0.1     // threshold in seconds to consider packet late
             );
 
         static TrafficNodeParams BITTORRENT_LEECHING = new TrafficNodeParams(
-            0, 3,   // min/max nodes to simulate
+            0, 0,   // min/max nodes to simulate
             1.0,    // multiplier against the main arrival rate
             4.0     // threshold in seconds to consider packet late
             );
@@ -112,7 +112,7 @@ namespace WifiInterferenceSim
         static bool RUN_SINGLES = true;
 
         // Do we have a run where we run the main node against one type of the other nodes
-        static bool RUN_INCREMENTAL = false;
+        static bool RUN_INCREMENTAL = true;
 
         // Spit out stuff to console so we know we're not dead during long calculations
         static bool VERBOSE = true;
@@ -127,9 +127,6 @@ namespace WifiInterferenceSim
             Physical80211 network = new Physical80211(NetworkType.B, PAYLOAD_BITS);
             int steps = STEPS_PER_SECOND * SIMULATION_SECONDS;
 
-            // TODO: Writing to CSV for the full run stuff
-
-
             // Run each type of node completely by itself
             if (RUN_SINGLES)
             {
@@ -139,13 +136,13 @@ namespace WifiInterferenceSim
             // Run one type of main node against different numbers of a single type of competing node
             if (RUN_INCREMENTAL)
             {
-                RunSimSet("Incremental Simulations", CSV_BASE_INCREMENTAL, "", network, false, steps, NUM_RUNS, false, true, false);
+                RunSimSet("Incremental Simulations", CSV_BASE_INCREMENTAL, "v2sim_inc_", network, false, steps, NUM_RUNS, false, true, false);
             }
 
             // Run one type of main node against every combination of competing nodes
             if (RUN_CARTESIAN)
             {
-                RunSimSet("Cartesian Simulations", CSV_BASE_CARTESIAN, "", network, false, steps, NUM_RUNS, true, true, false);
+                RunSimSet("Cartesian Simulations", CSV_BASE_CARTESIAN, "v2sim_cartesian_", network, false, steps, NUM_RUNS, true, true, false);
             }
             
             Console.WriteLine("\nDone\n");
@@ -173,13 +170,13 @@ namespace WifiInterferenceSim
 
             foreach (TrafficType type in Enum.GetValues(typeof(TrafficType)))
             {
-                simRunner.AddCompeting(MakeSimParams(type, isSingles, false));
+                SimParams simParams = MakeSimParams(type, isSingles, false);
+                if (simParams.maxNodes > 0)
+                {
+                    simRunner.AddCompeting(simParams);
+                }
             }
 
-            if (VERBOSE)
-            {
-                Console.WriteLine("Running...");
-            }
             simRunner.RunSims(VERBOSE, keepTrace, repitions, steps);
 
 
@@ -193,9 +190,8 @@ namespace WifiInterferenceSim
             }
             else
             {
-                simRunner.SaveOverviewCSV(csvBase);
+                simRunner.SaveIncrementalOverviewCSV(csvBase, "");
             }
-
 
             if (VERBOSE)
             {
@@ -248,6 +244,5 @@ namespace WifiInterferenceSim
 
             return new SimParams(type, minNodes, maxNodes, arrivalBps, qualityThreshold, RANDOM_SEED);
         }
-
     }
 }
