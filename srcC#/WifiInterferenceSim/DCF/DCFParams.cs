@@ -26,8 +26,10 @@ namespace WifiInterferenceSim.DCF
         // min/max values of backoff, should be powers of 2
         public int minBackoff, maxBackoff;
 
-        // min/max number of steps to send payload
-        public int minPayload, maxPayload;
+        // cutoffs for payload sizes (corresponds to probabilities)
+        public int bytesPerPayload;
+        public int[] payloadBins;
+        public double[] payloadProbabilities;
 
         // min/max number of steps to not send once we reach a transmit state
         public int minInterarrival, maxInterarrival;
@@ -41,19 +43,13 @@ namespace WifiInterferenceSim.DCF
         // Probability to enter interarrival chain 
         public double pInterarrival;
 
-        // Probability we use minPayload, other values for payload are evenly distributed
-        public double pSmallPayload;
-
         public TrafficType type;
 
-        public DCFParams(TrafficType _type)
+        public DCFParams(TrafficType _type, TrafficNodeParams nodeParams)
         {
             type = _type;
 
             packetArrivalRate = 0.1;
-
-            minPayload = 1;
-            maxPayload = 2;
 
             interarrivalCutoff = 5;
             minInterarrival = 1;
@@ -73,7 +69,10 @@ namespace WifiInterferenceSim.DCF
 
             pDrowsySleep = 0.05;
             pInterarrival = 0.0;
-            pSmallPayload = 0.5;
+
+            bytesPerPayload = nodeParams.bytesPerPayload;
+            payloadBins = nodeParams.payloadBins;
+            payloadProbabilities = nodeParams.payloadProbabilities;
         }
     }
 }

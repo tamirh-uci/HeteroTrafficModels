@@ -36,84 +36,83 @@ namespace WifiInterferenceSim
         // Quality threshold for the main node
         static double MAIN_THRESHOLD = 0.1;
 
-        // Bytes per packet
-        static Int64 PAYLOAD_BITS = 1500 * 8;
-
         // Max number of nodes to compare against (for incremental version)
         static int MAX_NODES = 14;
 
         // How many times to repeat each variation of simulation
         static int NUM_RUNS = 16;
 
-        static int[] PACKETSIZE_BINS = { 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500 };
-
-        static TrafficNodeParams WEB_VIDEOCALL = new TrafficNodeParams(
-            0, MAX_NODES,   // min/max nodes to simulate
-            1.0,    // multiplier against the main arrival rate
-            0.1,     // threshold in seconds to consider packet late
-            PACKETSIZE_BINS
-            );
-
-        static TrafficNodeParams WEB_MULTIPLENEWTABS = new TrafficNodeParams(
-            0, MAX_NODES,   // min/max nodes to simulate
-            1.0,    // multiplier against the main arrival rate
-            1.0,     // threshold in seconds to consider packet late
-            PACKETSIZE_BINS
-            );
-
-        static TrafficNodeParams WEB_FTPDOWNLOAD = new TrafficNodeParams(
-            0, MAX_NODES,   // min/max nodes to simulate
-            1.0,    // multiplier against the main arrival rate
-            4.0,     // threshold in seconds to consider packet late
-            PACKETSIZE_BINS
-            );
-
-        static TrafficNodeParams YOUTUBE_AUDIOVIDEO = new TrafficNodeParams(
-            0, MAX_NODES,   // min/max nodes to simulate
-            1.0,    // multiplier against the main arrival rate
-            1.5,     // threshold in seconds to consider packet late
-            PACKETSIZE_BINS
-            );
-
-        static TrafficNodeParams SKYPE_AUDIO = new TrafficNodeParams(
-            0, 0,   // min/max nodes to simulate
-            1.0,    // multiplier against the main arrival rate
-            0.1,     // threshold in seconds to consider packet late
-            PACKETSIZE_BINS
-            );
-
-        static TrafficNodeParams SKYPE_VIDEO = new TrafficNodeParams(
-            0, 0,   // min/max nodes to simulate
-            1.0,    // multiplier against the main arrival rate
-            0.1,     // threshold in seconds to consider packet late
-            PACKETSIZE_BINS
-            );
-
-        static TrafficNodeParams SKYPE_AUDIOVIDEO = new TrafficNodeParams(
-            0, 0,   // min/max nodes to simulate
-            1.0,    // multiplier against the main arrival rate
-            0.1,     // threshold in seconds to consider packet late
-            PACKETSIZE_BINS
-            );
-
-        static TrafficNodeParams BITTORRENT_LEECHING = new TrafficNodeParams(
-            0, MAX_NODES,   // min/max nodes to simulate
-            1.0,    // multiplier against the main arrival rate
-            4.0,     // threshold in seconds to consider packet late
-            PACKETSIZE_BINS
-            );
+        static int BYTES_PER_PAYLOAD = 100;
+        static int BITS_PER_PAYLOAD = 8 * BYTES_PER_PAYLOAD;
+        static int[] PAYLOAD_BINS = { 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500 };
 
         // Do we have a cartesian product of competing nodes? Or just a single sim
         static bool RUN_CARTESIAN = false;
 
         // Do we have a run where we iterate through and run one of each?
-        static bool RUN_SINGLES = false;
+        static bool RUN_SINGLES = true;
 
         // Do we have a run where we run the main node against one type of the other nodes
         static bool RUN_INCREMENTAL = true;
 
         // Spit out stuff to console so we know we're not dead during long calculations
         static bool VERBOSE = true;
+        
+        static TrafficNodeParams WEB_VIDEOCALL = new TrafficNodeParams(
+            0, MAX_NODES,   // min/max nodes to simulate
+            1.0,    // multiplier against the main arrival rate
+            0.1,     // threshold in seconds to consider packet late
+            BYTES_PER_PAYLOAD, PAYLOAD_BINS
+            );
+
+        static TrafficNodeParams WEB_MULTIPLENEWTABS = new TrafficNodeParams(
+            0, MAX_NODES,   // min/max nodes to simulate
+            1.0,    // multiplier against the main arrival rate
+            1.0,     // threshold in seconds to consider packet late
+            BYTES_PER_PAYLOAD, PAYLOAD_BINS
+            );
+
+        static TrafficNodeParams WEB_FTPDOWNLOAD = new TrafficNodeParams(
+            0, MAX_NODES,   // min/max nodes to simulate
+            1.0,    // multiplier against the main arrival rate
+            4.0,     // threshold in seconds to consider packet late
+            BYTES_PER_PAYLOAD, PAYLOAD_BINS
+            );
+
+        static TrafficNodeParams YOUTUBE_AUDIOVIDEO = new TrafficNodeParams(
+            0, MAX_NODES,   // min/max nodes to simulate
+            1.0,    // multiplier against the main arrival rate
+            1.5,     // threshold in seconds to consider packet late
+            BYTES_PER_PAYLOAD, PAYLOAD_BINS
+            );
+
+        static TrafficNodeParams SKYPE_AUDIO = new TrafficNodeParams(
+            0, 0,   // min/max nodes to simulate
+            1.0,    // multiplier against the main arrival rate
+            0.1,     // threshold in seconds to consider packet late
+            BYTES_PER_PAYLOAD, PAYLOAD_BINS
+            );
+
+        static TrafficNodeParams SKYPE_VIDEO = new TrafficNodeParams(
+            0, 0,   // min/max nodes to simulate
+            1.0,    // multiplier against the main arrival rate
+            0.1,     // threshold in seconds to consider packet late
+            BYTES_PER_PAYLOAD, PAYLOAD_BINS
+            );
+
+        static TrafficNodeParams SKYPE_AUDIOVIDEO = new TrafficNodeParams(
+            0, 0,   // min/max nodes to simulate
+            1.0,    // multiplier against the main arrival rate
+            0.1,     // threshold in seconds to consider packet late
+            BYTES_PER_PAYLOAD, PAYLOAD_BINS
+            );
+
+        static TrafficNodeParams BITTORRENT_LEECHING = new TrafficNodeParams(
+            0, MAX_NODES,   // min/max nodes to simulate
+            1.0,    // multiplier against the main arrival rate
+            4.0,     // threshold in seconds to consider packet late
+            BYTES_PER_PAYLOAD, PAYLOAD_BINS
+            );
 
         // Storage for final files
         static string CSV_BASE_SOURCE = "./../../../../traces/";
@@ -131,7 +130,7 @@ namespace WifiInterferenceSim
             // Trace analysis to get parameter values
             RunTraceAnalysis();
 
-            Physical80211 network = new Physical80211(NetworkType.B, PAYLOAD_BITS);
+            Physical80211 network = new Physical80211(NetworkType.B, BYTES_PER_PAYLOAD*8);
             int steps = STEPS_PER_SECOND * SIMULATION_SECONDS;
 
             // Run each type of node completely by itself
@@ -166,6 +165,17 @@ namespace WifiInterferenceSim
             }
         }
 
+        static Dictionary<TrafficType, TrafficNodeParams> TrafficParamList()
+        {
+            Dictionary<TrafficType, TrafficNodeParams> list = new Dictionary<TrafficType, TrafficNodeParams>();
+            foreach (TrafficType type in Enum.GetValues(typeof(TrafficType)))
+            {
+                list[type] = GetTrafficNodeParams(type);
+            }
+
+            return list;
+        }
+
         static void RunSimSet(string name, string csvBase, string csvPrefix, Physical80211 network, bool keepTrace, int steps, int repitions, bool isCartesian, bool useMain, bool isSingles)
         {
             // make sure directory exists for csv files
@@ -179,7 +189,7 @@ namespace WifiInterferenceSim
                 Console.WriteLine("Generating...");
             }
 
-            SimRunner simRunner = new SimRunner(network, isCartesian);
+            SimRunner simRunner = new SimRunner(network, TrafficParamList(), isCartesian);
 
             if (useMain)
             {

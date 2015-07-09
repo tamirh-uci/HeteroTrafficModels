@@ -101,16 +101,29 @@ namespace WifiInterferenceSim.DCF
 
         private void GeneratePacket()
         {
-            // pSmallPayload chance we have the minimum payload size
-            int payloadSize = cfg.minPayload;
-            if (rand.NextDouble() >= cfg.pSmallPayload)
+            // Choose a payload size based on probabilities
+            double r = rand.NextDouble();
+            int payloadIndex = -1;
+            while (r > cfg.payloadProbabilities[++payloadIndex])
             {
-                // We distribute evenly over other payload size options
-                Debug.Assert(cfg.minPayload < cfg.maxPayload);
-                payloadSize = rand.Next(cfg.minPayload + 1, cfg.maxPayload);
             }
 
-            trace.queue.Enqueue(new Packet(curStep, payloadSize));
+            // Figure out the min/max packetsize based on the bin sizes
+            int minPayload = 1;
+            if (payloadIndex > 0)
+            {
+                minPayload = cfg.payloadBins[payloadIndex - 1];
+            }
+
+            int maxPayload = cfg.payloadBins[payloadIndex];
+
+            // Choose a random payload size 
+            int payloadBytes = rand.Next(minPayload, maxPayload);
+
+            // See how many steps it will take to send this payload
+            int payloadSteps = 1 + ((payloadBytes - 1) / cfg.bytesPerPayload);
+
+            trace.queue.Enqueue(new Packet(curStep, payloadSteps));
         }
 
         private void StartState()

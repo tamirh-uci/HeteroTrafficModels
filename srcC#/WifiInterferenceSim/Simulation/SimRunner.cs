@@ -21,10 +21,12 @@ namespace WifiInterferenceSim.Simulation
 
         List<Simulator> simulators;
         SimResults results;
+        Dictionary<TrafficType, TrafficNodeParams> trafficParams;
 
-        public SimRunner(Physical80211 _network, bool _cartesian)
+        public SimRunner(Physical80211 _network, Dictionary<TrafficType, TrafficNodeParams> _trafficParams, bool _cartesian)
         {
             network = _network;
+            trafficParams = _trafficParams;
             cartesian = _cartesian;
 
             mainParams = null;
@@ -76,7 +78,7 @@ namespace WifiInterferenceSim.Simulation
             if (numNodes <= 0)
                 return;
 
-            DCFParams dcfParams = Traffic.MakeTraffic(simParams.type, network, simParams.arrivalBps);
+            DCFParams dcfParams = Traffic.MakeTraffic(simParams.type, network, simParams.arrivalBps, trafficParams[simParams.type]);
             for (int i=1; i<=numNodes; ++i)
             {
                 string name = String.Format("{0}{1}-{2}", namePrefix, TrafficUtil.Name(simParams.type), i);

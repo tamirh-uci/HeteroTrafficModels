@@ -14,20 +14,24 @@ namespace WifiInterferenceSim.DCF
         public double threshold;
         public double multiplier;
         public int min, max;
-        private int[] packetsizeBins;
+
+        public int bytesPerPayload;
+        public int[] payloadBins;
+        
 
         // From trace analysis
-        public double[] packetsizeProbabilities;
+        public double[] payloadProbabilities;
 
-        public TrafficNodeParams(int _min, int _max, double _multiplier, double _threshold, int[] _packetsizeBins)
+        public TrafficNodeParams(int _min, int _max, double _multiplier, double _threshold, int _bytesPerPayload, int[] _payloadBins)
         {
             min = _min;
             max = _max;
             multiplier = _multiplier;
             threshold = _threshold;
 
-            packetsizeBins = _packetsizeBins;
-            packetsizeProbabilities = new double[packetsizeBins.Length];
+            bytesPerPayload = _bytesPerPayload;
+            payloadBins = _payloadBins;
+            payloadProbabilities = new double[payloadBins.Length];
         }
 
         public void AnalyzeTrace(string filename)
@@ -72,17 +76,17 @@ namespace WifiInterferenceSim.DCF
         private void AnalyzePacketsizeProbabilities(List<int> csvPacketSizes)
         {
             // Init
-            for (int i = 0; i < packetsizeProbabilities.Length; ++i)
+            for (int i = 0; i < payloadProbabilities.Length; ++i)
             {
-                packetsizeProbabilities[i] = 0;
+                payloadProbabilities[i] = 0;
             }
 
             // If we're empty, just make all equal probabilities
             if (csvPacketSizes.Count == 0)
             {
-                for(int i = 0; i < packetsizeBins.Length; ++i)
+                for(int i = 0; i < payloadBins.Length; ++i)
                 {
-                    csvPacketSizes.Add(packetsizeBins[i]);
+                    csvPacketSizes.Add(payloadBins[i]);
                 }
             }
 
@@ -90,17 +94,17 @@ namespace WifiInterferenceSim.DCF
             foreach (int packetsize in csvPacketSizes)
             {
                 // If we're bigger than our bins, then dump into the last one
-                if (packetsize >= packetsizeBins[packetsizeBins.Length-1])
+                if (packetsize >= payloadBins[payloadBins.Length-1])
                 {
-                    packetsizeProbabilities[packetsizeBins.Length - 1]++;
+                    payloadProbabilities[payloadBins.Length - 1]++;
                     break;
                 }
                 
-                for (int i = 0; i < packetsizeBins.Length; ++i)
+                for (int i = 0; i < payloadBins.Length; ++i)
                 {
-                    if (packetsize <= packetsizeBins[i])
+                    if (packetsize <= payloadBins[i])
                     {
-                        packetsizeProbabilities[i]++;
+                        payloadProbabilities[i]++;
                         break;
                     }
                 }
@@ -110,10 +114,19 @@ namespace WifiInterferenceSim.DCF
             }
 
             // Divide by numPackets to get probability we're in each bin
-            for (int i = 0; i < packetsizeProbabilities.Length; ++i)
+            for (int i = 0; i < payloadProbabilities.Length; ++i)
             {
-                packetsizeProbabilities[i] /= csvPacketSizes.Count;
+                payloadProbabilities[i] /= csvPacketSizes.Count;
             }
+
+            // Generate a cumulitive sum for easier random distribution
+            for (int i = 1; i < payloadProbabilities.Length; ++i)
+            {
+                payloadProbabilities[i] += payloadProbabilities[i - 1];
+            }
+
+            Debug.Assert(payloadProbabilities[payloadProbabilities.Length - 1] > 0.9999 && payloadProbabilities[payloadProbabilities.Length - 1] < 1.0001);
+            payloadProbabilities[payloadProbabilities.Length - 1] = 1.0;
         }
     }
 }
