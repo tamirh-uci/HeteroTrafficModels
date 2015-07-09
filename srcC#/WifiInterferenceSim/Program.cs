@@ -109,7 +109,7 @@ namespace WifiInterferenceSim
         static bool RUN_CARTESIAN = false;
 
         // Do we have a run where we iterate through and run one of each?
-        static bool RUN_SINGLES = true;
+        static bool RUN_SINGLES = false;
 
         // Do we have a run where we run the main node against one type of the other nodes
         static bool RUN_INCREMENTAL = true;

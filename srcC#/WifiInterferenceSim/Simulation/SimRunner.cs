@@ -55,9 +55,9 @@ namespace WifiInterferenceSim.Simulation
             return s.ToString();
         }
 
-        private void AddSimulator(List<int> numNodes, string groupName)
+        private void AddSimulator(List<int> numNodes, string groupName, int simIndex)
         {
-            Simulator sim = new Simulator(network, SimulatorName(numNodes), groupName==null?SimulatorName(numNodes):groupName);
+            Simulator sim = new Simulator(network, SimulatorName(numNodes), groupName == null ? SimulatorName(numNodes) : groupName, simIndex);
             Debug.Assert(mainParams != null);
 
             AddNode(sim, mainParams, "main", 1);
@@ -103,10 +103,11 @@ namespace WifiInterferenceSim.Simulation
 
             // Create a cartesian product of all variations
             // Loop through min-max at every level
+            int simIndex = 0;
             while (cur[0] <= max[0])
             {
                 // Add a simulation with the current set of params
-                AddSimulator(cur, null);
+                AddSimulator(cur, null, simIndex++);
 
                 // Increment the last param by one
                 int cartesianIndex = length - 1;
@@ -154,7 +155,7 @@ namespace WifiInterferenceSim.Simulation
                     }
                 }
 
-                AddSimulator(cur, TrafficUtil.Name(mainParams.type));
+                AddSimulator(cur, TrafficUtil.Name(mainParams.type), 1);
             }
 
             mainParams = null;
@@ -190,7 +191,7 @@ namespace WifiInterferenceSim.Simulation
                 for (int numCompeting = min[competingIndex]; numCompeting < max[competingIndex]; ++numCompeting)
                 {
                     cur[competingIndex] = numCompeting;
-                    AddSimulator(cur, groupName);
+                    AddSimulator(cur, groupName, numCompeting);
                 }
             }
         }
@@ -281,15 +282,72 @@ namespace WifiInterferenceSim.Simulation
 
         public void SaveIncrementalOverviewCSV(string folder, string prefix)
         {
-            // Results grouped by sets of runs
+            // Find out how many simulations we have in each variation
+            Dictionary<string, int> numSimVariations = new Dictionary<string, int>();
+            foreach (string groupName in results.GroupNameResults.Keys)
+            {
+                numSimVariations[groupName] = 0;
+            }
+
+            foreach (string simName in results.UnindexedNameResults.Keys)
+            {
+                foreach (SimRunResult runResult in results.UnindexedNameResults[simName])
+                {
+                    numSimVariations[runResult.GroupName] = Math.Max(numSimVariations[runResult.GroupName], 1 + runResult.SimIndex);
+                }
+            }
+
+
+            // We want our results grouped by groupName, and indexable by number of nodes
+            Dictionary<string, List<SimResultAggregate>> aggregateResults = new Dictionary<string, List<SimResultAggregate>>();
+            foreach (string groupName in results.GroupNameResults.Keys)
+            {
+                aggregateResults[groupName] = new List<SimResultAggregate>();
+                for (int i = 0; i < numSimVariations[groupName]; ++i)
+                {
+                    aggregateResults[groupName].Add(null);
+                }
+            }
+
             Dictionary<string, List<SimRunResult>> groupedResults = results.UnindexedNameResults;
 
-            // For every set of runs
+            // For every set of runs aggregate runs and put them in the correct index
             foreach (string simName in groupedResults.Keys)
             {
-                // Aggregate runs
-                SimResultAggregate aggregate = new SimResultAggregate(groupedResults[simName]);
+                List<SimRunResult> resultSet = groupedResults[simName];
+                SimResultAggregate aggregate = new SimResultAggregate(resultSet);
+                SimRunResult runResult = resultSet[0];
+                
+                string groupName = runResult.GroupName;
+                int simIndex = runResult.SimIndex;
+
+                aggregateResults[groupName][simIndex] = aggregate;
             }
+
+            string filename = String.Format("{0}{1}-main-{2}.csv", folder, prefix, TrafficUtil.Name(mainParams.type));
+            StreamWriter w = new StreamWriter(filename);
+
+            // Header line
+            w.Write("{0},{1},", "CompetingType", "NumNodes");
+            SimResultAggregate.HeaderToCSV(w);
+            w.WriteLine();
+
+            // Go through each group and the list of simulations and dump to CSV
+            foreach (string groupName in aggregateResults.Keys)
+            {
+                List<SimResultAggregate> simResults = aggregateResults[groupName];
+                for (int i = 0; i < simResults.Count; ++i )
+                {
+                    w.Write("{0},{1},", groupName, i);
+                    simResults[i].ToCSV(w);
+                    w.WriteLine();
+                }
+
+                w.Flush();
+            }
+
+            w.Flush();
+            w.Close();
         }
     }
 }

@@ -12,18 +12,22 @@ namespace WifiInterferenceSim.Simulation
         string simName;
         string groupName;
         int runIndex;
+        int simIndex;
 
         List<SimNodeResult> nodeResults;
 
         public int NumNodes { get { return nodeResults.Count; } }
-        public string IndexedName { get { return String.Format("{0}-run{1}", simName, runIndex); } }
-        public string UnIndexedName { get { return simName; } }
+        public string IndexedName { get { return String.Format("{0}-run{1}", UnIndexedName, runIndex); } }
+        public string UnIndexedName { get { return String.Format("{0}-{1}", groupName, simName); } }
         public string GroupName {  get { return groupName; } }
+        public int RunIndex { get { return runIndex; } }
+        public int SimIndex { get { return simIndex; } }
 
-        public SimRunResult(string _simName, string _groupName, int _runIndex)
+        public SimRunResult(string _simName, string _groupName, int _simIndex, int _runIndex)
         {
             simName = _simName;
             groupName = _groupName;
+            simIndex = _simIndex;
             runIndex = _runIndex;
 
             nodeResults = new List<SimNodeResult>();

@@ -14,6 +14,7 @@ namespace WifiInterferenceSim.Simulation
         SimRunResult simRunResult;
         Physical80211 network;
 
+        int simIndex;
         string simName;
         string groupName;
         public TrafficType mainType;
@@ -22,7 +23,7 @@ namespace WifiInterferenceSim.Simulation
         {
             network = referenceSim.network;
 
-            simRunResult = new SimRunResult(referenceSim.simName, referenceSim.groupName, runIndex);
+            simRunResult = new SimRunResult(referenceSim.simName, referenceSim.groupName, referenceSim.simIndex, runIndex);
             simnodes = new List<DCFNode>(referenceSim.simnodes.Count);
             foreach (DCFNode referenceNode in referenceSim.simnodes)
             {
@@ -32,18 +33,20 @@ namespace WifiInterferenceSim.Simulation
             mainType = referenceSim.mainType;
         }
 
-        public Simulator(Physical80211 _network, string _simName, string _groupName)
+        public Simulator(Physical80211 _network, string _simName, string _groupName, int _simIndex)
         {
             network = _network;
             simName = _simName;
+            simIndex = _simIndex;
             groupName = _groupName;
 
             simnodes = new List<DCFNode>();
-            simRunResult = new SimRunResult(_simName, _groupName , - 1);
+            simRunResult = new SimRunResult(_simName, _groupName , _simIndex, -1);
         }
 
         public string SimName { get { return simName; } }
         public string GroupName { get { return groupName; } }
+        public int SimIndex { get { return simIndex; } }
 
         public void AddNode(DCFNode node)
         {

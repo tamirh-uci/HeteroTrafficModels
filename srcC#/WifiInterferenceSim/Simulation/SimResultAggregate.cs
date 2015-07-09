@@ -10,9 +10,9 @@ namespace WifiInterferenceSim.Simulation
     class SimResultAggregate
     {
         List<SimRunResult> raw;
-
+        
         public int NumRuns;
-
+        
         public SimResultAggregate(List<SimRunResult> _raw)
         {
             raw = _raw;
@@ -24,12 +24,12 @@ namespace WifiInterferenceSim.Simulation
             NumRuns = raw.Count;
         }
 
-        private void HeaderToCSV(StreamWriter w)
+        public static void HeaderToCSV(StreamWriter w)
         {
             w.Write("{0}", "NumRuns");
         }
 
-        private void ToCSV(StreamWriter w)
+        public void ToCSV(StreamWriter w)
         {
             w.Write("{0}", NumRuns);
         }
