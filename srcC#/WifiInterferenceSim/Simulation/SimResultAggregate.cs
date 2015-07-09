@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,29 +10,44 @@ namespace WifiInterferenceSim.Simulation
 {
     class SimResultAggregate
     {
-        List<SimRunResult> raw;
+        private List<SimRunResult> raw;
         
-        public int NumRuns;
+        // public fields to output to CSV
+        public double Datarate;
+        public double PacketsOverThreshold;
         
         public SimResultAggregate(List<SimRunResult> _raw)
         {
             raw = _raw;
+
+            Datarate = 0;
+            PacketsOverThreshold = 0;
+
             CalculateAggregates();
         }
 
         private void CalculateAggregates()
         {
-            NumRuns = raw.Count;
+            foreach(SimRunResult runResult in raw)
+            {
+                SimNodeResult nodeResult = runResult.Get(0);
+                Datarate += nodeResult.datarate;
+                PacketsOverThreshold += nodeResult.packetsOverThreshold;
+            }
+
+            Datarate /= raw.Count;
+            PacketsOverThreshold /= raw.Count;
         }
 
-        public static void HeaderToCSV(StreamWriter w)
+        public static FieldInfo[] CSVFields()
         {
-            w.Write("{0}", "NumRuns");
+            SimResultAggregate dummy = new SimResultAggregate(new List<SimRunResult>());
+            return dummy.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
         }
 
-        public void ToCSV(StreamWriter w)
+        public object CSVFieldData(string name)
         {
-            w.Write("{0}", NumRuns);
+            return this.GetType().GetField(name).GetValue(this);
         }
     }
 }

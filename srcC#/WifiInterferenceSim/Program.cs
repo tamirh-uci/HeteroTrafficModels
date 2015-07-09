@@ -54,29 +54,32 @@ namespace WifiInterferenceSim
         // Bytes per packet
         static Int64 PAYLOAD_BITS = 1500 * 8;
 
+        // Max number of nodes to compare against (for incremental version)
+        static int MAX_NODES = 14;
+
         // How many times to repeat each variation of simulation
-        static int NUM_RUNS = 4;
+        static int NUM_RUNS = 16;
 
         static TrafficNodeParams WEB_VIDEOCALL = new TrafficNodeParams(
-            0, 10,   // min/max nodes to simulate
+            0, MAX_NODES,   // min/max nodes to simulate
             1.0,    // multiplier against the main arrival rate
             0.1     // threshold in seconds to consider packet late
             );
 
         static TrafficNodeParams WEB_MULTIPLENEWTABS = new TrafficNodeParams(
-            0, 10,   // min/max nodes to simulate
+            0, MAX_NODES,   // min/max nodes to simulate
             1.0,    // multiplier against the main arrival rate
             1.0     // threshold in seconds to consider packet late
             );
 
         static TrafficNodeParams WEB_FTPDOWNLOAD = new TrafficNodeParams(
-            0, 10,   // min/max nodes to simulate
+            0, MAX_NODES,   // min/max nodes to simulate
             1.0,    // multiplier against the main arrival rate
             4.0     // threshold in seconds to consider packet late
             );
 
         static TrafficNodeParams YOUTUBE_AUDIOVIDEO = new TrafficNodeParams(
-            0, 10,   // min/max nodes to simulate
+            0, MAX_NODES,   // min/max nodes to simulate
             1.0,    // multiplier against the main arrival rate
             1.5     // threshold in seconds to consider packet late
             );
@@ -100,7 +103,7 @@ namespace WifiInterferenceSim
             );
 
         static TrafficNodeParams BITTORRENT_LEECHING = new TrafficNodeParams(
-            0, 10,   // min/max nodes to simulate
+            0, MAX_NODES,   // min/max nodes to simulate
             1.0,    // multiplier against the main arrival rate
             4.0     // threshold in seconds to consider packet late
             );

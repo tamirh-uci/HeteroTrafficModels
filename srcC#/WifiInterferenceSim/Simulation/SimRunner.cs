@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -326,26 +327,32 @@ namespace WifiInterferenceSim.Simulation
             string filename = String.Format("{0}{1}-main-{2}.csv", folder, prefix, TrafficUtil.Name(mainParams.type));
             StreamWriter w = new StreamWriter(filename);
 
-            // Header line
-            w.Write("{0},{1},", "CompetingType", "NumNodes");
-            SimResultAggregate.HeaderToCSV(w);
-            w.WriteLine();
-
-            // Go through each group and the list of simulations and dump to CSV
-            foreach (string groupName in aggregateResults.Keys)
+            // Get a list of all the properties we'll be printing out
+            FieldInfo[] csvFields = SimResultAggregate.CSVFields();
+            foreach (FieldInfo csvField in csvFields)
             {
-                List<SimResultAggregate> simResults = aggregateResults[groupName];
-                for (int i = 0; i < simResults.Count; ++i )
+                // For every field type, we will have a new set of data
+                // First write out the header data
+                w.WriteLine("{0}", csvField.Name);
+
+                // Write out values for each group type
+                foreach (string groupName in aggregateResults.Keys)
                 {
-                    w.Write("{0},{1},", groupName, i);
-                    simResults[i].ToCSV(w);
+                    w.Write("{0},", groupName);
+
+                    List<SimResultAggregate> simResults = aggregateResults[groupName];
+                    for (int i = 0; i < simResults.Count; ++i)
+                    {
+                        w.Write("{0},", simResults[i].CSVFieldData(csvField.Name));
+                    }
+
                     w.WriteLine();
                 }
 
+                w.WriteLine();
                 w.Flush();
             }
-
-            w.Flush();
+            
             w.Close();
         }
     }
