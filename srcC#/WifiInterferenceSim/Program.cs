@@ -10,21 +10,6 @@ using WifiInterferenceSim.Simulation;
 
 namespace WifiInterferenceSim
 {
-    struct TrafficNodeParams
-    {
-        public double threshold;
-        public double multiplier;
-        public int min, max;
-
-        public TrafficNodeParams(int _min, int _max, double _multiplier, double _threshold)
-        {
-            min = _min;
-            max = _max;
-            multiplier = _multiplier;
-            threshold = _threshold;
-        }
-    }
-
     class Program
     {
         // Precalculated numbers
@@ -60,52 +45,62 @@ namespace WifiInterferenceSim
         // How many times to repeat each variation of simulation
         static int NUM_RUNS = 16;
 
+        static int[] PACKETSIZE_BINS = { 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500 };
+
         static TrafficNodeParams WEB_VIDEOCALL = new TrafficNodeParams(
             0, MAX_NODES,   // min/max nodes to simulate
             1.0,    // multiplier against the main arrival rate
-            0.1     // threshold in seconds to consider packet late
+            0.1,     // threshold in seconds to consider packet late
+            PACKETSIZE_BINS
             );
 
         static TrafficNodeParams WEB_MULTIPLENEWTABS = new TrafficNodeParams(
             0, MAX_NODES,   // min/max nodes to simulate
             1.0,    // multiplier against the main arrival rate
-            1.0     // threshold in seconds to consider packet late
+            1.0,     // threshold in seconds to consider packet late
+            PACKETSIZE_BINS
             );
 
         static TrafficNodeParams WEB_FTPDOWNLOAD = new TrafficNodeParams(
             0, MAX_NODES,   // min/max nodes to simulate
             1.0,    // multiplier against the main arrival rate
-            4.0     // threshold in seconds to consider packet late
+            4.0,     // threshold in seconds to consider packet late
+            PACKETSIZE_BINS
             );
 
         static TrafficNodeParams YOUTUBE_AUDIOVIDEO = new TrafficNodeParams(
             0, MAX_NODES,   // min/max nodes to simulate
             1.0,    // multiplier against the main arrival rate
-            1.5     // threshold in seconds to consider packet late
+            1.5,     // threshold in seconds to consider packet late
+            PACKETSIZE_BINS
             );
 
         static TrafficNodeParams SKYPE_AUDIO = new TrafficNodeParams(
             0, 0,   // min/max nodes to simulate
             1.0,    // multiplier against the main arrival rate
-            0.1     // threshold in seconds to consider packet late
+            0.1,     // threshold in seconds to consider packet late
+            PACKETSIZE_BINS
             );
 
         static TrafficNodeParams SKYPE_VIDEO = new TrafficNodeParams(
             0, 0,   // min/max nodes to simulate
             1.0,    // multiplier against the main arrival rate
-            0.1     // threshold in seconds to consider packet late
+            0.1,     // threshold in seconds to consider packet late
+            PACKETSIZE_BINS
             );
 
         static TrafficNodeParams SKYPE_AUDIOVIDEO = new TrafficNodeParams(
             0, 0,   // min/max nodes to simulate
             1.0,    // multiplier against the main arrival rate
-            0.1     // threshold in seconds to consider packet late
+            0.1,     // threshold in seconds to consider packet late
+            PACKETSIZE_BINS
             );
 
         static TrafficNodeParams BITTORRENT_LEECHING = new TrafficNodeParams(
             0, MAX_NODES,   // min/max nodes to simulate
             1.0,    // multiplier against the main arrival rate
-            4.0     // threshold in seconds to consider packet late
+            4.0,     // threshold in seconds to consider packet late
+            PACKETSIZE_BINS
             );
 
         // Do we have a cartesian product of competing nodes? Or just a single sim
@@ -120,35 +115,55 @@ namespace WifiInterferenceSim
         // Spit out stuff to console so we know we're not dead during long calculations
         static bool VERBOSE = true;
 
-        // Storage for final file
+        // Storage for final files
+        static string CSV_BASE_SOURCE = "./../../../../traces/";
         static string CSV_BASE_CARTESIAN = "./../../../../results/csvCartesian/";
         static string CSV_BASE_SINGLES = "./../../../../traces/";
         static string CSV_BASE_INCREMENTAL = "./../../../../results/";
-        
+
+        static string CSV_PREFIX_SOURCE = "wireshark_";
+        static string CSV_PREFIX_CARTESIAN = "v2sim_cartesian_";
+        static string CSV_PREFIX_SINGLES = "v2sim_";
+        static string CSV_PREFIX_INCREMENTAL = "v2sim_inc_";
+
         static void Main(string[] args)
         {
+            // Trace analysis to get parameter values
+            RunTraceAnalysis();
+
             Physical80211 network = new Physical80211(NetworkType.B, PAYLOAD_BITS);
             int steps = STEPS_PER_SECOND * SIMULATION_SECONDS;
 
             // Run each type of node completely by itself
             if (RUN_SINGLES)
             {
-                RunSimSet("Singleton Traces", CSV_BASE_SINGLES, "v2sim_", network, true, steps, 1, false, false, true);
+                RunSimSet("Singleton Traces", CSV_BASE_SINGLES, CSV_PREFIX_SINGLES, network, true, steps, 1, false, false, true);
             }
 
             // Run one type of main node against different numbers of a single type of competing node
             if (RUN_INCREMENTAL)
             {
-                RunSimSet("Incremental Simulations", CSV_BASE_INCREMENTAL, "v2sim_inc_", network, false, steps, NUM_RUNS, false, true, false);
+                RunSimSet("Incremental Simulations", CSV_BASE_INCREMENTAL, CSV_PREFIX_INCREMENTAL, network, false, steps, NUM_RUNS, false, true, false);
             }
 
             // Run one type of main node against every combination of competing nodes
             if (RUN_CARTESIAN)
             {
-                RunSimSet("Cartesian Simulations", CSV_BASE_CARTESIAN, "v2sim_cartesian_", network, false, steps, NUM_RUNS, true, true, false);
+                RunSimSet("Cartesian Simulations", CSV_BASE_CARTESIAN, CSV_PREFIX_CARTESIAN, network, false, steps, NUM_RUNS, true, true, false);
             }
             
             Console.WriteLine("\nDone\n");
+        }
+
+        static void RunTraceAnalysis()
+        {
+            foreach (TrafficType type in Enum.GetValues(typeof(TrafficType)))
+            {
+                string sourceTrace = String.Format("{0}{1}{2}.csv", CSV_BASE_SOURCE, CSV_PREFIX_SOURCE, TrafficUtil.Name(type));
+                TrafficNodeParams nodeParams = GetTrafficNodeParams(type);
+
+                nodeParams.AnalyzeTrace(sourceTrace);
+            }
         }
 
         static void RunSimSet(string name, string csvBase, string csvPrefix, Physical80211 network, bool keepTrace, int steps, int repitions, bool isCartesian, bool useMain, bool isSingles)
