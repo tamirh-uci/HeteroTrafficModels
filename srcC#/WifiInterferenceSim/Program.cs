@@ -64,13 +64,13 @@ namespace WifiInterferenceSim
             );
 
         static TrafficNodeParams WEB_MULTIPLENEWTABS = new TrafficNodeParams(
-            0, 0,   // min/max nodes to simulate
+            0, 10,   // min/max nodes to simulate
             1.0,    // multiplier against the main arrival rate
             1.0     // threshold in seconds to consider packet late
             );
 
         static TrafficNodeParams WEB_FTPDOWNLOAD = new TrafficNodeParams(
-            0, 0,   // min/max nodes to simulate
+            0, 10,   // min/max nodes to simulate
             1.0,    // multiplier against the main arrival rate
             4.0     // threshold in seconds to consider packet late
             );
@@ -100,7 +100,7 @@ namespace WifiInterferenceSim
             );
 
         static TrafficNodeParams BITTORRENT_LEECHING = new TrafficNodeParams(
-            0, 0,   // min/max nodes to simulate
+            0, 10,   // min/max nodes to simulate
             1.0,    // multiplier against the main arrival rate
             4.0     // threshold in seconds to consider packet late
             );
@@ -120,7 +120,7 @@ namespace WifiInterferenceSim
         // Storage for final file
         static string CSV_BASE_CARTESIAN = "./../../../../results/csvCartesian/";
         static string CSV_BASE_SINGLES = "./../../../../traces/";
-        static string CSV_BASE_INCREMENTAL = "./../../../../results/csvIncremental/";
+        static string CSV_BASE_INCREMENTAL = "./../../../../results/";
         
         static void Main(string[] args)
         {
@@ -186,11 +186,11 @@ namespace WifiInterferenceSim
             }
             if (isSingles)
             {
-                simRunner.SaveTracesCSV(csvBase, csvPrefix, true);
+                simRunner.SaveTracesCSV(csvBase, csvPrefix);
             }
             else
             {
-                simRunner.SaveIncrementalOverviewCSV(csvBase, "");
+                simRunner.SaveIncrementalOverviewCSV(csvBase, csvPrefix);
             }
 
             if (VERBOSE)

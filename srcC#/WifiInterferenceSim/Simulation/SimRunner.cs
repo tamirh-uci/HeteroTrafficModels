@@ -247,7 +247,7 @@ namespace WifiInterferenceSim.Simulation
             }
         }
 
-        public void SaveTracesCSV(string folder, string prefix, bool simpleFilename)
+        public void SaveTracesCSV(string folder, string prefix)
         {
             // Results grouped by the main node type
             Dictionary<string, List<SimRunResult>> groupNameResults = results.GroupNameResults;
@@ -257,15 +257,14 @@ namespace WifiInterferenceSim.Simulation
             {
                 List<SimRunResult> multirunResults = groupNameResults[groupName];
 
-                // Just assume there's 1 run for now
-                Debug.Assert(multirunResults.Count == 1);
+                // We only care about the main run
                 SimRunResult runResult = multirunResults[0];
                 SimNodeResult mainResult = runResult.Get(0);
                 
                 string filename;
-                if (simpleFilename)
+                if (multirunResults.Count == 1)
                 {
-                    // Assuming there's just 1 run to make filenames easier
+                    // Don't need the full name, since there's only 1 run anywawy
                     filename = groupName;
                 }
                 else
