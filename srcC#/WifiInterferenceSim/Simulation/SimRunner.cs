@@ -260,25 +260,18 @@ namespace WifiInterferenceSim.Simulation
             {
                 List<SimRunResult> multirunResults = groupNameResults[groupName];
 
-                // We only care about the main run
-                SimRunResult runResult = multirunResults[0];
-                SimNodeResult mainResult = runResult.Get(0);
-                
-                string filename;
-                if (multirunResults.Count == 1)
+                // One file per group
+                StreamWriter writer = new StreamWriter(String.Format("{0}{1}{2}.csv", folder, prefix, groupName));
+
+                writer.WriteLine("{0},{1},{2},{3}", "NodeIndex", "Time (s)", "Time (ms)", "Payload (bytes)");
+
+                // Dump out entire trace for each run
+                foreach(SimRunResult runResult in multirunResults)
                 {
-                    // Don't need the full name, since there's only 1 run anywawy
-                    filename = groupName;
-                }
-                else
-                {
-                    // Otherwise we use the result name which will include run #
-                    filename = mainResult.name;
+                    runResult.Get(0).trace.WritePacketTraceCSV(writer, runResult.RunIndex);
                 }
 
-                // Dump out entire trace
-                StreamWriter writer = new StreamWriter(String.Format("{0}{1}{2}.csv", folder, prefix, filename));
-                mainResult.trace.WritePacketTraceCSV(writer);
+                writer.Close();
             }
         }
 

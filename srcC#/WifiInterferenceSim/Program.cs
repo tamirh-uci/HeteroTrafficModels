@@ -53,7 +53,7 @@ namespace WifiInterferenceSim
         static bool RUN_SINGLES = true;
 
         // Do we have a run where we run the main node against one type of the other nodes
-        static bool RUN_INCREMENTAL = true;
+        static bool RUN_INCREMENTAL = false;
 
         // Spit out stuff to console so we know we're not dead during long calculations
         static bool VERBOSE = true;
@@ -136,7 +136,7 @@ namespace WifiInterferenceSim
             // Run each type of node completely by itself
             if (RUN_SINGLES)
             {
-                RunSimSet("Singleton Traces", CSV_BASE_SINGLES, CSV_PREFIX_SINGLES, network, true, steps, 1, false, false, true);
+                RunSimSet("Singleton Traces", CSV_BASE_SINGLES, CSV_PREFIX_SINGLES, network, true, steps, NUM_RUNS, false, false, true);
             }
 
             // Run one type of main node against different numbers of a single type of competing node
