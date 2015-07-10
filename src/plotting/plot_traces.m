@@ -14,8 +14,10 @@ function plot_traces( types, prefix, nBins, minPacketsize, plotEmpty, scaleGraph
         filename = sprintf('./../traces/%s_%s.csv', prefix, typename{i});
         
         if (exist(filename, 'file') == 2)
-            %
             [binned{i}, bps{i}] = load_trace_csv(filename, nBins, minPacketsize);
+        end
+        
+        if (~isempty(binned{i}))
             binned{i} = binned{i} / 1000; % kpbs
             
             % get rid of extreme outliers

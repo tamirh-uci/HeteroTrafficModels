@@ -1,8 +1,16 @@
 function [binned, bps] = load_trace_csv(file, nBins, minPacketSize)
 
-    wireshark = csvread(file);
-    wiresharkTimes = wireshark(:,1);
-    wiresharkPacketSizes = wireshark(:,2);
+    try
+        wireshark = csvread(file);
+    catch
+        fprintf('Could not read %s', file);
+        binned = [];
+        bps = [];
+        return;
+    end
+    
+    wiresharkTimes = wireshark(:, 1);
+    wiresharkPacketSizes = wireshark(:, 2);
     
     minTime = wiresharkTimes(1);
     maxTime = wiresharkTimes(end);
