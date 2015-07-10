@@ -37,10 +37,11 @@ namespace WifiInterferenceSim
         static double MAIN_THRESHOLD = 0.1;
 
         // Max number of nodes to compare against (for incremental version)
-        static int MAX_NODES = 14;
+        static int MAX_NODES = 16;
 
         // How many times to repeat each variation of simulation
-        static int NUM_RUNS = 16;
+        static int NUM_RUNS_SINGLES = 16;
+        static int NUM_RUNS_INCREMENTAL = 16;
 
         static int BYTES_PER_PAYLOAD = 100;
         static int BITS_PER_PAYLOAD = 8 * BYTES_PER_PAYLOAD;
@@ -53,7 +54,7 @@ namespace WifiInterferenceSim
         static bool RUN_SINGLES = true;
 
         // Do we have a run where we run the main node against one type of the other nodes
-        static bool RUN_INCREMENTAL = false;
+        static bool RUN_INCREMENTAL = true;
 
         // Spit out stuff to console so we know we're not dead during long calculations
         static bool VERBOSE = true;
@@ -136,19 +137,21 @@ namespace WifiInterferenceSim
             // Run each type of node completely by itself
             if (RUN_SINGLES)
             {
-                RunSimSet("Singleton Traces", CSV_BASE_SINGLES, CSV_PREFIX_SINGLES, network, true, steps, NUM_RUNS, false, false, true);
+                RunSimSet("Singleton Traces", CSV_BASE_SINGLES, CSV_PREFIX_SINGLES, network, true, steps, NUM_RUNS_SINGLES, false, false, true);
             }
 
             // Run one type of main node against different numbers of a single type of competing node
             if (RUN_INCREMENTAL)
             {
-                RunSimSet("Incremental Simulations", CSV_BASE_INCREMENTAL, CSV_PREFIX_INCREMENTAL, network, false, steps, NUM_RUNS, false, true, false);
+                RunSimSet("Incremental Simulations", CSV_BASE_INCREMENTAL, CSV_PREFIX_INCREMENTAL, network, false, steps, NUM_RUNS_INCREMENTAL, false, true, false);
             }
 
             // Run one type of main node against every combination of competing nodes
             if (RUN_CARTESIAN)
             {
-                RunSimSet("Cartesian Simulations", CSV_BASE_CARTESIAN, CSV_PREFIX_CARTESIAN, network, false, steps, NUM_RUNS, true, true, false);
+                // Haven't really tested this, so make sure we don't think it's all good to go
+                throw new NotSupportedException();
+                RunSimSet("Cartesian Simulations", CSV_BASE_CARTESIAN, CSV_PREFIX_CARTESIAN, network, false, steps, NUM_RUNS_INCREMENTAL, true, true, false);
             }
             
             Console.WriteLine("\nDone\n");

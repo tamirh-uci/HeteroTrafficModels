@@ -260,18 +260,21 @@ namespace WifiInterferenceSim.Simulation
             {
                 List<SimRunResult> multirunResults = groupNameResults[groupName];
 
-                // One file per group
-                StreamWriter writer = new StreamWriter(String.Format("{0}{1}{2}.csv", folder, prefix, groupName));
-
-                writer.WriteLine("{0},{1},{2},{3}", "NodeIndex", "Time (s)", "Time (ms)", "Payload (bytes)");
+                // One file per group, write out a full one with all data and also a condensed one for MATLAB plots
+                StreamWriter fullWriter = new StreamWriter(String.Format("{0}{1}{2}-full.csv", folder, prefix, groupName));
+                fullWriter.WriteLine("{0},{1},{2},{3}", "NodeIndex", "Time (s)", "Time (ms)", "Payload (bytes)");
 
                 // Dump out entire trace for each run
                 foreach(SimRunResult runResult in multirunResults)
                 {
-                    runResult.Get(0).trace.WritePacketTraceCSV(writer, runResult.RunIndex);
+                    runResult.Get(0).trace.WritePacketTraceCSV(fullWriter, true, runResult.RunIndex);
                 }
+                fullWriter.Close();
 
-                writer.Close();
+                // Dump out just the 1st run data separately
+                StreamWriter singleWriter = new StreamWriter(String.Format("{0}{1}{2}.csv", folder, prefix, groupName));
+                multirunResults[0].Get(0).trace.WritePacketTraceCSV(singleWriter, false, 0);
+                singleWriter.Close();
             }
         }
 

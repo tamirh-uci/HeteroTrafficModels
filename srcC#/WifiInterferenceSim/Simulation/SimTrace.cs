@@ -30,13 +30,16 @@ namespace WifiInterferenceSim.Simulation
             queue = new Queue<Packet>();
         }
 
-        public void WritePacketTraceCSV(StreamWriter writer, int runIndex)
+        public void WritePacketTraceCSV(StreamWriter writer, bool full, int runIndex)
         {
             double secondsPerSlot = Physical80211.TransactionTime(network.type, network.payloadBits) / 1000000.0;
             foreach (Packet p in sent)
             {
                 double time = p.txSuccess * secondsPerSlot;
-                writer.WriteLine("{0},{1},{2},{3}", runIndex, time, (int)(0.5+time*1000), p.payloadSize * network.payloadBits / 8);
+                if (full)
+                    writer.WriteLine("{0},{1},{2},{3}", runIndex, time, (int)(0.5+time*1000), p.payloadSize * network.payloadBits / 8);
+                else
+                    writer.WriteLine("{0},{1}", time, p.payloadSize * network.payloadBits / 8);
             }
 
             writer.Flush();
