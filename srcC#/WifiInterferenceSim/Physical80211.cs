@@ -45,6 +45,11 @@ namespace WifiInterferenceSim
             return packetsPerSecond * transmitTime;
         }
 
+        public double StepsPerSecond()
+        {
+            return 1000000.0 / TransactionTime(type, payloadBits);
+        }
+
         /// <summary>
         /// What is the maximum theoretical datarate of a DCF given no other nodes
         /// </summary>

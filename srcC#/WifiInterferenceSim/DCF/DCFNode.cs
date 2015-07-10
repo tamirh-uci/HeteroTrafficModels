@@ -51,10 +51,6 @@ namespace WifiInterferenceSim.DCF
             cfg = _cfg;
             qualityThreshold = _qualityThreshold;
 
-            curStep = 0;
-            packetLeftovers = 0;
-            currPacket.Invalidate();
-            
             if (randseed < 0)
                 rand = new Random(uid + ((int)DateTime.Now.Ticks & 0x0000FFFF));
             else
@@ -63,6 +59,10 @@ namespace WifiInterferenceSim.DCF
 
         public void Init(int steps, Physical80211 network)
         {
+            curStep = 0;
+            packetLeftovers = 0;
+            currPacket.Invalidate();
+
             trace = new SimTrace(steps, network);
 
             if (cfg.minInterarrival <= 0)

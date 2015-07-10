@@ -13,9 +13,9 @@ namespace WifiInterferenceSim
     class Program
     {
         // Precalculated numbers
-        static int STEPS_PER_SECOND = 645;
         static Int64 MAX_NODE_BPS = 1744600; // Measured max single node datarate (based on wMin=8, payload=1500bytes)
         static double MAX_NODE_MBPS = MAX_NODE_BPS / 1000000;
+
 
         // -----------------------------
         // User variables
@@ -131,7 +131,7 @@ namespace WifiInterferenceSim
             RunTraceAnalysis();
 
             Physical80211 network = new Physical80211(NetworkType.B, BYTES_PER_PAYLOAD*8);
-            int steps = STEPS_PER_SECOND * SIMULATION_SECONDS;
+            int steps = (int)Math.Ceiling(network.StepsPerSecond() * SIMULATION_SECONDS);
 
             // Run each type of node completely by itself
             if (RUN_SINGLES)
