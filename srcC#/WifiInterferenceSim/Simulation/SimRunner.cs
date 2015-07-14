@@ -191,7 +191,7 @@ namespace WifiInterferenceSim.Simulation
                 string groupName = TrafficUtil.Name(competingParams[competingIndex].type);
 
                 // Iterate over all possible values of the current type
-                for (int numCompeting = min[competingIndex]; numCompeting < max[competingIndex]; ++numCompeting)
+                for (int numCompeting = min[competingIndex]; numCompeting <= max[competingIndex]; ++numCompeting)
                 {
                     cur[competingIndex] = numCompeting;
                     AddSimulator(cur, groupName, numCompeting);
@@ -250,7 +250,7 @@ namespace WifiInterferenceSim.Simulation
             }
         }
 
-        public void SaveTracesCSV(string folder, string prefix)
+        public void SaveTracesCSV(string folder, string prefix, bool saveFull)
         {
             // Results grouped by the main node type
             Dictionary<string, List<SimRunResult>> groupNameResults = results.GroupNameResults;
@@ -260,16 +260,19 @@ namespace WifiInterferenceSim.Simulation
             {
                 List<SimRunResult> multirunResults = groupNameResults[groupName];
 
-                // One file per group, write out a full one with all data and also a condensed one for MATLAB plots
-                StreamWriter fullWriter = new StreamWriter(String.Format("{0}{1}{2}-full.csv", folder, prefix, groupName));
-                fullWriter.WriteLine("{0},{1},{2},{3}", "NodeIndex", "Time (s)", "Time (ms)", "Payload (bytes)");
-
-                // Dump out entire trace for each run
-                foreach(SimRunResult runResult in multirunResults)
+                if (saveFull)
                 {
-                    runResult.Get(0).trace.WritePacketTraceCSV(fullWriter, true, runResult.RunIndex);
+                    // One file per group, write out a full one with all data and also a condensed one for MATLAB plots
+                    StreamWriter fullWriter = new StreamWriter(String.Format("{0}{1}{2}-full.csv", folder, prefix, groupName));
+                    fullWriter.WriteLine("{0},{1},{2},{3}", "NodeIndex", "Time (s)", "Time (ms)", "Payload (bytes)");
+
+                    // Dump out entire trace for each run
+                    foreach (SimRunResult runResult in multirunResults)
+                    {
+                        runResult.Get(0).trace.WritePacketTraceCSV(fullWriter, true, runResult.RunIndex);
+                    }
+                    fullWriter.Close();
                 }
-                fullWriter.Close();
 
                 // Dump out just the 1st run data separately
                 StreamWriter singleWriter = new StreamWriter(String.Format("{0}{1}{2}.csv", folder, prefix, groupName));

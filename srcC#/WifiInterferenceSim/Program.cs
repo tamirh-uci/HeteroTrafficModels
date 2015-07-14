@@ -36,14 +36,16 @@ namespace WifiInterferenceSim
         static double MAIN_ARRIVAL_MBPS = 0.5;
 
         // Quality threshold for the main node
-        static double MAIN_THRESHOLD = 0.075;
+        static double MAIN_THRESHOLD = 0.025;
 
         // Max number of nodes to compare against (for incremental version)
-        static int MAX_NODES = 15;
+        static int MAX_NODES = 9;
+        static int CUSTOM_NODE_NUM = 10;
 
         // How many times to repeat each variation of simulation
         static int NUM_RUNS_SINGLES = 16;
         static int NUM_RUNS_INCREMENTAL = 25;
+        static int NUM_RUNS_CUSTOM = 1;
 
         static int BYTES_PER_PAYLOAD = 100;
         static int BITS_PER_PAYLOAD = 8 * BYTES_PER_PAYLOAD;
@@ -56,7 +58,10 @@ namespace WifiInterferenceSim
         static bool RUN_SINGLES = false;
 
         // Do we have a run where we run the main node against one type of the other nodes
-        static bool RUN_INCREMENTAL = true;
+        static bool RUN_INCREMENTAL = false;
+
+        // Do we have a run where we have a custom combination of stuff
+        static bool RUN_CUSTOM = true;
 
         // Spit out stuff to console so we know we're not dead during long calculations
         static bool VERBOSE = true;
@@ -129,12 +134,14 @@ namespace WifiInterferenceSim
         static string CSV_BASE_CARTESIAN = "./../../../../results/csvCartesian/";
         static string CSV_BASE_SINGLES = "./../../../../traces/";
         static string CSV_BASE_INCREMENTAL = "./../../../../results/";
+        static string CSV_BASE_FLAT = "./../../../../traces/";
 
         static string CSV_PREFIX_SOURCE = "wireshark_";
         static string CSV_PREFIX_CARTESIAN = "v2sim_cartesian_";
         static string CSV_PREFIX_SINGLES = "v2sim_";
         static string CSV_PREFIX_INCREMENTAL = "v2sim_inc_";
-
+        static string CSV_PREFIX_FLAT = "v2sim_flat";
+            
         static void Main(string[] args)
         {
             // Trace analysis to get parameter values
@@ -146,13 +153,13 @@ namespace WifiInterferenceSim
             // Run each type of node completely by itself
             if (RUN_SINGLES)
             {
-                RunSimSet("Singleton Traces", CSV_BASE_SINGLES, CSV_PREFIX_SINGLES, network, true, steps, NUM_RUNS_SINGLES, false, false, true);
+                RunSimSet("Singleton Traces", CSV_BASE_SINGLES, CSV_PREFIX_SINGLES, network, true, steps, NUM_RUNS_SINGLES, false, false, true, -1, -1, -1);
             }
 
             // Run one type of main node against different numbers of a single type of competing node
             if (RUN_INCREMENTAL)
             {
-                RunSimSet("Incremental Simulations", CSV_BASE_INCREMENTAL, CSV_PREFIX_INCREMENTAL, network, false, steps, NUM_RUNS_INCREMENTAL, false, true, false);
+                RunSimSet("Incremental Simulations", CSV_BASE_INCREMENTAL, CSV_PREFIX_INCREMENTAL, network, false, steps, NUM_RUNS_INCREMENTAL, false, true, false, -1, -1, -1);
             }
 
             // Run one type of main node against every combination of competing nodes
@@ -160,7 +167,21 @@ namespace WifiInterferenceSim
             {
                 // Haven't really tested this, so make sure we don't think it's all good to go
                 throw new NotSupportedException();
-                RunSimSet("Cartesian Simulations", CSV_BASE_CARTESIAN, CSV_PREFIX_CARTESIAN, network, false, steps, NUM_RUNS_INCREMENTAL, true, true, false);
+                //RunSimSet("Cartesian Simulations", CSV_BASE_CARTESIAN, CSV_PREFIX_CARTESIAN, network, false, steps, NUM_RUNS_INCREMENTAL, true, true, false, -1, -1, -1);
+            }
+
+            if (RUN_CUSTOM)
+            {
+                for (int i = CUSTOM_NODE_NUM; i <= CUSTOM_NODE_NUM; ++i)
+                {
+                    int trafficIndex = 0;
+                    string prefix = String.Format("{0}{1}_", CSV_PREFIX_FLAT, i);
+                    foreach (TrafficType type in Enum.GetValues(typeof(TrafficType)))
+                    {
+                        RunSimSet("Custom Simulations", CSV_BASE_FLAT, prefix, network, true, steps, NUM_RUNS_CUSTOM, false, true, false, i, i, trafficIndex);
+                        ++trafficIndex;
+                    }
+                }
             }
             
             Console.WriteLine("\nDone\n");
@@ -188,7 +209,7 @@ namespace WifiInterferenceSim
             return list;
         }
 
-        static void RunSimSet(string name, string csvBase, string csvPrefix, Physical80211 network, bool keepTrace, int steps, int repitions, bool isCartesian, bool useMain, bool isSingles)
+        static void RunSimSet(string name, string csvBase, string csvPrefix, Physical80211 network, bool keepTrace, int steps, int repitions, bool isCartesian, bool useMain, bool isSingles, int forceMin, int forceMax, int trafficIndex)
         {
             // make sure directory exists for csv files
             System.IO.Directory.CreateDirectory(csvBase);
@@ -208,13 +229,32 @@ namespace WifiInterferenceSim
                 simRunner.SetMain(MakeSimParams(MAIN_NODE_TYPE, isSingles, true));
             }
 
+            int currentTrafficIndex = 0;
             foreach (TrafficType type in Enum.GetValues(typeof(TrafficType)))
             {
+                if (trafficIndex >= 0 && currentTrafficIndex != trafficIndex)
+                {
+                    currentTrafficIndex++;
+                    continue;
+                }
+
                 SimParams simParams = MakeSimParams(type, isSingles, false);
                 if (simParams.maxNodes > 0)
                 {
+                    if (forceMin > 0)
+                    {
+                        simParams.minNodes = forceMin;
+                    }
+
+                    if (forceMax > 0)
+                    {
+                        simParams.maxNodes = forceMax;
+                    }
+
                     simRunner.AddCompeting(simParams);
                 }
+
+                currentTrafficIndex++;
             }
 
             simRunner.RunSims(VERBOSE, keepTrace, repitions, steps);
@@ -224,9 +264,9 @@ namespace WifiInterferenceSim
             {
                 Console.WriteLine("Saving CSV...");
             }
-            if (isSingles)
+            if (isSingles || forceMin > 0 || forceMax > 0)
             {
-                simRunner.SaveTracesCSV(csvBase, csvPrefix);
+                simRunner.SaveTracesCSV(csvBase, csvPrefix, isSingles);
             }
             else
             {
