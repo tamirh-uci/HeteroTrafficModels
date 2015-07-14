@@ -21,9 +21,9 @@ namespace WifiInterferenceSim.Simulation
 
         List<Simulator> simulators;
         SimResults results;
-        Dictionary<TrafficType, TrafficNodeParams> trafficParams;
+        Dictionary<TrafficType, TrafficAnalyzer> trafficParams;
 
-        public SimRunner(Physical80211 _network, Dictionary<TrafficType, TrafficNodeParams> _trafficParams, bool _cartesian)
+        public SimRunner(Physical80211 _network, Dictionary<TrafficType, TrafficAnalyzer> _trafficParams, bool _cartesian)
         {
             network = _network;
             trafficParams = _trafficParams;
@@ -323,7 +323,17 @@ namespace WifiInterferenceSim.Simulation
             }
 
             string filename = String.Format("{0}{1}-main-{2}.csv", folder, prefix, TrafficUtil.Name(mainParams.type));
-            StreamWriter w = new StreamWriter(filename);
+            StreamWriter w;
+            
+            try
+            {
+                w = new StreamWriter(filename);
+            }
+            catch(IOException)
+            {
+                Console.WriteLine("Did you leave the CSV file open in excel?");
+                w = new StreamWriter(filename);
+            }
 
             // Get a list of all the properties we'll be printing out
             FieldInfo[] csvFields = SimResultAggregate.CSVFields();

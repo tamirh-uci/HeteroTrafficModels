@@ -45,7 +45,7 @@ namespace WifiInterferenceSim.DCF
 
         public TrafficType type;
 
-        public DCFParams(TrafficType _type, TrafficNodeParams nodeParams)
+        public DCFParams(TrafficType _type, TrafficAnalyzer nodeParams)
         {
             type = _type;
 

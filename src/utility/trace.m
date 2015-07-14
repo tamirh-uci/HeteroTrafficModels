@@ -26,6 +26,9 @@ classdef trace < handle
                 case trace_type.youtube_audio_video
                     typename = 'youtube_audio-video';
                     
+                case trace_type.background
+                    typename = 'background';
+                    
                 case default
                     assert(false);
             end

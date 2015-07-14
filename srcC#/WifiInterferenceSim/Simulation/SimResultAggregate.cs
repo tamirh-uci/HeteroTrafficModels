@@ -15,13 +15,17 @@ namespace WifiInterferenceSim.Simulation
         // public fields to output to CSV
         public double Datarate;
         public double PacketsOverThreshold;
-        
+        public double PacketsUnsent;
+        public double PacketsSent;
+
         public SimResultAggregate(List<SimRunResult> _raw)
         {
             raw = _raw;
 
             Datarate = 0;
             PacketsOverThreshold = 0;
+            PacketsUnsent = 0;
+            PacketsSent = 0;
 
             CalculateAggregates();
         }
@@ -33,10 +37,14 @@ namespace WifiInterferenceSim.Simulation
                 SimNodeResult nodeResult = runResult.Get(0);
                 Datarate += nodeResult.datarate;
                 PacketsOverThreshold += nodeResult.packetsOverThreshold;
+                PacketsUnsent += nodeResult.packetsUnsent;
+                PacketsSent += nodeResult.packetsSent;
             }
 
             Datarate /= raw.Count;
             PacketsOverThreshold /= raw.Count;
+            PacketsUnsent /= raw.Count;
+            PacketsSent /= raw.Count;
         }
 
         public static FieldInfo[] CSVFields()

@@ -16,6 +16,7 @@ namespace WifiInterferenceSim.DCF
         Skype_Video,
         Skype_AudioVideo,
         Bittorrent_Leeching,
+        Background,
     }
 
     class TrafficUtil
@@ -32,6 +33,7 @@ namespace WifiInterferenceSim.DCF
                 case TrafficType.Skype_Video: return "Svv";
                 case TrafficType.Skype_AudioVideo: return "Sav";
                 case TrafficType.Bittorrent_Leeching: return "Ble";
+                case TrafficType.Background: return "Bkg";
 
                 default:
                     throw new NotSupportedException();
@@ -50,6 +52,7 @@ namespace WifiInterferenceSim.DCF
                 case TrafficType.Skype_Video: return "skype_video";
                 case TrafficType.Skype_AudioVideo: return "skype_audio-video";
                 case TrafficType.Bittorrent_Leeching: return "bittorrent_leeching";
+                case TrafficType.Background: return "background";
 
                 default:
                     throw new NotSupportedException();

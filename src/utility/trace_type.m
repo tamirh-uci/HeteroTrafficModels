@@ -8,5 +8,6 @@ classdef trace_type
         web_videocall,
         web_ftp_download,
         youtube_audio_video,
+        background,
     end
 end

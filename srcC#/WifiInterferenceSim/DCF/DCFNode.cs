@@ -357,56 +357,78 @@ namespace WifiInterferenceSim.DCF
             }
         }
 
-        private void EvalPacketHistory(Int64 thresholdTimeSlots, out Int64 packetsSent, out Int64 packetsUnsent, out Int64 packetsOverThreshold, out Int64 timeSlotsOverThreshold, out Int64 maxTimeSlotsOverThreshold, out double avgTimeSlotsOverThreshold)
+        private void EvalPacketHistory(Int64 thresholdTimeSlots)
         {
-            packetsSent = 0;
-            packetsUnsent = 0;
-            packetsOverThreshold = 0;
-            timeSlotsOverThreshold = 0;
-            maxTimeSlotsOverThreshold = 0;
-            avgTimeSlotsOverThreshold = 0;
+            results.packetsSent = 0;
+            results.packetsUnsent = 0;
+            results.packetsOverThreshold = 0;
+            //results.timeSlotsOverThreshold = 0;
+            results.maxTimeSlotsOverThreshold = 0;
+            //results.avgTimeSlotsOverThreshold = 0;
 
+            // Find the last packet
+            int lastTimeslot = 0;
             foreach(Packet p in trace.sent)
             {
-                packetsSent += p.payloadSize;
+                lastTimeslot = Math.Max(lastTimeslot, p.queueArrival);
+            }
+
+            foreach(Packet p in trace.queue)
+            {
+                lastTimeslot = Math.Max(lastTimeslot, p.queueArrival);
+            }
+
+            long lastThresholdTimeslot = lastTimeslot - thresholdTimeSlots;
+
+            // Count the packets over the threshold for the packets we sent
+            foreach(Packet p in trace.sent)
+            {
+                results.packetsSent += p.payloadSize;
                 int wait = p.txSuccess - p.queueArrival;
                 Debug.Assert(wait > 0);
 
-                maxTimeSlotsOverThreshold = Math.Max(maxTimeSlotsOverThreshold, wait);
+                results.maxTimeSlotsOverThreshold = Math.Max(results.maxTimeSlotsOverThreshold, wait);
 
                 if (wait > thresholdTimeSlots)
                 {
-                    packetsOverThreshold++;
-                    timeSlotsOverThreshold += wait - thresholdTimeSlots;
+                    results.packetsOverThreshold++;
+                    //results.timeSlotsOverThreshold += wait - thresholdTimeSlots;
+                }
+            }
+
+            // Packets we didn't send could also be over the threshold
+            foreach(Packet p in trace.queue)
+            {
+                results.packetsUnsent += p.payloadSize;
+
+                if (p.queueArrival < lastThresholdTimeslot)
+                {
+                    results.packetsOverThreshold++;
+                    //results.timeSlotsOverThreshold += // What goes here?
                 }
             }
 
             if (trace.sent.Count > 0)
             {
-                avgTimeSlotsOverThreshold = timeSlotsOverThreshold / trace.sent.Count;
-            }
-
-            foreach(Packet p in trace.queue)
-            {
-                packetsUnsent += p.payloadSize;
+                //results.avgTimeSlotsOverThreshold = results.timeSlotsOverThreshold / trace.sent.Count;
             }
         }
 
-        private void EvalStateHistory(out Int64 maxSleepStage, out double avgSleepStage)
+        private void EvalStateHistory()
         {
-            maxSleepStage = 0;
-            avgSleepStage = 0;
+            results.maxSleepStage = 0;
+            results.avgSleepStage = 0;
 
             Int64 totalSleepStage = 0;
             foreach (DCFState state in trace.states)
             {
-                maxSleepStage = Math.Max(maxSleepStage, state.sleepStage);
+                results.maxSleepStage = Math.Max(results.maxSleepStage, state.sleepStage);
                 totalSleepStage += state.sleepStage;
             }
 
             if (trace.states.Count > 0)
             {
-                avgSleepStage = totalSleepStage / trace.states.Count;
+                results.avgSleepStage = totalSleepStage / trace.states.Count;
             }
         }
         
@@ -427,8 +449,8 @@ namespace WifiInterferenceSim.DCF
             results.timeSpent = curStep * results.secondsPerSlot;
             results.thresholdSlots = (Int64)((qualityThreshold / results.secondsPerSlot) + 0.5);
 
-            EvalPacketHistory(results.thresholdSlots, out results.packetsSent, out results.packetsUnsent, out results.packetsOverThreshold, out results.timeSlotsOverThreshold, out results.maxTimeSlotsOverThreshold, out results.avgTimeSlotsOverThreshold);
-            EvalStateHistory(out results.maxSleepStage, out results.avgSleepStage);
+            EvalPacketHistory(results.thresholdSlots);
+            EvalStateHistory();
 
             results.bitsSent = results.packetsSent * trace.network.payloadBits;
             results.datarate = results.bitsSent / results.timeSpent;

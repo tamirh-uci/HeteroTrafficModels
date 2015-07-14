@@ -5,7 +5,7 @@ NUM_BINS = 200;
 MIN_PACKETSIZE = 1;
 
 types = enumeration('trace_type');
-    
+
 GRAPH_WIRESHARK = true;
 GRAPH_V1SIM = true;
 GRAPH_V2SIM = true;

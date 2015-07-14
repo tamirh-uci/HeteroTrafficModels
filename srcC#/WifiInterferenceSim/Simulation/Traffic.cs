@@ -9,7 +9,7 @@ namespace WifiInterferenceSim.Simulation
 {
     class Traffic
     {
-        public static DCFParams MakeTraffic(TrafficType type, Physical80211 network, double bps, TrafficNodeParams nodeParams)
+        public static DCFParams MakeTraffic(TrafficType type, Physical80211 network, double bps, TrafficAnalyzer nodeParams)
         {
             switch (type)
             {
@@ -21,6 +21,7 @@ namespace WifiInterferenceSim.Simulation
                 case TrafficType.Skype_Video: return Skype_Video(network, bps, nodeParams);
                 case TrafficType.Skype_AudioVideo: return Skype_AudioVideo(network, bps, nodeParams);
                 case TrafficType.Bittorrent_Leeching: return Bittorrent_Leeching(network, bps, nodeParams);
+                case TrafficType.Background: return Background(network, bps, nodeParams);
                 
                 default:
                     throw new NotSupportedException();
@@ -34,7 +35,7 @@ namespace WifiInterferenceSim.Simulation
         /// <param name="network">802.11 network type</param>
         /// <param name="bps">Incoming BPS of source</param>
         /// <returns>params for DCFNode</returns>
-        public static DCFParams Web_VideoCall(Physical80211 network, double bps, TrafficNodeParams nodeParams)
+        public static DCFParams Web_VideoCall(Physical80211 network, double bps, TrafficAnalyzer nodeParams)
         {
             DCFParams cfg = new DCFParams(TrafficType.Web_Videocall, nodeParams);
 
@@ -64,7 +65,7 @@ namespace WifiInterferenceSim.Simulation
         /// <param name="network">802.11 network type</param>
         /// <param name="bps">Incoming BPS of source</param>
         /// <returns>params for DCFNode</returns>
-        public static DCFParams Web_MultipleNewTabs(Physical80211 network, double bps, TrafficNodeParams nodeParams)
+        public static DCFParams Web_MultipleNewTabs(Physical80211 network, double bps, TrafficAnalyzer nodeParams)
         {
             DCFParams cfg = new DCFParams(TrafficType.Web_MultipleNewTabs, nodeParams);
 
@@ -94,7 +95,7 @@ namespace WifiInterferenceSim.Simulation
         /// <param name="network">802.11 network type</param>
         /// <param name="bps">Incoming BPS of source</param>
         /// <returns>params for DCFNode</returns>
-        public static DCFParams YouTube_AudioVideo(Physical80211 network, double bps, TrafficNodeParams nodeParams)
+        public static DCFParams YouTube_AudioVideo(Physical80211 network, double bps, TrafficAnalyzer nodeParams)
         {
             DCFParams cfg = new DCFParams(TrafficType.YouTube_AudioVideo, nodeParams);
 
@@ -124,7 +125,7 @@ namespace WifiInterferenceSim.Simulation
         /// <param name="network">802.11 network type</param>
         /// <param name="bps">Incoming BPS of source</param>
         /// <returns>params for DCFNode</returns>
-        public static DCFParams Skype_Audio(Physical80211 network, double bps, TrafficNodeParams nodeParams)
+        public static DCFParams Skype_Audio(Physical80211 network, double bps, TrafficAnalyzer nodeParams)
         {
             DCFParams cfg = new DCFParams(TrafficType.Skype_Audio, nodeParams);
 
@@ -140,7 +141,7 @@ namespace WifiInterferenceSim.Simulation
         /// <param name="network">802.11 network type</param>
         /// <param name="bps">Incoming BPS of source</param>
         /// <returns>params for DCFNode</returns>
-        public static DCFParams Skype_Video(Physical80211 network, double bps, TrafficNodeParams nodeParams)
+        public static DCFParams Skype_Video(Physical80211 network, double bps, TrafficAnalyzer nodeParams)
         {
             DCFParams cfg = new DCFParams(TrafficType.Skype_Video, nodeParams);
 
@@ -157,7 +158,7 @@ namespace WifiInterferenceSim.Simulation
         /// <param name="network">802.11 network type</param>
         /// <param name="bps">Incoming BPS of source</param>
         /// <returns>params for DCFNode</returns>
-        public static DCFParams Skype_AudioVideo(Physical80211 network, double bps, TrafficNodeParams nodeParams)
+        public static DCFParams Skype_AudioVideo(Physical80211 network, double bps, TrafficAnalyzer nodeParams)
         {
             DCFParams cfg = new DCFParams(TrafficType.Skype_AudioVideo, nodeParams);
 
@@ -173,7 +174,7 @@ namespace WifiInterferenceSim.Simulation
         /// <param name="network">802.11 network type</param>
         /// <param name="bps">Incoming BPS of source</param>
         /// <returns>params for DCFNode</returns>
-        public static DCFParams Web_FTPDownload(Physical80211 network, double bps, TrafficNodeParams nodeParams)
+        public static DCFParams Web_FTPDownload(Physical80211 network, double bps, TrafficAnalyzer nodeParams)
         {
             DCFParams cfg = new DCFParams(TrafficType.Web_FTPDownload, nodeParams);
 
@@ -199,7 +200,7 @@ namespace WifiInterferenceSim.Simulation
         /// <param name="network">802.11 network type</param>
         /// <param name="bps">Incoming BPS of source</param>
         /// <returns>params for DCFNode</returns>
-        public static DCFParams Bittorrent_Leeching(Physical80211 network, double bps, TrafficNodeParams nodeParams)
+        public static DCFParams Bittorrent_Leeching(Physical80211 network, double bps, TrafficAnalyzer nodeParams)
         {
             DCFParams cfg = new DCFParams(TrafficType.Bittorrent_Leeching, nodeParams);
 
@@ -221,5 +222,32 @@ namespace WifiInterferenceSim.Simulation
             return cfg;
         }
 
+        /// <summary>
+        /// BitTorrent download traffic, very steady and low variability
+        /// </summary>
+        /// <param name="network">802.11 network type</param>
+        /// <param name="bps">Incoming BPS of source</param>
+        /// <returns>params for DCFNode</returns>
+        public static DCFParams Background(Physical80211 network, double bps, TrafficAnalyzer nodeParams)
+        {
+            DCFParams cfg = new DCFParams(TrafficType.Background, nodeParams);
+
+            cfg.packetArrivalRate = network.PacketArrivalRate(bps);
+
+            // Rely solely on packet buffer for interarrival
+            cfg.pInterarrival = 0.0;
+
+            // Approximately send half, sleep half
+            cfg.awakeTime = 25;
+            cfg.drowsyTime = 100;
+            cfg.pDrowsySleep = 0.01;
+            cfg.minSleep = 1;
+            cfg.maxSleep = 25;
+
+            cfg.minBufferEmptySleep = 100;
+            cfg.maxBufferEmptySleep = 500;
+
+            return cfg;
+        }
     }
 }

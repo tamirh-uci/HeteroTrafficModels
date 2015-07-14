@@ -20,12 +20,12 @@ namespace WifiInterferenceSim.Simulation
         public Int64 packetsSent;
         public Int64 packetsUnsent;
         public Int64 packetsOverThreshold;
-        public Int64 timeSlotsOverThreshold;
+        //public Int64 timeSlotsOverThreshold; // TODO: Figure out how to calculate this
         public Int64 maxTimeSlotsOverThreshold;
         public Int64 maxSleepStage;
 
         public double avgSleepStage;
-        public double avgTimeSlotsOverThreshold;
+        //public double avgTimeSlotsOverThreshold;
         public Int64 bitsSent;
         public double datarate;
 
@@ -47,8 +47,8 @@ namespace WifiInterferenceSim.Simulation
             Console.WriteLine(" Data Sent: {0:F1} bits ({1:F2} Mbits)", bitsSent, bitsSent / 1000000.0);
             Console.WriteLine(" Datarate: {0:F1} bps ({1:F2} Mbps)", datarate, datarate / 1000000.0);
             Console.WriteLine(" Packets over threshold: {0}", packetsOverThreshold);
-            Console.WriteLine(" Time spent over threshold: {0:F2} milliseconds ({1} slots)", secondsPerSlot * timeSlotsOverThreshold * 1000.0, timeSlotsOverThreshold);
-            Console.WriteLine(" Time spent over threshold per packet: {0:F2} milliseconds ({1:F2} slots)", secondsPerSlot * avgTimeSlotsOverThreshold * 1000.0, avgTimeSlotsOverThreshold);
+            //Console.WriteLine(" Time spent over threshold: {0:F2} milliseconds ({1} slots)", secondsPerSlot * timeSlotsOverThreshold * 1000.0, timeSlotsOverThreshold);
+            //Console.WriteLine(" Time spent over threshold per packet: {0:F2} milliseconds ({1:F2} slots)", secondsPerSlot * avgTimeSlotsOverThreshold * 1000.0, avgTimeSlotsOverThreshold);
             Console.WriteLine(" Max time spent over threshold: {0:F2} milliseconds ({1} slots)", secondsPerSlot * maxTimeSlotsOverThreshold * 1000.0, maxTimeSlotsOverThreshold);
             Console.WriteLine(" Average sleep stage: {0:F2} (max {1})", avgSleepStage, maxSleepStage);
         }
