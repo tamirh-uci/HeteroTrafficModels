@@ -1,4 +1,4 @@
-function plot_traces( types, prefix, nBins, minPacketsize, plotEmpty, scaleGraph )
+function overallMax = plot_traces( types, prefix, nBins, minPacketsize, plotEmpty, scaleGraph, initMax )
     numTypes = size(types, 1);
     time = 1:nBins-1;
     
@@ -6,7 +6,7 @@ function plot_traces( types, prefix, nBins, minPacketsize, plotEmpty, scaleGraph
     binned = cell(1, numTypes);
     bps = cell(1, numTypes);
     typename = cell(1, numTypes);
-    overallMax = 0;
+    overallMax = initMax;
     
     numValid = 0;
     for i = 1:numTypes

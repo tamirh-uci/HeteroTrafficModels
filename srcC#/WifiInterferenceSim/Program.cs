@@ -33,19 +33,19 @@ namespace WifiInterferenceSim
         static TrafficType MAIN_NODE_TYPE = TrafficType.Web_Videocall;
 
         // Main node arrival rate
-        static double MAIN_ARRIVAL_MBPS = 0.5;
+        static double MAIN_ARRIVAL_MBPS = 1.5;
 
         // Quality threshold for the main node
         static double MAIN_THRESHOLD = 0.025;
 
         // Max number of nodes to compare against (for incremental version)
-        static int MAX_NODES = 9;
-        static int CUSTOM_NODE_NUM = 10;
+        static int MAX_INCREMENTAL_NODES = 9;
+        static int MAX_FLAT_NODES = 3;
 
         // How many times to repeat each variation of simulation
         static int NUM_RUNS_SINGLES = 16;
         static int NUM_RUNS_INCREMENTAL = 25;
-        static int NUM_RUNS_CUSTOM = 1;
+        static int NUM_RUNS_FLAT = 1;
 
         static int BYTES_PER_PAYLOAD = 100;
         static int BITS_PER_PAYLOAD = 8 * BYTES_PER_PAYLOAD;
@@ -61,34 +61,34 @@ namespace WifiInterferenceSim
         static bool RUN_INCREMENTAL = false;
 
         // Do we have a run where we have a custom combination of stuff
-        static bool RUN_CUSTOM = true;
+        static bool RUN_FLAT = true;
 
         // Spit out stuff to console so we know we're not dead during long calculations
         static bool VERBOSE = true;
         
         static TrafficAnalyzer WEB_VIDEOCALL = new TrafficAnalyzer(
-            0, MAX_NODES,   // min/max nodes to simulate
+            0, MAX_INCREMENTAL_NODES,   // min/max nodes to simulate
             1.0,    // multiplier against the main arrival rate
             0.1,     // threshold in seconds to consider packet late
             BYTES_PER_PAYLOAD, PAYLOAD_BINS
             );
 
         static TrafficAnalyzer WEB_MULTIPLENEWTABS = new TrafficAnalyzer(
-            0, MAX_NODES,   // min/max nodes to simulate
+            0, MAX_INCREMENTAL_NODES,   // min/max nodes to simulate
             1.0,    // multiplier against the main arrival rate
             1.0,     // threshold in seconds to consider packet late
             BYTES_PER_PAYLOAD, PAYLOAD_BINS
             );
 
         static TrafficAnalyzer WEB_FTPDOWNLOAD = new TrafficAnalyzer(
-            0, MAX_NODES,   // min/max nodes to simulate
+            0, MAX_INCREMENTAL_NODES,   // min/max nodes to simulate
             1.0,    // multiplier against the main arrival rate
             4.0,     // threshold in seconds to consider packet late
             BYTES_PER_PAYLOAD, PAYLOAD_BINS
             );
 
         static TrafficAnalyzer YOUTUBE_AUDIOVIDEO = new TrafficAnalyzer(
-            0, MAX_NODES,   // min/max nodes to simulate
+            0, MAX_INCREMENTAL_NODES,   // min/max nodes to simulate
             1.0,    // multiplier against the main arrival rate
             1.5,     // threshold in seconds to consider packet late
             BYTES_PER_PAYLOAD, PAYLOAD_BINS
@@ -116,7 +116,7 @@ namespace WifiInterferenceSim
             );
 
         static TrafficAnalyzer BITTORRENT_LEECHING = new TrafficAnalyzer(
-            0, MAX_NODES,   // min/max nodes to simulate
+            0, MAX_INCREMENTAL_NODES,   // min/max nodes to simulate
             1.0,    // multiplier against the main arrival rate
             4.0,     // threshold in seconds to consider packet late
             BYTES_PER_PAYLOAD, PAYLOAD_BINS
@@ -170,15 +170,15 @@ namespace WifiInterferenceSim
                 //RunSimSet("Cartesian Simulations", CSV_BASE_CARTESIAN, CSV_PREFIX_CARTESIAN, network, false, steps, NUM_RUNS_INCREMENTAL, true, true, false, -1, -1, -1);
             }
 
-            if (RUN_CUSTOM)
+            if (RUN_FLAT)
             {
-                for (int i = CUSTOM_NODE_NUM; i <= CUSTOM_NODE_NUM; ++i)
+                for (int i = 1; i <= MAX_FLAT_NODES; ++i)
                 {
                     int trafficIndex = 0;
                     string prefix = String.Format("{0}{1}_", CSV_PREFIX_FLAT, i);
                     foreach (TrafficType type in Enum.GetValues(typeof(TrafficType)))
                     {
-                        RunSimSet("Custom Simulations", CSV_BASE_FLAT, prefix, network, true, steps, NUM_RUNS_CUSTOM, false, true, false, i, i, trafficIndex);
+                        RunSimSet("Flat Simulations", CSV_BASE_FLAT, prefix, network, true, steps, NUM_RUNS_FLAT, false, true, false, i, i, trafficIndex);
                         ++trafficIndex;
                     }
                 }
