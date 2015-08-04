@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using WifiInterferenceSim.DCF;
 
 namespace WifiInterferenceSim.Simulation
@@ -41,7 +36,7 @@ namespace WifiInterferenceSim.Simulation
             groupName = _groupName;
 
             simnodes = new List<DCFNode>();
-            simRunResult = new SimRunResult(_simName, _groupName , _simIndex, -1);
+            simRunResult = new SimRunResult(_simName, _groupName, _simIndex, -1);
         }
 
         public string SimName { get { return simName; } }

@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WifiInterferenceSim.DCF;
 
 namespace WifiInterferenceSim.Simulation
@@ -22,7 +18,7 @@ namespace WifiInterferenceSim.Simulation
                 case TrafficType.Skype_AudioVideo: return Skype_AudioVideo(network, bps, nodeParams);
                 case TrafficType.Bittorrent_Leeching: return Bittorrent_Leeching(network, bps, nodeParams);
                 case TrafficType.Background: return Background(network, bps, nodeParams);
-                
+
                 default:
                     throw new NotSupportedException();
             }

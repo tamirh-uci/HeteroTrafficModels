@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace WifiInterferenceSim.DCF
+﻿namespace WifiInterferenceSim.DCF
 {
     struct Packet
     {
@@ -23,7 +17,7 @@ namespace WifiInterferenceSim.DCF
 
         public bool IsValid()
         {
-            return (queueArrival >=0 && payloadSize >= 0);
+            return (queueArrival >= 0 && payloadSize >= 0);
         }
 
         public void Invalidate()

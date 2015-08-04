@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Diagnostics;
 
 namespace WifiInterferenceSim
 {
     enum NetworkType
-    {        
+    {
         FHSS, // 1-2 Mbit
         DHSS, // 1-2 Mbit
         B, // 1-11 Mbit
@@ -116,17 +112,17 @@ namespace WifiInterferenceSim
 
         public static string Name(NetworkType type)
         {
-            switch(type)
+            switch (type)
             {
-                case NetworkType.FHSS:      return "802.11 FHSS";
-                case NetworkType.DHSS:      return "802.11 DHSS";
-                case NetworkType.B:         return "802.11 B";
-                case NetworkType.A:         return "802.11 A";
-                case NetworkType.G_short:   return "802.11 G (short)";
-                case NetworkType.G_long:    return "802.11 G (long)";
-                case NetworkType.N24:       return "802.11 N (24)";
-                case NetworkType.N50:       return "802.11 N (24)";
-                case NetworkType.AC:        return "802.11 AC";
+                case NetworkType.FHSS: return "802.11 FHSS";
+                case NetworkType.DHSS: return "802.11 DHSS";
+                case NetworkType.B: return "802.11 B";
+                case NetworkType.A: return "802.11 A";
+                case NetworkType.G_short: return "802.11 G (short)";
+                case NetworkType.G_long: return "802.11 G (long)";
+                case NetworkType.N24: return "802.11 N (24)";
+                case NetworkType.N50: return "802.11 N (24)";
+                case NetworkType.AC: return "802.11 AC";
 
                 default:
                     Debug.Assert(false);

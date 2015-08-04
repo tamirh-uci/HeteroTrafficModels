@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WifiInterferenceSim.Simulation
 {
     class SimResultAggregate
     {
         private List<SimRunResult> raw;
-        
+
         // public fields to output to CSV
         public double Datarate;
         public double PacketsOverThreshold;
@@ -32,7 +27,7 @@ namespace WifiInterferenceSim.Simulation
 
         private void CalculateAggregates()
         {
-            foreach(SimRunResult runResult in raw)
+            foreach (SimRunResult runResult in raw)
             {
                 SimNodeResult nodeResult = runResult.Get(0);
                 Datarate += nodeResult.datarate;

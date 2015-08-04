@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Diagnostics;
-using System.IO;
 using WifiInterferenceSim.Simulation;
 
 namespace WifiInterferenceSim.DCF
@@ -211,7 +206,7 @@ namespace WifiInterferenceSim.DCF
             curr.sleepStage = 0;
             curr.sleepTimer = rand.Next(cfg.minBufferEmptySleep, cfg.maxBufferEmptySleep);
 
-            Debug.Assert( !currPacket.IsValid() );
+            Debug.Assert(!currPacket.IsValid());
         }
 
         private void StepBufferEmpty()
@@ -305,7 +300,7 @@ namespace WifiInterferenceSim.DCF
         {
             // Increment our packet buffer
             packetLeftovers += cfg.packetArrivalRate;
-            while(packetLeftovers >= 1.0)
+            while (packetLeftovers >= 1.0)
             {
                 GeneratePacket();
 
@@ -368,12 +363,12 @@ namespace WifiInterferenceSim.DCF
 
             // Find the last packet
             int lastTimeslot = 0;
-            foreach(Packet p in trace.sent)
+            foreach (Packet p in trace.sent)
             {
                 lastTimeslot = Math.Max(lastTimeslot, p.queueArrival);
             }
 
-            foreach(Packet p in trace.queue)
+            foreach (Packet p in trace.queue)
             {
                 lastTimeslot = Math.Max(lastTimeslot, p.queueArrival);
             }
@@ -381,7 +376,7 @@ namespace WifiInterferenceSim.DCF
             long lastThresholdTimeslot = lastTimeslot - thresholdTimeSlots;
 
             // Count the packets over the threshold for the packets we sent
-            foreach(Packet p in trace.sent)
+            foreach (Packet p in trace.sent)
             {
                 results.packetsSent += p.payloadSize;
                 int wait = p.txSuccess - p.queueArrival;
@@ -397,7 +392,7 @@ namespace WifiInterferenceSim.DCF
             }
 
             // Packets we didn't send could also be over the threshold
-            foreach(Packet p in trace.queue)
+            foreach (Packet p in trace.queue)
             {
                 results.packetsUnsent += p.payloadSize;
 
@@ -431,7 +426,7 @@ namespace WifiInterferenceSim.DCF
                 results.avgSleepStage = totalSleepStage / trace.states.Count;
             }
         }
-        
+
         public SimNodeResult CalculateResults(bool keepTrace)
         {
             results = new SimNodeResult();

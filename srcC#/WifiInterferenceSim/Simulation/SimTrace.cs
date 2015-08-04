@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WifiInterferenceSim.DCF;
 
 namespace WifiInterferenceSim.Simulation
@@ -37,7 +33,7 @@ namespace WifiInterferenceSim.Simulation
             {
                 double time = p.txSuccess * secondsPerSlot;
                 if (full)
-                    writer.WriteLine("{0},{1},{2},{3}", runIndex, time, (int)(0.5+time*1000), p.payloadSize * network.payloadBits / 8);
+                    writer.WriteLine("{0},{1},{2},{3}", runIndex, time, (int)(0.5 + time * 1000), p.payloadSize * network.payloadBits / 8);
                 else
                     writer.WriteLine("{0},{1}", time, p.payloadSize * network.payloadBits / 8);
             }

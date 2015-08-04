@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace WifiInterferenceSim.DCF
+﻿namespace WifiInterferenceSim.DCF
 {
     class DCFParams
     {
@@ -63,7 +57,7 @@ namespace WifiInterferenceSim.DCF
 
             minBufferEmptySleep = 10;
             maxBufferEmptySleep = 50;
-            
+
             minBackoff = 8;
             maxBackoff = 32;
 

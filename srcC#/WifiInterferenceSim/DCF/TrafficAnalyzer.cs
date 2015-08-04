@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WifiInterferenceSim.DCF
 {
@@ -26,13 +23,13 @@ namespace WifiInterferenceSim.DCF
             // Find the time bounds of our trace
             double minTime = Double.MaxValue;
             double maxTime = Double.MinValue;
-            foreach(double time in csvTimes)
+            foreach (double time in csvTimes)
             {
                 minTime = Math.Min(minTime, time);
                 maxTime = Math.Max(maxTime, time);
             }
 
-            for(int i=0; i < numDivisions; ++i)
+            for (int i = 0; i < numDivisions; ++i)
             {
                 windowedBps.Add(GenerateWindowedBPS(i, minTime, maxTime, csvTimes, csvPacketSizes));
             }
@@ -41,41 +38,65 @@ namespace WifiInterferenceSim.DCF
         private static List<double> GenerateWindowedBPS(int numDivisions, double minTime, double maxTime, List<double> csvTimes, List<int> csvPacketSizes)
         {
             int numWindows = numDivisions + 1;
-            double windowTime = (maxTime - minTime)/numWindows;
+            double windowTime = (maxTime - minTime) / numWindows;
 
             List<double> windowedBps = new List<double>();
             List<double> timeWindows = new List<double>();
 
             timeWindows.Add(minTime);
-            for (int i=0; i<numWindows; ++i)
+            for (int i = 0; i < numWindows; ++i)
             {
                 windowedBps.Add(0);
-                timeWindows.Add( Math.Min(windowTime * (1+i), maxTime) );
+                timeWindows.Add(Math.Min(windowTime * (1 + i), maxTime));
             }
 
             // parcel out each packet into the appropriate bin and count up bits
-            for (int i=0; i<csvPacketSizes.Count; ++i)
+            for (int i = 0; i < csvPacketSizes.Count; ++i)
             {
                 double time = csvTimes[i];
                 int packetSize = 8 * csvPacketSizes[i]; // packetsizes come in as bytes
 
                 // Find the correct bin
-                for (int j=0; j<numWindows; ++j)
+                bool foundBin = false;
+                for (int j = 0; j < numWindows; ++j)
                 {
-                    if (time >= timeWindows[j] && time <= timeWindows[j+1])
+                    if (time >= timeWindows[j] && time <= timeWindows[j + 1])
                     {
                         windowedBps[j] += packetSize;
+                        foundBin = true;
                         break;
                     }
+                }
 
-                    Debug.Assert(false);
+                // If we didn't find a bin, we're probably within a small margin from the min or max
+                if (!foundBin)
+                {
+                    double min = timeWindows[0] - 0.001;
+                    double max = timeWindows[numWindows - 1] + 0.001;
+                    double mid = (max + min) / 2.0;
+
+                    // We were just under the min time
+                    if (time >= min && time <= mid)
+                    {
+                        windowedBps[0] += packetSize;
+                    }
+                    // We were just over the max time
+                    else if (time <= max && time >= mid)
+                    {
+                        windowedBps[numWindows - 1] += packetSize;
+                    }
+                    else
+                    {
+                        // Something happened and we were way off
+                        Debug.Assert(false);
+                    }
                 }
             }
-            
+
             // Divide out by the length of time each bin has to get bits per second
-            for( int i=0; i<numWindows; ++i)
+            for (int i = 0; i < numWindows; ++i)
             {
-                windowTime = timeWindows[i+1] - timeWindows[i];
+                windowTime = timeWindows[i + 1] - timeWindows[i];
                 windowedBps[i] /= windowTime;
             }
 
@@ -92,7 +113,7 @@ namespace WifiInterferenceSim.DCF
 
         public int bytesPerPayload;
         public int[] payloadBins;
-        
+
 
         // From trace analysis
         public double[] payloadProbabilities;
@@ -120,7 +141,7 @@ namespace WifiInterferenceSim.DCF
             {
                 ReadCSV(filename, csvTimes, csvPacketSizes);
             }
-            catch(IOException e)
+            catch (IOException e)
             {
                 Console.WriteLine("Error reading trace: {0}", filename);
                 Console.WriteLine(e.ToString());
@@ -168,7 +189,7 @@ namespace WifiInterferenceSim.DCF
             // If we're empty, just make all equal probabilities
             if (csvPacketSizes.Count == 0)
             {
-                for(int i = 0; i < payloadBins.Length; ++i)
+                for (int i = 0; i < payloadBins.Length; ++i)
                 {
                     csvPacketSizes.Add(payloadBins[i]);
                 }
@@ -178,23 +199,25 @@ namespace WifiInterferenceSim.DCF
             foreach (int packetsize in csvPacketSizes)
             {
                 // If we're bigger than our bins, then dump into the last one
-                if (packetsize >= payloadBins[payloadBins.Length-1])
+                if (packetsize >= payloadBins[payloadBins.Length - 1])
                 {
                     payloadProbabilities[payloadBins.Length - 1]++;
                     break;
                 }
-                
+
+                bool foundBin = false;
                 for (int i = 0; i < payloadBins.Length; ++i)
                 {
                     if (packetsize <= payloadBins[i])
                     {
                         payloadProbabilities[i]++;
+                        foundBin = true;
                         break;
                     }
                 }
 
                 // Should never reach here
-                Debug.Assert(false);
+                Debug.Assert(foundBin);
             }
 
             // Divide by numPackets to get probability we're in each bin

@@ -2,11 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using WifiInterferenceSim.DCF;
 
 namespace WifiInterferenceSim.Simulation
@@ -50,7 +47,7 @@ namespace WifiInterferenceSim.Simulation
             StringBuilder s = new StringBuilder();
             s.AppendFormat("main-{0}_", TrafficUtil.ShortName(mainParams.type));
 
-            for (int i=0; i<competingParams.Count; ++i)
+            for (int i = 0; i < competingParams.Count; ++i)
             {
                 s.AppendFormat("_{0}-{1}", TrafficUtil.ShortName(competingParams[i].type), numNodes[i]);
             }
@@ -65,7 +62,7 @@ namespace WifiInterferenceSim.Simulation
 
             AddNode(sim, mainParams, "main", 1);
 
-            for (int i = 0; i < competingParams.Count; ++i )
+            for (int i = 0; i < competingParams.Count; ++i)
             {
                 AddNode(sim, competingParams[i], "node", numNodes[i]);
             }
@@ -79,7 +76,7 @@ namespace WifiInterferenceSim.Simulation
                 return;
 
             DCFParams dcfParams = Traffic.MakeTraffic(simParams.type, network, simParams.arrivalBps, trafficParams[simParams.type]);
-            for (int i=1; i<=numNodes; ++i)
+            for (int i = 1; i <= numNodes; ++i)
             {
                 string name = String.Format("{0}{1}-{2}", namePrefix, TrafficUtil.Name(simParams.type), i);
                 sim.AddNode(new DCFNode(name, dcfParams, simParams.randSeed, simParams.qualityThreshold));
@@ -132,7 +129,7 @@ namespace WifiInterferenceSim.Simulation
 
         }
 
-        
+
         private void GenerateSinglesSimulators()
         {
             int length = competingParams.Count;
@@ -182,7 +179,7 @@ namespace WifiInterferenceSim.Simulation
             for (int competingIndex = 0; competingIndex < length; ++competingIndex)
             {
                 // Reset all other nodes to have 0
-                for (int i=0; i<length; ++i)
+                for (int i = 0; i < length; ++i)
                 {
                     cur[i] = 0;
                 }
@@ -231,9 +228,9 @@ namespace WifiInterferenceSim.Simulation
                     Console.Write("Running: {0} ({1})", referenceSim.SimName, referenceSim.GroupName);
                 }
 
-                for (int run=0; run<repititions; ++run)
+                for (int run = 0; run < repititions; ++run)
                 {
-                    if (verbose && run%25 == 0)
+                    if (verbose && run % 25 == 0)
                     {
                         Console.Write('.');
                     }
@@ -318,7 +315,7 @@ namespace WifiInterferenceSim.Simulation
                 List<SimRunResult> resultSet = groupedResults[simName];
                 SimResultAggregate aggregate = new SimResultAggregate(resultSet);
                 SimRunResult runResult = resultSet[0];
-                
+
                 string groupName = runResult.GroupName;
                 int simIndex = runResult.SimIndex;
 
@@ -327,12 +324,12 @@ namespace WifiInterferenceSim.Simulation
 
             string filename = String.Format("{0}{1}-main-{2}.csv", folder, prefix, TrafficUtil.Name(mainParams.type));
             StreamWriter w;
-            
+
             try
             {
                 w = new StreamWriter(filename);
             }
-            catch(IOException)
+            catch (IOException)
             {
                 Console.WriteLine("Did you leave the CSV file open in excel?");
                 w = new StreamWriter(filename);
@@ -363,7 +360,7 @@ namespace WifiInterferenceSim.Simulation
                 w.WriteLine();
                 w.Flush();
             }
-            
+
             w.Close();
         }
     }

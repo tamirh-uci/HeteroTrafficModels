@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WifiInterferenceSim.DCF;
 using WifiInterferenceSim.Simulation;
 
@@ -65,7 +61,7 @@ namespace WifiInterferenceSim
 
         // Spit out stuff to console so we know we're not dead during long calculations
         static bool VERBOSE = true;
-        
+
         static TrafficAnalyzer WEB_VIDEOCALL = new TrafficAnalyzer(
             0, MAX_INCREMENTAL_NODES,   // min/max nodes to simulate
             1.0,    // multiplier against the main arrival rate
@@ -141,13 +137,13 @@ namespace WifiInterferenceSim
         static string CSV_PREFIX_SINGLES = "v2sim_";
         static string CSV_PREFIX_INCREMENTAL = "v2sim_inc_";
         static string CSV_PREFIX_FLAT = "v2sim_flat";
-            
+
         static void Main(string[] args)
         {
             // Trace analysis to get parameter values
             RunTraceAnalysis();
 
-            Physical80211 network = new Physical80211(NETWORK_TYPE, BYTES_PER_PAYLOAD*8);
+            Physical80211 network = new Physical80211(NETWORK_TYPE, BYTES_PER_PAYLOAD * 8);
             int steps = (int)Math.Ceiling(network.StepsPerSecond() * SIMULATION_SECONDS);
 
             // Run each type of node completely by itself
@@ -183,7 +179,7 @@ namespace WifiInterferenceSim
                     }
                 }
             }
-            
+
             Console.WriteLine("\nDone\n");
         }
 
@@ -281,7 +277,7 @@ namespace WifiInterferenceSim
 
         static TrafficAnalyzer GetTrafficNodeParams(TrafficType type)
         {
-            switch(type)
+            switch (type)
             {
                 case TrafficType.Web_Videocall: return WEB_VIDEOCALL;
                 case TrafficType.Web_MultipleNewTabs: return WEB_MULTIPLENEWTABS;
