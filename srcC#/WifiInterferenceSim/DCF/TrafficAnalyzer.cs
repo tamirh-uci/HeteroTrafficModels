@@ -72,7 +72,7 @@ namespace WifiInterferenceSim.DCF
                 if (!foundBin)
                 {
                     double min = timeWindows[0] - 0.001;
-                    double max = timeWindows[numWindows - 1] + 0.001;
+                    double max = timeWindows[numWindows] + 0.001;
                     double mid = (max + min) / 2.0;
 
                     // We were just under the min time
