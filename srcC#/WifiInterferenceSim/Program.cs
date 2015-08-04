@@ -131,13 +131,13 @@ namespace WifiInterferenceSim
 
         // Storage for final files
         static string CSV_BASE_SOURCE = "./../../../../traces/";
-        static string CSV_BASE_CARTESIAN = "./../../../../results/csvCartesian/";
+        //static string CSV_BASE_CARTESIAN = "./../../../../results/csvCartesian/";
         static string CSV_BASE_SINGLES = "./../../../../traces/";
         static string CSV_BASE_INCREMENTAL = "./../../../../results/";
         static string CSV_BASE_FLAT = "./../../../../traces/";
 
         static string CSV_PREFIX_SOURCE = "wireshark_";
-        static string CSV_PREFIX_CARTESIAN = "v2sim_cartesian_";
+        //static string CSV_PREFIX_CARTESIAN = "v2sim_cartesian_";
         static string CSV_PREFIX_SINGLES = "v2sim_";
         static string CSV_PREFIX_INCREMENTAL = "v2sim_inc_";
         static string CSV_PREFIX_FLAT = "v2sim_flat";
