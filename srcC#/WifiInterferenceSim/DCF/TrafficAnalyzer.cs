@@ -47,7 +47,7 @@ namespace WifiInterferenceSim.DCF
             for (int i = 0; i < numWindows; ++i)
             {
                 windowedBps.Add(0);
-                timeWindows.Add(Math.Min(windowTime * (1 + i), maxTime));
+                timeWindows.Add(Math.Min(minTime + windowTime * (1 + i), maxTime));
             }
 
             // parcel out each packet into the appropriate bin and count up bits
@@ -202,7 +202,7 @@ namespace WifiInterferenceSim.DCF
                 if (packetsize >= payloadBins[payloadBins.Length - 1])
                 {
                     payloadProbabilities[payloadBins.Length - 1]++;
-                    break;
+                    continue;
                 }
 
                 bool foundBin = false;
@@ -216,7 +216,6 @@ namespace WifiInterferenceSim.DCF
                     }
                 }
 
-                // Should never reach here
                 Debug.Assert(foundBin);
             }
 
