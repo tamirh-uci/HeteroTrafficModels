@@ -147,6 +147,12 @@ namespace WifiInterferenceSim.DCF
                 Console.WriteLine(e.ToString());
             }
 
+            if (csvTimes.Count == 0 || csvPacketSizes.Count == 0)
+            {
+                Console.WriteLine("Error reading trace: {0}" , filename);
+                Console.WriteLine("Could not find valid CSV lines");
+            }
+            
             AnalyzePacketsizeProbabilities(csvPacketSizes);
             AnalyzeBPS(csvTimes, csvPacketSizes);
         }
