@@ -99,7 +99,7 @@ namespace WifiInterferenceSim.DCF
             // Choose a payload size based on probabilities
             double r = rand.NextDouble();
             int payloadIndex = -1;
-            while (r > cfg.payloadProbabilities[++payloadIndex])
+            while (r > cfg.trafficAnalyzer.PayloadProbabilities.Probabilities[++payloadIndex])
             {
             }
 

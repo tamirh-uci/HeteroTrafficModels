@@ -1,4 +1,7 @@
-﻿namespace WifiInterferenceSim.DCF
+﻿using WifiInterferenceSim.Simulation;
+using WifiInterferenceSim.TraceAnalysis;
+
+namespace WifiInterferenceSim.DCF
 {
     class DCFParams
     {
@@ -23,7 +26,7 @@
         // cutoffs for payload sizes (corresponds to probabilities)
         public int bytesPerPayload;
         public int[] payloadBins;
-        public double[] payloadProbabilities;
+        public TrafficAnalyzer trafficAnalyzer;
 
         // min/max number of steps to not send once we reach a transmit state
         public int minInterarrival, maxInterarrival;
@@ -39,7 +42,7 @@
 
         public TrafficType type;
 
-        public DCFParams(TrafficType _type, TrafficAnalyzer nodeParams)
+        public DCFParams(TrafficType _type, TrafficNodeParams nodeParams)
         {
             type = _type;
 
@@ -66,7 +69,7 @@
 
             bytesPerPayload = nodeParams.bytesPerPayload;
             payloadBins = nodeParams.payloadBins;
-            payloadProbabilities = nodeParams.payloadProbabilities;
+            trafficAnalyzer = nodeParams.trafficAnalyzer;
         }
     }
 }

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using WifiInterferenceSim.DCF;
 using WifiInterferenceSim.Simulation;
+using WifiInterferenceSim.lib;
+using WifiInterferenceSim.TraceAnalysis;
 
 namespace WifiInterferenceSim
 {
@@ -47,6 +49,18 @@ namespace WifiInterferenceSim
         static int BITS_PER_PAYLOAD = 8 * BYTES_PER_PAYLOAD;
         static int[] PAYLOAD_BINS = { 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500 };
 
+        // BPS Windows analyzer constants
+        static int BPS_WINDOW_MAX_DIVISIONS = 2;
+
+        // Neural Network constants
+        static double NN_DIVISION_TIME_SLICE = 0.001;
+        static int NN_NUM_INPUTS = 100;
+        static int NN_NUM_OUTPUTS = 1;
+        static int NN_NUM_HIDDEN = 5;
+        static int NN_MAX_EPOCHS = 1000;
+        static double NN_LEARN_RATE = 0.05;
+        static double NN_MOMENTUM = 0.01;
+
         // Do we have a cartesian product of competing nodes? Or just a single sim
         static bool RUN_CARTESIAN = false;
 
@@ -62,67 +76,95 @@ namespace WifiInterferenceSim
         // Spit out stuff to console so we know we're not dead during long calculations
         static bool VERBOSE = true;
 
-        static TrafficAnalyzer WEB_VIDEOCALL = new TrafficAnalyzer(
+        static NeuralNetParams NN_PARAMS = new NeuralNetParams(
+            NN_DIVISION_TIME_SLICE,
+            NN_NUM_INPUTS,
+            NN_NUM_OUTPUTS,
+            NN_NUM_HIDDEN,
+            NN_MAX_EPOCHS,
+            NN_LEARN_RATE,
+            NN_MOMENTUM
+        );
+
+        static TrafficNodeParams WEB_VIDEOCALL = new TrafficNodeParams(
             0, MAX_INCREMENTAL_NODES,   // min/max nodes to simulate
             1.0,    // multiplier against the main arrival rate
             0.1,     // threshold in seconds to consider packet late
-            BYTES_PER_PAYLOAD, PAYLOAD_BINS
+            BYTES_PER_PAYLOAD, PAYLOAD_BINS,
+            BPS_WINDOW_MAX_DIVISIONS,
+            NN_PARAMS
             );
 
-        static TrafficAnalyzer WEB_MULTIPLENEWTABS = new TrafficAnalyzer(
+        static TrafficNodeParams WEB_MULTIPLENEWTABS = new TrafficNodeParams(
             0, MAX_INCREMENTAL_NODES,   // min/max nodes to simulate
             1.0,    // multiplier against the main arrival rate
             1.0,     // threshold in seconds to consider packet late
-            BYTES_PER_PAYLOAD, PAYLOAD_BINS
+            BYTES_PER_PAYLOAD, PAYLOAD_BINS,
+            BPS_WINDOW_MAX_DIVISIONS,
+            NN_PARAMS
             );
 
-        static TrafficAnalyzer WEB_FTPDOWNLOAD = new TrafficAnalyzer(
+        static TrafficNodeParams WEB_FTPDOWNLOAD = new TrafficNodeParams(
             0, MAX_INCREMENTAL_NODES,   // min/max nodes to simulate
             1.0,    // multiplier against the main arrival rate
             4.0,     // threshold in seconds to consider packet late
-            BYTES_PER_PAYLOAD, PAYLOAD_BINS
+            BYTES_PER_PAYLOAD, PAYLOAD_BINS,
+            BPS_WINDOW_MAX_DIVISIONS,
+            NN_PARAMS
             );
 
-        static TrafficAnalyzer YOUTUBE_AUDIOVIDEO = new TrafficAnalyzer(
+        static TrafficNodeParams YOUTUBE_AUDIOVIDEO = new TrafficNodeParams(
             0, MAX_INCREMENTAL_NODES,   // min/max nodes to simulate
             1.0,    // multiplier against the main arrival rate
             1.5,     // threshold in seconds to consider packet late
-            BYTES_PER_PAYLOAD, PAYLOAD_BINS
+            BYTES_PER_PAYLOAD, PAYLOAD_BINS,
+            BPS_WINDOW_MAX_DIVISIONS,
+            NN_PARAMS
             );
 
-        static TrafficAnalyzer SKYPE_AUDIO = new TrafficAnalyzer(
+        static TrafficNodeParams SKYPE_AUDIO = new TrafficNodeParams(
             0, 0,   // min/max nodes to simulate
             1.0,    // multiplier against the main arrival rate
             0.1,     // threshold in seconds to consider packet late
-            BYTES_PER_PAYLOAD, PAYLOAD_BINS
+            BYTES_PER_PAYLOAD, PAYLOAD_BINS,
+            BPS_WINDOW_MAX_DIVISIONS,
+            NN_PARAMS
             );
 
-        static TrafficAnalyzer SKYPE_VIDEO = new TrafficAnalyzer(
+        static TrafficNodeParams SKYPE_VIDEO = new TrafficNodeParams(
             0, 0,   // min/max nodes to simulate
             1.0,    // multiplier against the main arrival rate
             0.1,     // threshold in seconds to consider packet late
-            BYTES_PER_PAYLOAD, PAYLOAD_BINS
+            BYTES_PER_PAYLOAD, PAYLOAD_BINS,
+            BPS_WINDOW_MAX_DIVISIONS,
+            NN_PARAMS
             );
 
-        static TrafficAnalyzer SKYPE_AUDIOVIDEO = new TrafficAnalyzer(
+        static TrafficNodeParams SKYPE_AUDIOVIDEO = new TrafficNodeParams(
             0, 0,   // min/max nodes to simulate
             1.0,    // multiplier against the main arrival rate
             0.1,     // threshold in seconds to consider packet late
-            BYTES_PER_PAYLOAD, PAYLOAD_BINS
+            BYTES_PER_PAYLOAD, PAYLOAD_BINS,
+            BPS_WINDOW_MAX_DIVISIONS,
+            NN_PARAMS
             );
 
-        static TrafficAnalyzer BITTORRENT_LEECHING = new TrafficAnalyzer(
+        static TrafficNodeParams BITTORRENT_LEECHING = new TrafficNodeParams(
             0, MAX_INCREMENTAL_NODES,   // min/max nodes to simulate
             1.0,    // multiplier against the main arrival rate
             4.0,     // threshold in seconds to consider packet late
-            BYTES_PER_PAYLOAD, PAYLOAD_BINS
+            BYTES_PER_PAYLOAD, PAYLOAD_BINS,
+            BPS_WINDOW_MAX_DIVISIONS,
+            NN_PARAMS
             );
 
-        static TrafficAnalyzer BACKGROUND = new TrafficAnalyzer(
+        static TrafficNodeParams BACKGROUND = new TrafficNodeParams(
             0, 0,   // min/max nodes to simulate
             1.0, // multiplier against main arrival rate
             1.0, // threshold in seconds to consider packet late
-            BYTES_PER_PAYLOAD, PAYLOAD_BINS
+            BYTES_PER_PAYLOAD, PAYLOAD_BINS,
+            BPS_WINDOW_MAX_DIVISIONS,
+            NN_PARAMS
             );
 
         // Storage for final files
@@ -188,15 +230,15 @@ namespace WifiInterferenceSim
             foreach (TrafficType type in Enum.GetValues(typeof(TrafficType)))
             {
                 string sourceTrace = String.Format("{0}{1}{2}.csv", CSV_BASE_SOURCE, CSV_PREFIX_SOURCE, TrafficUtil.Name(type));
-                TrafficAnalyzer nodeParams = GetTrafficNodeParams(type);
+                TrafficNodeParams nodeParams = GetTrafficNodeParams(type);
 
-                nodeParams.AnalyzeTrace(sourceTrace);
+                nodeParams.trafficAnalyzer.AnalyzeTrace(sourceTrace);
             }
         }
 
-        static Dictionary<TrafficType, TrafficAnalyzer> TrafficParamList()
+        static Dictionary<TrafficType, TrafficNodeParams> TrafficParamList()
         {
-            Dictionary<TrafficType, TrafficAnalyzer> list = new Dictionary<TrafficType, TrafficAnalyzer>();
+            Dictionary<TrafficType, TrafficNodeParams> list = new Dictionary<TrafficType, TrafficNodeParams>();
             foreach (TrafficType type in Enum.GetValues(typeof(TrafficType)))
             {
                 list[type] = GetTrafficNodeParams(type);
@@ -275,7 +317,7 @@ namespace WifiInterferenceSim
             }
         }
 
-        static TrafficAnalyzer GetTrafficNodeParams(TrafficType type)
+        static TrafficNodeParams GetTrafficNodeParams(TrafficType type)
         {
             switch (type)
             {
@@ -296,13 +338,13 @@ namespace WifiInterferenceSim
 
         static SimParams MakeSimParams(TrafficType type, bool isSinglesSim, bool isMain)
         {
-            TrafficAnalyzer p = GetTrafficNodeParams(type);
+            TrafficNodeParams p = GetTrafficNodeParams(type);
             double baseBps = MAIN_ARRIVAL_MBPS * 1000000;
 
-            int minNodes = p.min;
-            int maxNodes = p.max;
-            double arrivalBps = baseBps * p.multiplier;
-            double qualityThreshold = p.threshold;
+            int minNodes = p.minSimulateNodes;
+            int maxNodes = p.maxSimulateNodes;
+            double arrivalBps = baseBps * p.arrivalRateMultiplier;
+            double qualityThreshold = p.lateThreshold;
 
             if (isMain)
             {

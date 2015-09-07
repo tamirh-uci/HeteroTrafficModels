@@ -18,9 +18,9 @@ namespace WifiInterferenceSim.Simulation
 
         List<Simulator> simulators;
         SimResults results;
-        Dictionary<TrafficType, TrafficAnalyzer> trafficParams;
+        Dictionary<TrafficType, TrafficNodeParams> trafficParams;
 
-        public SimRunner(Physical80211 _network, Dictionary<TrafficType, TrafficAnalyzer> _trafficParams, bool _cartesian)
+        public SimRunner(Physical80211 _network, Dictionary<TrafficType, TrafficNodeParams> _trafficParams, bool _cartesian)
         {
             network = _network;
             trafficParams = _trafficParams;

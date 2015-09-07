@@ -61,11 +61,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Simulation\TrafficNodeParams.cs" />
+    <Compile Include="TraceAnalysis\BPSWindow.cs" />
+    <Compile Include="TraceAnalysis\BPSWindows.cs" />
+    <Compile Include="TraceAnalysis\NeuralNetParams.cs" />
+    <Compile Include="TraceAnalysis\PayloadProbabilities.cs" />
+    <Compile Include="TraceAnalysis\TimeSeriesNN.cs" />
+    <Compile Include="lib\NeuralNetwork.cs" />
     <Compile Include="DCF\DCFParams.cs" />
     <Compile Include="DCF\DCFState.cs" />
     <Compile Include="DCF\Packet.cs" />
-    <Compile Include="DCF\TrafficAnalyzer.cs" />
+    <Compile Include="TraceAnalysis\TrafficAnalyzer.cs" />
     <Compile Include="DCF\TrafficType.cs" />
+    <Compile Include="lib\BackPropProgram.cs" />
     <Compile Include="Simulation\SimParams.cs" />
     <Compile Include="Simulation\SimNodeResult.cs" />
     <Compile Include="Simulation\SimResultAggregate.cs" />
