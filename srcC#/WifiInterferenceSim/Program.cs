@@ -61,6 +61,9 @@ namespace WifiInterferenceSim
         static double NN_LEARN_RATE = 0.05;
         static double NN_MOMENTUM = 0.01;
 
+        // Run NN analysis and stop
+        static bool ANALYSIS_ONLY = true;
+
         // Do we have a cartesian product of competing nodes? Or just a single sim
         static bool RUN_CARTESIAN = false;
 
@@ -185,6 +188,11 @@ namespace WifiInterferenceSim
             // Trace analysis to get parameter values
             RunTraceAnalysis();
 
+            if (ANALYSIS_ONLY)
+            {
+                return;
+            }
+
             Physical80211 network = new Physical80211(NETWORK_TYPE, BYTES_PER_PAYLOAD * 8);
             int steps = (int)Math.Ceiling(network.StepsPerSecond() * SIMULATION_SECONDS);
 
@@ -229,10 +237,11 @@ namespace WifiInterferenceSim
         {
             foreach (TrafficType type in Enum.GetValues(typeof(TrafficType)))
             {
-                string sourceTrace = String.Format("{0}{1}{2}.csv", CSV_BASE_SOURCE, CSV_PREFIX_SOURCE, TrafficUtil.Name(type));
+                string trafficType = TrafficUtil.Name(type);
                 TrafficNodeParams nodeParams = GetTrafficNodeParams(type);
 
-                nodeParams.trafficAnalyzer.AnalyzeTrace(sourceTrace);
+                Console.WriteLine("Running analysis on {0}", trafficType);
+                nodeParams.trafficAnalyzer.AnalyzeTrace(CSV_BASE_SOURCE, CSV_PREFIX_SOURCE, trafficType);
             }
         }
 

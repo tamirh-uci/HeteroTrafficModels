@@ -62,7 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Simulation\TrafficNodeParams.cs" />
-    <Compile Include="TraceAnalysis\BPSWindow.cs" />
+    <Compile Include="TraceAnalysis\WindowedByteTransfer.cs" />
     <Compile Include="TraceAnalysis\BPSWindows.cs" />
     <Compile Include="TraceAnalysis\NeuralNetParams.cs" />
     <Compile Include="TraceAnalysis\PayloadProbabilities.cs" />

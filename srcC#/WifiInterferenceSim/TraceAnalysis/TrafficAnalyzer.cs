@@ -24,24 +24,27 @@ namespace WifiInterferenceSim.TraceAnalysis
         public BPSWindows BPSWindows { get { return BPSWindows; } }
         public TimeSeriesNN NeuralNetwork { get { return neuralNetwork; } }
 
-        public void AnalyzeTrace(string filename)
+        public void AnalyzeTrace(string folderBase, string filePrefix, string fileType)
         {
+            string sourceTraceFilename = String.Format("{0}{1}{2}.csv", folderBase, filePrefix, fileType);
+            string windowedFilename = String.Format("{0}{1}{2}{3}.csv", folderBase, "windowed/", filePrefix, fileType);
+
             List<double> csvTimes = new List<double>();
             List<int> csvPacketSizes = new List<int>();
 
             try
             {
-                ReadCSV(filename, csvTimes, csvPacketSizes);
+                ReadCSV(sourceTraceFilename, csvTimes, csvPacketSizes);
             }
             catch (IOException e)
             {
-                Console.WriteLine("Error reading trace: {0}", filename);
+                Console.WriteLine("Error reading trace: {0}", sourceTraceFilename);
                 Console.WriteLine(e.ToString());
             }
 
             if (csvTimes.Count == 0 || csvPacketSizes.Count == 0)
             {
-                Console.WriteLine("Error reading trace: {0}", filename);
+                Console.WriteLine("Error reading trace: {0}", sourceTraceFilename);
                 Console.WriteLine("Could not find valid CSV lines");
             }
 
@@ -66,7 +69,7 @@ namespace WifiInterferenceSim.TraceAnalysis
 
             if (neuralNetwork != null)
             {
-                neuralNetwork.Analyze(csvTimes, csvPacketSizes, minTime, maxTime);
+                neuralNetwork.Analyze(csvTimes, csvPacketSizes, minTime, maxTime, windowedFilename);
             }
         }
 

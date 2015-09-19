@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -42,10 +43,19 @@ namespace WifiInterferenceSim.TraceAnalysis
         
         public double[] TrainedWeights { get { return trainedWeights; } }
 
-        public void Analyze(List<double> csvTimes, List<int> csvPacketSizes, double minTime, double maxTime)
+        public void Analyze(List<double> csvTimes, List<int> csvPacketSizes, double minTime, double maxTime, string windowedFilenameOut)
         {
+            // Create a time series with equal width windows
+            WindowedByteTransfer windowedBytes = new WindowedByteTransfer(divisionTimeSlice);
+            windowedBytes.Analyze(csvTimes, csvPacketSizes, minTime, maxTime);
+
+            WriteCSV(windowedFilenameOut, windowedBytes.WindowedBytes);
+
+            //http://www.codeproject.com/Articles/16447/Neural-Networks-on-C
+
+            /*
             // Convert our input data into a format the neural network can use
-            double[][] nnAllData = GenerateNNInputMatrix(csvTimes, csvPacketSizes, minTime, maxTime);
+            double[][] nnAllData = GenerateNNInputMatrix(windowedBytes);
             
             // Split our data set into training and test data
             double[][] nnTrainingData;
@@ -61,15 +71,25 @@ namespace WifiInterferenceSim.TraceAnalysis
 
             Console.WriteLine("Final accuracy on training data = {0}", accuracyTrain);
             Console.WriteLine("Final accuracy on test data = {0}", accuracyTest);
+            */
+        }
+
+        private static void WriteCSV(string filename, List<double> values)
+        {
+            StreamWriter writer = new StreamWriter(filename);
+            foreach(double value in values)
+            {
+                writer.WriteLine(value);
+            }
+
+            writer.Flush();
+            writer.Close();
         }
         
-        private double[][] GenerateNNInputMatrix(List<double> csvTimes, List<int> csvPacketSizes, double minTime, double maxTime)
+        private double[][] GenerateNNInputMatrix(WindowedByteTransfer windowedBytes)
         {
-            WindowedByteTransfer bpsData = new WindowedByteTransfer(divisionTimeSlice);
-            bpsData.Analyze(csvTimes, csvPacketSizes, minTime, maxTime);
-
             int windowSize = numInput + numOutput;
-            int numRows = bpsData.WindowedBPS.Count - windowSize + 1;
+            int numRows = windowedBytes.WindowedBPS.Count - windowSize + 1;
 
             double[][] nnInput = new double[numRows][];
             for (int i = 0; i < numRows; ++i)
@@ -82,20 +102,20 @@ namespace WifiInterferenceSim.TraceAnalysis
             int windowStart = 0;
             int windowEnd = windowSize;
 
-            while (windowEnd <= bpsData.WindowedBPS.Count)
+            while (windowEnd <= windowedBytes.WindowedBPS.Count)
             {
                 double[] currentRow = nnInput[windowStart];
                 int offset = windowStart;
 
                 for (int i = 0; i < numInput; ++i)
                 {
-                    currentRow[i] = bpsData.WindowedBPS[i + offset];
+                    currentRow[i] = windowedBytes.WindowedBPS[i + offset];
                 }
 
                 offset = windowStart + numInput;
                 for (int i=0; i < numOutput; ++i)
                 {
-                    currentRow[i + numInput] = bpsData.WindowedBPS[i + offset];
+                    currentRow[i + numInput] = windowedBytes.WindowedBPS[i + offset];
                 }
 
                 windowStart += 1;

@@ -33,24 +33,8 @@ namespace WifiInterferenceSim.TraceAnalysis
             divisionTimeSlice = _divisionTimeSlice;
         }
 
-        public List<double> WindowedBytes
-        {
-            get
-            {
-                return windowedBytes;
-            }
-        }
-
-        public List<double> WindowedBPS
-        {
-            get
-            {
-                if (windowedBPS == null)
-                    GenerateBPS();
-
-                return windowedBPS;
-            }
-        }
+        public List<double> WindowedBytes { get { return windowedBytes; } }
+        public List<double> WindowedBPS { get { return windowedBPS; } }
 
         public void Analyze(List<double> csvTimes, List<int> csvPacketSizes, double minTime, double maxTime)
         {
@@ -99,9 +83,13 @@ namespace WifiInterferenceSim.TraceAnalysis
                 int packetSize = csvPacketSizes[i]; // packetsizes come in as bytes
                 int index = (int)Math.Floor((time - minTime) / divisionTimeSlice);
 
-                // If we didn't find a bin, we're probably within a small margin from the min or max
-                if (index < 0 || index >= numWindows)
+                if (index >= 0 && index < numWindows)
                 {
+                    windowedBytes[index] += packetSize;
+                }
+                else
+                {
+                    // If we didn't find a bin, we're probably within a small margin from the min or max
                     double min = timeWindows[0] - 0.001;
                     double max = timeWindows[numWindows] + 0.001;
                     double mid = (max + min) / 2.0;
