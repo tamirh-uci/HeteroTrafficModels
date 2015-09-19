@@ -65,7 +65,7 @@ namespace WifiInterferenceSim.TraceAnalysis
         
         private double[][] GenerateNNInputMatrix(List<double> csvTimes, List<int> csvPacketSizes, double minTime, double maxTime)
         {
-            BPSWindow bpsData = new BPSWindow(divisionTimeSlice);
+            WindowedByteTransfer bpsData = new WindowedByteTransfer(divisionTimeSlice);
             bpsData.Analyze(csvTimes, csvPacketSizes, minTime, maxTime);
 
             int windowSize = numInput + numOutput;
